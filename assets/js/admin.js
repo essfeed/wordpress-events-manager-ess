@@ -11,46 +11,46 @@ var ess_admin =
 	
 	set_button_actions : function()
 	{
-		$('#btAddESS').click(function()
+		jQuery('#btAddESS').click(function()
 		{
-			$('.em-warning').hide();
-			$('#add_feed_form').slideToggle();
+			jQuery('.em-warning').hide();
+			jQuery('#add_feed_form').slideToggle();
 		});
 		
-		$('#em-menu-import').click(function()
+		jQuery('#em-menu-import').click(function()
 		{
-			$('#btAddESS').show();
+			jQuery('#btAddESS').show();
 			ess_admin.hide_warning();
 		});
 		
-		$('#em-menu-export').click(function()
+		jQuery('#em-menu-export').click(function()
 		{
-			$('#btAddESS').hide();
+			jQuery('#btAddESS').hide();
 			ess_admin.hide_warning();
 			
-			if ( $('#add_feed_form').css('display') != 'none' )
-				$('#add_feed_form').slideToggle();
+			if ( jQuery('#add_feed_form').css('display') != 'none' )
+				jQuery('#add_feed_form').slideToggle();
 		});
 		
-		$('#btViewErrors').click(function()
+		jQuery('#btViewErrors').click(function()
 		{
-			$('.em-warning').slideToggle();
+			jQuery('.em-warning').slideToggle();
 		});
 	},
 	
 	blink_bt_error : function()
 	{
-		$('#btViewErrors').show();
+		jQuery('#btViewErrors').show();
 		
 		for( var i = 0 ; i < 4 ; i++ ) 
 		{
-			$('#btViewErrors').fadeTo( 'slow', 0 ).fadeTo( 'slow', 1.0 );
+			jQuery('#btViewErrors').fadeTo( 'slow', 0 ).fadeTo( 'slow', 1.0 );
 	  	}
 	},
 	
 	hide_warning : function()
 	{
-		var w = $('.em-warning');
+		var w = jQuery('.em-warning');
 		var cll =  w.attr('class');
 		
 		if (cll==undefined) return;
@@ -68,37 +68,37 @@ var ess_admin =
 	
 	set_radio_buttons : function()
 	{
-		$('#ess_mode').toggles({
+		jQuery('#ess_mode').toggles({
 	    	clickable	: true,
 	        dragable	: true,
 	        click		: undefined,
-	        on			: !$('#ess_mode').hasClass('off'),
-	        checkbox	: ($('#ess_mode').data('checkbox')) ? $('.'+$('#ess_mode').data('checkbox')) : undefined,
-	        ontext		: $('#ess_mode').data('ontext'),
-	        offtext		: $('#ess_mode').data('offtext')
+	        on			: !jQuery('#ess_mode').hasClass('off'),
+	        checkbox	: (jQuery('#ess_mode').data('checkbox')) ? jQuery('.'+jQuery('#ess_mode').data('checkbox')) : undefined,
+	        ontext		: jQuery('#ess_mode').data('ontext'),
+	        offtext		: jQuery('#ess_mode').data('offtext')
 	    });
-	    $('.'+$('#ess_mode').data('checkbox')).hide();
+	    jQuery('.'+jQuery('#ess_mode').data('checkbox')).hide();
 	    
-		$('.toggle').each(function() 
+		jQuery('.toggle').each(function() 
 		{
-			var el =  $(this);
+			var el =  jQuery(this);
 		    el.toggles({
 		    	clickable	: true,
 		        dragable	: true,
 		        click		: undefined,
 		        on			: !el.hasClass('off'),
-		        checkbox	: (el.data('checkbox')) ? $('.'+el.data('checkbox')) : undefined,
+		        checkbox	: (el.data('checkbox')) ? jQuery('.'+el.data('checkbox')) : undefined,
 		        ontext		: el.data('ontext') || 'ON',
 		        offtext		: el.data('offtext') || 'OFF'
 		    });
-		    $('.'+el.data('checkbox')).hide();
+		    jQuery('.'+el.data('checkbox')).hide();
 		});
 	},
 	
 	handle_owner_block : function()
 	{
-		$('#ess_owner_activate-div').click(function(){
-	    	$('#block_owner').css({'opacity':($('.ess_owner_activate-checkbox').attr('checked')!=undefined)?1:0.3});
+		jQuery('#ess_owner_activate-div').click(function(){
+	    	jQuery('#block_owner').css({'opacity':(jQuery('.ess_owner_activate-checkbox').attr('checked')!=undefined)?1:0.3});
 	    });
 	},
 	
@@ -110,23 +110,23 @@ var ess_admin =
 		{
 			var nav_tab = navUrl.split('#')[1].split(':');
 				
-			$('a#em-menu-' + ((nav_tab=='import')?'import':'export') ).trigger('click');
+			jQuery('a#em-menu-' + ((nav_tab=='import')?'import':'export') ).trigger('click');
 			
 		}
 	},
 	
 	handle_timezone : function() 
 	{
-		$('#timezone-image').timezonePicker({
+		jQuery('#timezone-image').timezonePicker({
 			target		: '#edit-date-default-timezone',
-			timezone	: $('#edit-date-default-timezone').val(),
+			timezone	: jQuery('#edit-date-default-timezone').val(),
 			pin			: '.timezone-pin'
 		});
 		
-		$('#edit-date-default-timezone').css({opacity:0});
+		jQuery('#edit-date-default-timezone').css({opacity:0});
 		
-		$('#timezone-detect').click(function() {
-			$('#timezone-image').timezonePicker('detectLocation');
+		jQuery('#timezone-detect').click(function() {
+			jQuery('#timezone-image').timezonePicker('detectLocation');
 			
 		});
    },
@@ -135,8 +135,18 @@ var ess_admin =
 	{
 		if ( el.val() != 'http://' )
 			el.select();
+	},
+	
+	loader : function()
+	{
+		jQuery('#ess_loader').show();
+	},
+	
+	set_event_id : function( event_id )
+	{
+		jQuery('#selected_event_id').val( event_id );
 	}
 	
 };
 
-$(document).ready(function() { ess_admin.init();});
+jQuery(document).ready(function() { ess_admin.init();});

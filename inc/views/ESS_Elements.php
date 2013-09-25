@@ -101,7 +101,7 @@ final class ESS_Elements
 		</div> 
 		<input 
 			<?php if(isset($DATA_['onchecked'])||isset($DATA_['onunchecked'])) : ?>
-				onchange = "if($(this).is(':checked')){<?php echo $DATA_['onchecked'];?>}else{<?php echo $DATA_['onunchecked']; ?>};"
+				onchange = "if(jQuery(this).is(':checked')){<?php echo $DATA_['onchecked'];?>}else{<?php echo $DATA_['onunchecked']; ?>};"
 			<?php endif; ?>	
 			type	= "checkbox"
 			class	= "<?php echo $DATA_['id']; ?>-checkbox input-checkbox" 

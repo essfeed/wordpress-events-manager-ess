@@ -141,7 +141,7 @@ final class ESS_Control_admin
 			ESS_Database::set_option( 'ess_owner_zip', 				$_REQUEST['ess_owner_zip'] 			);
 			ESS_Database::set_option( 'ess_owner_state', 			$_REQUEST['ess_owner_state'] 		);
 			ESS_Database::set_option( 'ess_owner_country', 			$_REQUEST['ess_owner_country'] 		);
-			ESS_Database::set_option( 'ess_owner_website', 			$_REQUEST['ess_owner_website'] 		);
+			ESS_Database::set_option( 'ess_owner_website', 			self::url( $_REQUEST['ess_owner_website'] ) );
 			ESS_Database::set_option( 'ess_owner_phone', 			$_REQUEST['ess_owner_phone'] 		);
 		
 		// -- Social Platforms
@@ -187,5 +187,9 @@ final class ESS_Control_admin
 			$_REQUEST['ess_feed_url'] != ESS_IO::HTTP 
 		)? true : false );
 	}
-		
+	
+	private static function url( $url ) 
+	{
+		return preg_replace( '/[^A-Za-z0-9\.\_\-\:\/\&\?\%\=\*\#\;\(\)\]\[\}\{]/', '', urldecode( $url ) );
+	} 
 }

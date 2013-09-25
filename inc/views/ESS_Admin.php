@@ -22,9 +22,10 @@ final class ESS_Admin
 		ESS_Control_admin::control_nav_actions();
 		ESS_Control_admin::control_export_forms();
 		
+		wp_enqueue_script('jquery');
+		
 		?><style  type="text/css" 	 	charset="utf-8"><?php include( EM_ESS_DIR.'/assets/css/admin.css'); ?></style>
 		<script type="text/javascript" 	charset="utf-8"><?php include( EM_DIR.'/includes/js/admin-settings.js'); ?></script>
-		<script type="text/javascript" 	charset="utf-8"><?php include( EM_ESS_DIR.'/assets/js/jquery-2.0.3.min.js'); ?></script>
 		<script type="text/javascript" 	charset="utf-8"><?php include( EM_ESS_DIR.'/assets/js/jquery.toggles.min.js'); ?></script>
 		<script type="text/javascript" 	charset="utf-8"><?php include( EM_ESS_DIR.'/assets/js/jquery.maphilight.js'); ?></script>
 		<script type="text/javascript" 	charset="utf-8"><?php include( EM_ESS_DIR.'/assets/js/jquery.timezone-picker.js'); ?></script>
@@ -41,7 +42,7 @@ final class ESS_Admin
 				<a id="btAddESS" class="add-new-h2" title="<?php _e('Import an ESS Feed','dbem'); ?>" style="display:none;">+</a>
 				<a id="btViewErrors" class="add-new-h2" title="<?php _e('View Previous Errors','dbem'); ?>" style="display:none;"><?php _e('errors','dbem'); ?></a>
 			</h2>
-			<form id="em-options-form" method="post"  enctype='multipart/form-data' target="_self" onsubmit="$('#ess_loader').show();">
+			<form id="em-options-form" method="post"  enctype='multipart/form-data' target="_self" onsubmit="ess_admin.loader();">
 				
 				<?php echo $ESS_Notices; ?>
 				
@@ -67,7 +68,7 @@ final class ESS_Admin
 				//"You can specify if the events aggregated have to be updated daily (to always have the latest information coming from the original websites)."
 			);?>
 			<div id="titlediv">
-				<input type="text" id="title" name="ess_feed_url" autocomplete="off" value="<?php echo ((isset($_REQUEST['ess_feed_url'])&&@$ESS_Notices->get_errors()>0)? $_REQUEST['ess_feed_url']:ESS_IO::HTTP); ?>" onclick="ess_admin.control_ess_import_field($(this));" />
+				<input type="text" id="title" name="ess_feed_url" autocomplete="off" value="<?php echo ((isset($_REQUEST['ess_feed_url'])&&@$ESS_Notices->get_errors()>0)? $_REQUEST['ess_feed_url']:ESS_IO::HTTP); ?>" onclick="ess_admin.control_ess_import_field(jQuery(this));" />
 				<div class="iphone <?php echo( ( $_REQUEST['ess_feed_mode'] == 'on' )? 'on' : 'off' );?>" id="ess_mode" data-checkbox="ess_feed_mode_checkbox" data-ontext="<?php _e('Update Daily','dbem'); ?>" data-offtext="<?php _e('Import Once','dbem'); ?>"><?php _e('Update Daily','dbem'); ?></div>
 				<input type="checkbox" class="ess_feed_mode_checkbox" id="ess_feed_mode" name="ess_feed_mode" <?php echo( ( $_REQUEST['ess_feed_mode'] == 'on' )? "checked='checked'" : '' );?> />
 				<input type="submit" value="<?php _e('ADD','dbem'); ?>" class="button-primary" id="bt_add_feed" />
@@ -176,7 +177,7 @@ final class ESS_Admin
 								<a><?php echo $owner; ?></a>	
 							</td>
 							<td>
-								<button title="<?php _e( "Reload the feed content to reimport it.", 'dbem' );?>" onmousedown="$('#selected_event_id').val('<?php echo $feed->feed_id; ?>');" class="button-primary reload_box" name="update_once" value="<?php echo urlencode( $feed->feed_url );?>" style="background-image:url('<?php echo EM_ESS_URL;?>/assets/img/reload_icon_24x24.png');background-position:7px 2px;background-repeat:no-repeat;"></button>
+								<button title="<?php _e( "Reload the feed content to reimport it.", 'dbem' );?>" onmousedown="ess_admin.set_event_id('<?php echo $feed->feed_id; ?>');" class="button-primary reload_box" name="update_once" value="<?php echo urlencode( $feed->feed_url );?>" style="background-image:url('<?php echo EM_ESS_URL;?>/assets/img/reload_icon_24x24.png');background-position:7px 2px;background-repeat:no-repeat;"></button>
 							</td>
 							<td>
 								<?php ESS_Elements::button_checkbox( array( 
@@ -184,8 +185,8 @@ final class ESS_Admin
 									'on'			=> __( 'ON',  'dbem' ), 
 									'off'			=> __( 'OFF', 'dbem' ), 
 									'id'			=> 'feed_mode_'.$feed->feed_id,
-									'onchecked'		=> "$('#cb-select-".$feed->feed_id."').prop('checked',true);",
-									'onunchecked'	=> "$('#cb-select-".$feed->feed_id."').prop('checked',true);"
+									'onchecked'		=> "jQuery('#cb-select-".$feed->feed_id."').prop('checked',true);",
+									'onunchecked'	=> "jQuery('#cb-select-".$feed->feed_id."').prop('checked',true);"
 								) );?>
 							</td>
 							<td>
