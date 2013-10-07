@@ -34,6 +34,9 @@ if ( !defined( 'EM_ESS_VERSION_KEY'	) ) define( 'EM_ESS_VERSION_KEY','ess_versio
 add_option( EM_ESS_VERSION_KEY, EM_ESS_VERSION );
 add_action( 'plugins_loaded', array( 'EM_ESS', 'init' ) );
 
+require_once( EM_ESS_DIR . "/inc/models/ESS_Database.php" );
+require_once( EM_ESS_DIR . "/inc/models/ESS_IO.php" );
+
 final class EM_ESS
 {
 	protected static $instance;
@@ -66,66 +69,8 @@ final class EM_ESS
         return self::$instance;
 	}
 	
-	
-	
-	public static function set_activation() 
-	{
-		flush_rewrite_rules();
-		
-		if ( !current_user_can( 'activate_plugins' ) )
-            return;
-		
-        $plugin = isset( $_REQUEST[ 'plugin' ] ) ? $_REQUEST[ 'plugin' ] : self::EM_ESS;
-        check_admin_referer( "activate-plugin_{$plugin}" );
-		
-		if ( !EM_MS_GLOBAL || ( EM_MS_GLOBAL && is_main_blog() ) )
-		{
-			require_once( EM_ESS_DIR . "/inc/models/ESS_Database.php" );
-			ESS_Database::createTable();
-		}
-		
-		// -- Set Schedule Hook (CRON tasks)
-		require_once( EM_ESS_DIR . "/inc/models/ESS_IO.php" );
-		ESS_IO::set_activatoin_schedule();
-	}
-	
-	public static function set_deactivation()
-	{
-		if ( !current_user_can( 'activate_plugins' ) )
-        	return;
-		
-        $plugin = isset( $_REQUEST[ 'plugin' ] ) ? $_REQUEST[ 'plugin' ] : self::EM_ESS;
-        check_admin_referer( "deactivate-plugin_{$plugin}" );
-		
-		// DEBUG: remove DB while desactivating the plugin
-		//if( !EM_MS_GLOBAL || (EM_MS_GLOBAL && is_main_blog()) )
-		//	ESS_Database::deteteTable();
-		
-		// -- Remove Schedule Hook (CRON tasks)
-		ESS_IO::set_deactivation_schedule();
-	}
-	
-	public static function set_uninstall()
-    {
-        if ( ! current_user_can( 'activate_plugins' ) )
-            return;
-		
-        check_admin_referer( 'bulk-plugins' );
-		
-		if( !EM_MS_GLOBAL || (EM_MS_GLOBAL && is_main_blog()) )
-			ESS_Database::deteteTable();
-		
-        // Important: Check if the file is the one
-        // that was registered during the uninstall hook.
-        if ( __FILE__ != WP_UNINSTALL_PLUGIN )
-            return;
-		
-		// -- Remove Schedule Hook (CRON tasks)
-		ESS_IO::set_deactivation_schedule();
-    }
-	
 }
 
-register_activation_hook( 	__FILE__, 	array( 'EM_ESS', 'set_activation' 	) );
-register_deactivation_hook( __FILE__, 	array( 'EM_ESS', 'set_deactivation' ) );
-register_uninstall_hook(    __FILE__, 	array( 'EM_ESS', 'set_uninstall' 	) );
+register_activation_hook( 	__FILE__, 	array( 'ESS_IO', 'set_activation' 	) );
+register_deactivation_hook( __FILE__, 	array( 'ESS_IO', 'set_deactivation' ) );
+register_uninstall_hook(    __FILE__, 	array( 'ESS_IO', 'set_uninstall' 	) );

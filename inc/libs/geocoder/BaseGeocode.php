@@ -40,6 +40,8 @@ abstract class BaseGeocode
 	 * @access protected
 	 */
 	protected $earthRadius;
+	const EARTH_RADIUS_ML = 3963.1676; //  EARTH_RADIUS_ML*1.609344 
+	const EARTH_RADIUS_KM = 6371;
 
 	/**
 	 * Basic public constructor which accepts an API key.
@@ -51,7 +53,7 @@ abstract class BaseGeocode
 	public function __construct( $key ) {
 		//Default to default unit of miles
 		//by providing the earth radius in miles
-		$this->setEarthRadius( 3963.1676 );
+		$this->setEarthRadius( self::EARTH_RADIUS_ML );
 		$this->setKey( $key );
 	}
 
@@ -222,6 +224,75 @@ abstract class BaseGeocode
 	{
 		return $this->haversinDistance( $lat1, $long1, $lat2, $long2 );
 	}
+	
+	/**
+	 * Find the WGS84 bounding box between a latitude and longitude coordinates
+	 * Where the latitude and the longitude coordinates are in decimal degrees format.
+	 * And a distance in miles
+	 *
+	 * @param float $lat The coordinate's latitude
+	 * @param float $lng The coordinate's longitude
+	 * @return float The distance in miles from the lat/lng coordinate.
+	 * @access public
+	 * @link http://stackoverflow.com/questions/2628039/php-library-calculate-a-bounding-box-for-a-given-lat-lng-location
+	 */
+	public static function getBoundingBox($lat_degrees,$lon_degrees,$distance_in_miles) 
+	{
+		$radius = self::EARTH_RADIUS_ML; // of earth in miles
+	
+	    // bearings - FIX   
+	    $due_north 	= deg2rad(0);
+	    $due_south 	= deg2rad(180);
+	    $due_east 	= deg2rad(90);
+	    $due_west 	= deg2rad(270);
+	
+	    // convert latitude and longitude into radians 
+	    $lat_r = deg2rad($lat_degrees);
+	    $lon_r = deg2rad($lon_degrees);
+	
+	    // find the northmost, southmost, eastmost and westmost corners $distance_in_miles away
+	    // original formula from
+	    // http://www.movable-type.co.uk/scripts/latlong.html
+	
+	    $northmost  = asin(sin($lat_r) * cos($distance_in_miles/$radius) + cos($lat_r) * sin ($distance_in_miles/$radius) * cos($due_north));
+	    $southmost  = asin(sin($lat_r) * cos($distance_in_miles/$radius) + cos($lat_r) * sin ($distance_in_miles/$radius) * cos($due_south));
+	
+	    $eastmost 	= $lon_r + atan2(sin($due_east)*sin($distance_in_miles/$radius)*cos($lat_r),cos($distance_in_miles/$radius)-sin($lat_r)*sin($lat_r));
+	    $westmost 	= $lon_r + atan2(sin($due_west)*sin($distance_in_miles/$radius)*cos($lat_r),cos($distance_in_miles/$radius)-sin($lat_r)*sin($lat_r));
+	
+	
+	    $northmost 	= rad2deg($northmost);
+	    $southmost 	= rad2deg($southmost);
+	    $eastmost 	= rad2deg($eastmost);
+	    $westmost 	= rad2deg($westmost);
+	
+	    // sort the lat and long so that we can use them for a between query        
+	    if ( $northmost > $southmost ) 
+	    { 
+	        $lat1 = $southmost;
+	        $lat2 = $northmost;
+	
+	    } 
+	    else 
+	    {
+	        $lat1 = $northmost;
+	        $lat2 = $southmost;
+	    }
+	
+	
+	    if ( $eastmost > $westmost ) 
+	    { 
+	        $lon1 = $westmost;
+	        $lon2 = $eastmost;
+	
+	    } 
+	    else 
+	    {
+	        $lon1 = $eastmost;
+	        $lon2 = $westmost;
+	    }
+	
+	    return array( $lat1, $lat2, $lon1, $lon2 );
+	}
+	
 }
-
-?>

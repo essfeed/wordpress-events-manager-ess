@@ -79,6 +79,9 @@ final class ESS_Database
 	{
 		self::init();
 		
+		if ( @count( self::$wpdb->get_results( "SHOW TABLES LIKE '".self::$table."';" ) ) >= 1 )
+			return;
+		
 		$sql = "CREATE TABLE " . self::$table . " (
 			feed_id 		bigint( 20 ) 	UNSIGNED 									NOT NULL AUTO_INCREMENT,
 			feed_owner	 	bigint( 20 ) 	UNSIGNED 									NOT NULL,
@@ -338,8 +341,6 @@ final class ESS_Database
 	public static function update_feeds_daily() 
 	{
 		$feeds_ = self::get( array( 'feed_mode' => self::FEED_MODE_CRON ) );
-		
-		mail( 'brice@peach.fr', 'Wordpress CRON Update', @count( $feeds_ ).' feeds have been updated' );
 		
 		if ( @count( $feeds_ ) > 0 )
 		{

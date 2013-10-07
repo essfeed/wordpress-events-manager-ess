@@ -42,13 +42,15 @@ final class ESS_IO
 			add_action( 'admin_menu', 				array( 'ESS_IO', 		'set_admin_submenu_page' 	) );
 			add_action( 'daily_event_hook', 		array( 'ESS_Database', 	'update_feeds_daily' 		) );
 			
+			add_filter( 'em_deactivate', 			array( 'EM_ESS', 		'set_deactivation' 			) );
+			
 			self::set_save_filter( true );
 		}
 	}
 
-	public static function set_save_filter( $is_active=true )
+	public static function set_save_filter( $activate=true )
 	{
-		if ( $is_active == true )
+		if ( $activate == true )
 		{
 			if ( get_option( 'ess_feed_push', true ) )
 				add_filter( 'em_event_save', array( 'ESS_IO', 'set_event_saved_filter' ) );
@@ -60,12 +62,67 @@ final class ESS_IO
 		}
 	}
 	
-	public static function set_activation_schedule() 
+	
+	public static function set_activation() 
+	{
+		flush_rewrite_rules();
+		
+		if ( !current_user_can( 'activate_plugins' ) )
+            return;
+		
+        $plugin = isset( $_REQUEST[ 'plugin' ] ) ? $_REQUEST[ 'plugin' ] : EM_ESS::NAME;
+        check_admin_referer( "activate-plugin_{$plugin}" );
+		
+		if ( !EM_MS_GLOBAL || ( EM_MS_GLOBAL && is_main_blog() ) )
+			ESS_Database::createTable();
+		
+		// -- Set Schedule Hook (CRON tasks)
+		self::set_activation_schedule();
+	}
+	
+	public static function set_deactivation()
+	{
+		if ( !current_user_can( 'activate_plugins' ) )
+        	return;
+		
+        $plugin = isset( $_REQUEST[ 'plugin' ] ) ? $_REQUEST[ 'plugin' ] : EM_ESS::NAME;
+        check_admin_referer( "deactivate-plugin_{$plugin}" );
+		
+		// DEBUG: remove DB while desactivating the plugin
+		//if( !EM_MS_GLOBAL || (EM_MS_GLOBAL && is_main_blog()) )
+		//	ESS_Database::deteteTable();
+		
+		// -- Remove Schedule Hook (CRON tasks)
+		self::set_deactivation_schedule();
+	}
+	
+	public static function set_uninstall()
+    {
+        if ( ! current_user_can( 'activate_plugins' ) )
+            return;
+		
+        check_admin_referer( 'bulk-plugins' );
+		
+		if( !EM_MS_GLOBAL || (EM_MS_GLOBAL && is_main_blog()) )
+			ESS_Database::deteteTable();
+		
+        // Important: Check if the file is the one
+        // that was registered during the uninstall hook.
+        if ( __FILE__ != WP_UNINSTALL_PLUGIN )
+            return;
+		
+		// -- Remove Schedule Hook (CRON tasks)
+		self::set_deactivation_schedule();
+    }
+	
+	
+	
+	private static function set_activation_schedule() 
 	{
 		wp_schedule_event( current_time( 'timestamp' ), 'daily', 'daily_event_hook' );
 	}
 
-	public static function set_deactivation_schedule() 
+	private static function set_deactivation_schedule() 
 	{
 		wp_clear_scheduled_hook( 'daily_event_hook' );
 	}
