@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/!svn/ver/783947/events-manager-ess/trunk/inc/libs/geocoder
+END
+BaseGeocode.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/783947/events-manager-ess/trunk/inc/libs/geocoder/BaseGeocode.php
+END
+GoogleGeocode.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/!svn/ver/783947/events-manager-ess/trunk/inc/libs/geocoder/GoogleGeocode.php
+END
