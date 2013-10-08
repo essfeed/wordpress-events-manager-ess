@@ -1,7 +1,7 @@
 K 25
 svn:wc:ra_dav:version-url
 V 52
-/!svn/ver/783947/events-manager-ess/trunk/inc/models
+/!svn/ver/784470/events-manager-ess/trunk/inc/models
 END
 ESS_Sounds.php
 K 25
@@ -13,7 +13,7 @@ ESS_IO.php
 K 25
 svn:wc:ra_dav:version-url
 V 63
-/!svn/ver/784432/events-manager-ess/trunk/inc/models/ESS_IO.php
+/!svn/ver/784470/events-manager-ess/trunk/inc/models/ESS_IO.php
 END
 ESS_Notices.php
 K 25

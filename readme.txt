@@ -69,6 +69,10 @@ Once installed, you can start adding events straight away and broadcat them to t
 1. When upgrading, visit the plugins page in your admin area, scroll down to events manager and click upgrade.
 2. Wordpress will help you upgrade automatically.
 
+== FAQ ==
+You'll find the bug tracking in: [github.com issues](https://github.com/essfeed/wordpress-events-manager-ess/issues)
+
+
 
 == Screenshots ==
 
@@ -84,7 +88,8 @@ Once installed, you can start adding events straight away and broadcat them to t
 
 = 0.4 =
 * combine GitHub repository with Worpress SVN
-* add banner to wordpress home page
+* add banner in Wordpress home page
+* add FAQ in GitHub: https://github.com/essfeed/wordpress-events-manager-ess/issues
 
 = 0.3 =
 * add HTTP Request alternative to cURL to push events to search engines

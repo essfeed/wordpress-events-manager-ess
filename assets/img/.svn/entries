@@ -1,14 +1,14 @@
 9
 
 dir
-784025
+784889
 http://plugins.svn.wordpress.org/events-manager-ess/trunk/assets/img
 http://plugins.svn.wordpress.org
 
 
 
-2013-10-07T11:17:28.252943Z
-783947
+2013-10-08T09:47:17.639872Z
+784432
 essfeed
 
 
@@ -162,33 +162,9 @@ has-props
 
 7579
 
-map_pin.png
-file
-784432
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-deleted
-
 map_pin_7x7.png
 file
-784432
+
 
 
 
@@ -219,30 +195,6 @@ has-props
 
 
 173
-
-pin.png
-file
-784432
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-deleted
 
 reload_icon_24x24.png
 file

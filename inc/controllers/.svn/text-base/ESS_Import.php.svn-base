@@ -164,6 +164,7 @@ final class ESS_Import
 				{
 					// -- temporarly remove the save listener to prevent multi-push to search engines
 					ESS_IO::set_save_filter( FALSE );
+
 					
 					$EM_Location 	= NULL;
 					$EM_Categories 	= NULL;
@@ -283,7 +284,7 @@ final class ESS_Import
 								$EM_Tickets->tickets[] = $EM_Ticket;
 							}
 						}
-							
+			
 						$EM_Event->event_rsvp 		= TRUE;
 						$EM_Event->event_rsvp_date 	= $ticket_data['event_rsvp_date'];
 						$EM_Event->event_rsvp_time 	= $ticket_data['event_rsvp_time'];
@@ -428,6 +429,7 @@ final class ESS_Import
 					
 					// == SAVE EVENT ======
 					$res = $EM_Event->save();
+					
 					//var_dump( $res ); // return FALSE if two functions are not updated in EM_Events()
 					
 					//echo "event post id: ". $EM_Event->post_id ."<br/>";
@@ -564,7 +566,7 @@ final class ESS_Import
 						{
 							$EM_Categories->blog_id  = $blog_id;
 							$EM_Categories->event_id = $EM_Event->event_id;
-						
+							
 							if ( $EM_Categories->save() === FALSE )
 								$ESS_Notices->add_error( $EM_Categories->get_errors() );
 						} // end assign event to categories
@@ -633,7 +635,7 @@ final class ESS_Import
 		$fp = @fopen( $feed_url, 'r', FALSE, stream_context_create(array('http'=>array('timeout'=>$timeout_sec,'method'=>"GET"))));
 		set_time_limit( $timeout_sec ); 
 		
-		if ( $fp !== FALSE ) 
+		if ( $fp !== FALSE )
 		{
 			try { $ess = simplexml_load_file( urlencode( $feed_url ), "SimpleXMLElement", LIBXML_NOCDATA ); }
 			catch( ErrorException $e )
@@ -1172,6 +1174,7 @@ final class ESS_Import
 					//var_dump( $response );
 					
 					$ESS_Notices->add_error( $response );
+					
 					return FALSE;
 				}
 				return TRUE;

@@ -270,8 +270,8 @@ final class ESS_IO
 				if ( $result == FALSE )
 				{
 					global $ESS_Notices;
-					$ESS_Notices->add_error( 
-						__( "PHP cURL must be installed on your server or PHP parameter 'allow_url_fopen' must be set to TRUE: ", 'dbem' ) .
+					$ESS_Notices->add_error(
+						__( "PHP cURL must be installed on your server or PHP parameter 'allow_url_fopen' must be set to TRUE: ", 'dbem' ).
 						ESS_Elements::get_curl_lib_link()
 					);
 				}
@@ -301,5 +301,4 @@ final class ESS_IO
 		}
 		return FALSE;
 	}
-	
 }
