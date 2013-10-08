@@ -1,6 +1,7 @@
 === Events Manager ESS ===
 Contributors: netweblogic, essfeed
 Donate link: http://essfeed.org
+<<<<<<< HEAD
 Tags: events, event, event registration, event calendar, events calendar, event management, feed, syndication, locations, maps, booking, calendar,happenings, concerts, meetings, festivals, feeds syndication, RSS, Atom, event publishers, XML, Aggregator, crawling, broadcast, Schedule, SEO, booking, places, venue, upcoming, diary, ical, icalendar, organizer, planner
 Requires at least: 0.3
 Stable tag: 0.3
@@ -22,6 +23,25 @@ This plugin add several crucial SEO optimisation for Events Manager
 
 
 * [ESS Documentation](http://essfeed.org)
+=======
+Tags: events, event, event registration, event calendar, events calendar, event management, feed, syndication, locations, maps, booking, attendance, attendee, calendar,Happenings, Concerts, Meetings, Festivals, Feeds Syndication, Standard, Protocol, RSS, Atom, Event Publishers, Open-Source, XML, Aggregator, News Aggregator, Crawling, Broadcast, Automatization, Calendar, Schedule, Time Availability,booking, Dates, Prices, Places, Venue, Upcoming, Diary, ical, icalendar, Organizer, Planner,
+Requires at least: 0.2
+Stable tag: 0.2
+
+Fully featured event registration management including recurring events, locations management, calendar, Google map integration, booking management
+
+== Description ==
+ESS stands for Event Standard Syndication. It is The Events Feed.
+Events Manager is a full-featured event registration plugin for WordPress.
+
+# ESS Extension gives the ability to import and export ESS feeds to facilitate SEO and event's broadcast
+# ESS standard is a new free and open-source XML feed invented exclusively for events.
+# ESS Feeds can be published from add-ons in most CMS or with simple code libraries.
+# ESS federates provider’s events into one feed that can be updated everywhere in real-time.
+
+* [Plugin](http://wordpress.org/plugins/events-manager/)
+* [Documentation](http://essfeed.org)
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 * [Github](https://github.com/essfeed/wordpress-events-manager-ess)
 
 
@@ -37,7 +57,12 @@ This plugin add several crucial SEO optimisation for Events Manager
 
 * ESS increases Traffic event portal.
 * ESS structures and organizes crucial event information so it can be broadcast clearly.
+<<<<<<< HEAD
 * ESS prevents the duplication of content by centralizing the information on website.
+=======
+* ESS Feeds target a new market that accesses events through mobile apps, web agendas and maps.
+* ESS prevents the duplication of content by centralizing the information on the publisher’s website.
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 * ESS opens the door for the automatic transmission of event information all over the web.
 * ESS reduces the cost of event promotion thanks to centralization and automatization.
 * With ESS, event information is not distorted or lost amid an abundance of text as it is by RSS and iCalendar Feeds.
@@ -51,10 +76,15 @@ Whenever installing or upgrading any plugin, or even Wordpress itself, it is alw
 
 = Installing =
 
+<<<<<<< HEAD
 1. Go to Plugins > Add New in the admin area, and search for events manager ess.
   * [Events Manager](http://wordpress.org/plugins/events-manager/)
   * [Events Manager ESS](http://wordpress.org/plugins/events-manager-ess/)
 2. Click install, once installed, activate them and you're done!
+=======
+1. If installing, go to Plugins > Add New in the admin area, and search for events manager ess.
+2. Click install, once installed, activate and you're done!
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 
 Once installed, you can start adding events straight away.
 

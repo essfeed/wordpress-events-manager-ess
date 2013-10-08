@@ -23,11 +23,19 @@ final class FeedWriter
 	const CHARSET			= 'UTF-8';	// Defines the encoding Chartset for the whole document and the value inserted.
 	public $lang			= 'en';		// Default 2 chars language (ISO 3166-1).
 	
+<<<<<<< HEAD
 	public $DEBUG			= FALSE;	// output debug information.
 	public $AUTO_PUSH		= TRUE;		// Defines feed changes have to be submited to ESS Aggregators.
 	public $IS_DOWNLOAD		= FALSE;	// Defines if the feed is to be downloaded (with Header: application/ess+xml).
 	const EMAIL_UP_TO_DATE	= TRUE;		// Defines if an email is sent to system administrator if the version is not up-to-date.
 	const REPLACE_ACCENT	= FALSE;	// if some problems occured durring encoding/decoding the data into UTF8, this parameter set to TRUE force the replacement of åççéñts by accents.
+=======
+	public $DEBUG			= false;	// output debug information.
+	public $AUTO_PUSH		= true; 	// Defines feed changes have to be submited to ESS Aggregators.
+	public $IS_DOWNLOAD		= false;	// Defines if the feed is to be downloaded (with Header: application/ess+xml).
+	const EMAIL_UP_TO_DATE	= true;		// Defines if an email is sent to system administrator if the version is not up-to-date.
+	const REPLACE_ACCENT	= false;	// if some problems occured durring encoding/decoding the data into UTF8, this parameter set to true force the replacement of åççéñts by accents.
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 	
 	private $channel 		= array();  // Collection of Channel elements.
 	private $items			= array();  // Collection of items as object of FeedItem class.					
@@ -66,12 +74,21 @@ final class FeedWriter
 				{
 					switch ( $key ) 
 					{
+<<<<<<< HEAD
 						case 'title':		$this->setTitle( 	  $el ); if ( $channelDTD[ $key ] == TRUE ) $mandatoryCount++; break;
 						case 'link':		$this->setLink(  	  $el ); if ( $channelDTD[ $key ] == TRUE ) $mandatoryCount++;$mandatoryCount++; break; // + element ID
 						case 'published':	$this->setPublished(  $el ); if ( $channelDTD[ $key ] == TRUE ) $mandatoryCount++; break;
 						case 'updated':		$this->setUpdated(    $el ); if ( $channelDTD[ $key ] == TRUE ) $mandatoryCount++; break;
 						case 'generator':	$this->setGenerator(  $el ); if ( $channelDTD[ $key ] == TRUE ) $mandatoryCount++; break;
 						case 'rights':		$this->setRights(     $el ); if ( $channelDTD[ $key ] == TRUE ) $mandatoryCount++; break;
+=======
+						case 'title':		$this->setTitle( 	  $el ); if ( $channelDTD[ $key ] == true ) $mandatoryCount++; break;
+						case 'link':		$this->setLink(  	  $el ); if ( $channelDTD[ $key ] == true ) $mandatoryCount++;$mandatoryCount++; break; // + element ID
+						case 'published':	$this->setPublished(  $el ); if ( $channelDTD[ $key ] == true ) $mandatoryCount++; break;
+						case 'updated':		$this->setUpdated(    $el ); if ( $channelDTD[ $key ] == true ) $mandatoryCount++; break;
+						case 'generator':	$this->setGenerator(  $el ); if ( $channelDTD[ $key ] == true ) $mandatoryCount++; break;
+						case 'rights':		$this->setRights(     $el ); if ( $channelDTD[ $key ] == true ) $mandatoryCount++; break;
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 						
 						default: throw new Exception("Error: XML Channel element < ".$key." > is not defined within ESS DTD." ); break;
 					}
@@ -79,7 +96,11 @@ final class FeedWriter
 				
 				foreach ( $channelDTD as $kk => $val ) 
 				{
+<<<<<<< HEAD
 					if ( $val == TRUE && $kk != 'feed' ) 
+=======
+					if ( $val == true && $kk != 'feed' ) 
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 						$mandatoryRequiredCount++;
 				}
 				
@@ -88,7 +109,11 @@ final class FeedWriter
 					$out = '';
 					foreach ( $channelDTD as $key => $m) 
 					{
+<<<<<<< HEAD
 						if ( $m == TRUE ) 
+=======
+						if ( $m == true ) 
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 							$out .= "< $key >, ";
 					}
 					throw new Exception( "Error: All XML Channel's mandatory elements are required: ". $out );
@@ -130,11 +155,19 @@ final class FeedWriter
 	 * @access 	public
 	 * @return 	void
 	 */ 
+<<<<<<< HEAD
 	public function genarateFeed( $filePath='', $displayResult=TRUE )
 	{
 		@mb_internal_encoding( self::CHARSET );
 		
 		if ( $this->DEBUG == FALSE && $displayResult == TRUE )
+=======
+	public function genarateFeed( $filePath='', $displayResult=true )
+	{
+		@mb_internal_encoding( self::CHARSET );
+		
+		if ( $this->DEBUG == false && $displayResult == true )
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 		{
 			ob_end_clean();
 			header_remove();
@@ -150,10 +183,17 @@ final class FeedWriter
 		
 		$feedData = $this->getFeedData();
 		
+<<<<<<< HEAD
 		if ( FeedValidator::isNull( $filePath ) == FALSE && $this->DEBUG == FALSE )
 			$this->genarateFeedFile( $filePath, $feedData );
 		
 		if ( $displayResult == TRUE )
+=======
+		if ( FeedValidator::isNull( $filePath ) == false && $this->DEBUG == false )
+			$this->genarateFeedFile( $filePath, $feedData );
+		
+		if ( $displayResult == true )
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 			echo $feedData;
 		else 
 			return $feedData;
@@ -175,7 +215,11 @@ final class FeedWriter
 		{
 			$fp = fopen( $filePath, 'w' );
 			
+<<<<<<< HEAD
 			if ( $fp !== FALSE )
+=======
+			if ( $fp !== false )
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 			{
 				fwrite( $fp, ( ( $feedData != null )? $feedData : $this->getFeedData() ) );
 				fclose( $fp );
@@ -222,12 +266,21 @@ final class FeedWriter
 		{
 			if ( @count( $arr_ ) > 0 )
 			{
+<<<<<<< HEAD
 				if ( FeedValidator::isNull( 	 @$arr_['title'] 		) == FALSE ) { $newEvent->setTitle( 		$arr_['title'] 			); }
 				if ( FeedValidator::isNull( 	 @$arr_['uri'] 			) == FALSE ) { $newEvent->setUri( 			$arr_['uri'] 			); }
 				if ( FeedValidator::isValidDate( @$arr_['published'] 	) == TRUE  ) { $newEvent->setPublished( 	$arr_['published'] 		); } else { $newEvent->setPublished( self::getISODate() ); }
 				if ( FeedValidator::isValidDate( @$arr_['updated'] 		) == TRUE  ) { $newEvent->setUpdated( 		$arr_['updated'] 		); } 
 				if ( FeedValidator::isNull( 	 @$arr_['access'] 		) == FALSE ) { $newEvent->setAccess( 		$arr_['access'] 		); } else { $newEvent->setAccess( EssDTD::ACCESS_PUBLIC ); }
 				if ( FeedValidator::isNull(	 	 @$arr_['description']	) == FALSE ) { $newEvent->setDescription(	$arr_['description'] 	); }
+=======
+				if ( FeedValidator::isNull( 	 @$arr_['title'] 		) == false ) { $newEvent->setTitle( 		$arr_['title'] 			); }
+				if ( FeedValidator::isNull( 	 @$arr_['uri'] 			) == false ) { $newEvent->setUri( 			$arr_['uri'] 			); }
+				if ( FeedValidator::isValidDate( @$arr_['published'] 	) == true  ) { $newEvent->setPublished( 	$arr_['published'] 		); } else { $newEvent->setPublished( self::getISODate() ); }
+				if ( FeedValidator::isValidDate( @$arr_['updated'] 		) == true  ) { $newEvent->setUpdated( 		$arr_['updated'] 		); } 
+				if ( FeedValidator::isNull( 	 @$arr_['access'] 		) == false ) { $newEvent->setAccess( 		$arr_['access'] 		); } else { $newEvent->setAccess( EssDTD::ACCESS_PUBLIC ); }
+				if ( FeedValidator::isNull(	 	 @$arr_['description']	) == false ) { $newEvent->setDescription(	$arr_['description'] 	); }
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 				if ( @count( $arr_['tags'] ) > 0 ) 								 	 { $newEvent->setTags(			$arr_['tags'] 			); }
 			}
 		}
@@ -249,7 +302,11 @@ final class FeedWriter
 	
 	public static function getCurrentURL()
 	{
+<<<<<<< HEAD
 		return ( ( stripos( $_SERVER[ 'SERVER_PROTOCOL' ], 'https' ) === TRUE )? 'https://' : 'http://' ) . $_SERVER[ 'HTTP_HOST' ] . $_SERVER[ 'REQUEST_URI' ];
+=======
+		return ( ( stripos( $_SERVER[ 'SERVER_PROTOCOL' ], 'https' ) === true )? 'https://' : 'http://' ) . $_SERVER[ 'HTTP_HOST' ] . $_SERVER[ 'REQUEST_URI' ];
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 	}
 	
 	
@@ -478,7 +535,11 @@ final class FeedWriter
 	 */ 
 	public static function getISODate( $date=null )
 	{
+<<<<<<< HEAD
 		if ( FeedValidator::isNull( $date ) == FALSE )
+=======
+		if ( FeedValidator::isNull( $date ) == false )
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 		{
 			if ( strlen( $date ) >= 8 && !is_int( $date ) )	
 			{
@@ -620,10 +681,17 @@ final class FeedWriter
 	{
 		switch ( $elmName )
 		{
+<<<<<<< HEAD
 			default	 		 : return ( FeedValidator::isNull( 		$val ) )? FALSE : TRUE;  break;
 			case 'link' 	 : return ( FeedValidator::isValidURL( 	$val ) )? TRUE  : FALSE; break;
 			case 'updated'	 :
 			case 'published' : return ( FeedValidator::isValidDate( $val ) )? TRUE  : FeedValidator::isValidDate( self::getISODate( $val ) ); break;
+=======
+			default	 		 : return ( FeedValidator::isNull( 		$val ) )? false : true;  break;
+			case 'link' 	 : return ( FeedValidator::isValidURL( 	$val ) )? true  : false; break;
+			case 'updated'	 :
+			case 'published' : return ( FeedValidator::isValidDate( $val ) )? true  : FeedValidator::isValidDate( self::getISODate( $val ) ); break;
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 		}
 	}
 	
@@ -853,7 +921,11 @@ final class FeedWriter
 	 * 	@param	String	Receiver, or receivers of the mail.
 	 * 	@param	String	Subject of the email to be sent.
 	 * 	@param	String	Message to be sent in HTML format.
+<<<<<<< HEAD
 	 * 	@return Boolean	bool TRUE if the mail was successfully accepted for delivery, FALSE otherwise.
+=======
+	 * 	@return Boolean	bool true if the mail was successfully accepted for delivery, false otherwise.
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 	 */
 	private static function sendEmail( $email=null, $subject=null, $message=null )
 	{
@@ -870,7 +942,11 @@ final class FeedWriter
 			
 			return mail( $email, $subject, $msg, $headers );
 		}
+<<<<<<< HEAD
 		return FALSE;
+=======
+		return false;
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 	}
 	
 	private static function htmlvardump()
@@ -889,6 +965,7 @@ final class FeedWriter
 	{
 		if ( $this->AUTO_PUSH )
 		{
+<<<<<<< HEAD
 			$post_data = array( 
 				'LIBRARY_VERSION'	=> self::LIBRARY_VERSION,
 				'REMOTE_ADDR' 		=> @$_SERVER[ 'REMOTE_ADDR' ],
@@ -912,6 +989,30 @@ final class FeedWriter
 				
 			if ( $ch != FALSE )
 			{
+=======
+			$ch = @curl_init();
+			
+			if ( $ch !== false )
+			{
+				$post_data = array( 
+					'LIBRARY_VERSION'	=> self::LIBRARY_VERSION,
+					'REMOTE_ADDR' 		=> @$_SERVER[ 'REMOTE_ADDR' ],
+					'SERVER_ADMIN'		=> @$_SERVER[ 'SERVER_ADMIN' ],
+					'PROTOCOL'			=> ( ( stripos( @$_SERVER[ 'SERVER_PROTOCOL' ], 'https' ) === true )? 'https://' : 'http://' ),
+					'HTTP_HOST'			=> @$_SERVER[ 'HTTP_HOST' ],
+					'REQUEST_URI'		=> @$_SERVER[ 'REQUEST_URI' ],
+					
+					// if mod_geoip is installed. (http://dev.maxmind.com/geoip/mod_geoip2) very useful, you should try :)
+					'GEOIP_LATITUDE' 	=> @$_SERVER[ 'GEOIP_LATITUDE' ],
+  					'GEOIP_LONGITUDE'	=> @$_SERVER[ 'GEOIP_LONGITUDE' ]
+				);
+				
+				if ( $feedData == null && FeedValidator::isValidURL( $feedURL ) )
+					$post_data['feed'] = $feedURL;
+				else 
+					$post_data['feed_file'] = $feedData; 
+				
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 				curl_setopt( $ch, CURLOPT_URL, 				self::$AGGREGATOR_WS );
 				curl_setopt( $ch, CURLOPT_POSTFIELDS,  		$post_data );
 				curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 	1 );
@@ -919,6 +1020,7 @@ final class FeedWriter
 				curl_setopt( $ch, CURLOPT_FAILONERROR, 		1 );
 				curl_setopt( $ch, CURLOPT_TIMEOUT, 			20 );
 				curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 	0 );
+<<<<<<< HEAD
 				curl_setopt( $ch, CURLOPT_COOKIEJAR,  		self::get_tmp_path() . '/cookies' );
 				curl_setopt( $ch, CURLOPT_REFERER, 			@$_SERVER[ 'REQUEST_URI' ] );
 				
@@ -997,6 +1099,57 @@ final class FeedWriter
 				"<p style='background:#000;color:#FFF;padding:6px;'>".$_SERVER['DOCUMENT_ROOT'] . "</p>" .
 				"You can upload the lastest version in <a href='https://github.com/essfeed/php-ess/'>https://github.com/essfeed/php-ess/</a>"
 			);
+=======
+				curl_setopt( $ch, CURLOPT_COOKIEJAR,  		self::get_tmp_path().'/cookies' );
+				curl_setopt( $ch, CURLOPT_REFERER, 			@$_SERVER[ 'REQUEST_URI' ] );
+				
+				$response = json_decode( curl_exec( $ch ), true );
+				$r = @$response['result'];
+				$isOK = @isset( $r['result'] )? true : false;
+				$isVersionUptoDate = ( (String)$r['version'] != (String)self::LIBRARY_VERSION && $isOK )? false : true;
+				
+				if ( $this->DEBUG == true)
+				{
+					$DARK_RED = '#ff0000;';
+					
+					$bg_color = ( $isOK )? '#91ff86' : '#ffd5d5';
+					$mn_color = ( $isOK )? '#168c0a' : $DARK_RED;
+					
+					echo "<div style='background-color:$bg_color;color:$mn_color;border:1px solid $mn_color;width:95%;padding:10px;font-size:14px;margin:10px;'>".
+						( ( $isVersionUptoDate == false )?
+							"<h3 style='color:$DARK_RED;font-size:20px;border:1px dotted $DARK_RED;padding:10px;margin:5px;'>The PHP-ESS library have been updated.<br/>".
+								"Download the last GitHub version (".$r['version'].") : <a target='_blank' href='https://github.com/essfeed/php-ess'  style='color:#ff0000;'>https://github.com/essfeed/php-ess</a>".
+							"</h3>" .
+							"<br/>"
+							:''
+						).
+						"Set the DEBUG attribute to false to remove this warning message.".
+						"<br/><br/>".
+						"$ newFeed = new FeedWriter();<br/>".
+						"<b>$ newFeed->DEBUG = false;</b>".
+						"<br/><br/>".
+						self::htmlvardump( $response ) .
+					"</div>";
+				}
+				
+				if ( $isVersionUptoDate == false && self::EMAIL_UP_TO_DATE && FeedValidator::isValidEmail( $_SERVER[ 'SERVER_ADMIN' ] ) )
+				{
+					self::sendEmail( 
+						$_SERVER[ 'SERVER_ADMIN' ], 
+						"Update your ESS Library on " . $_SERVER[ 'HTTP_HOST' ],
+						"<h3>The library you used on your website ". $_SERVER[ 'HTTP_HOST' ] ." is not up to date</h3>".
+						"<p style='background:#000;color:#FFF;padding:6px;'>".$_SERVER['DOCUMENT_ROOT'] . "</p>" .
+						"You can upload the lastest version in <a href='https://github.com/essfeed/php-ess/'>https://github.com/essfeed/php-ess/</a>"
+					);
+				}
+			} 
+			else 
+			{
+				if ( $feedData == null && FeedValidator::isValidURL( $feedURL ) )
+					@exec( "wget -q \"" . self::$AGGREGATOR_WS . "?feed=" . $feedURL . "\"" );
+			}
+			
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 		}
 	}
 }

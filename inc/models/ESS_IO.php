@@ -26,7 +26,11 @@ final class ESS_IO
 	{
 		if ( has_filter( 'the_content', 'em_content' ) )
 		{
+<<<<<<< HEAD
 			if ( get_option( 'ess_feed_visibility_meta', TRUE ) )
+=======
+			if ( get_option( 'ess_feed_visibility_meta', true ) )
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 			{
 				add_action( 'wp_meta', 				array( 'ESS_Elements',	'get_feed_meta_link' 		) );
 				add_action( 'wp_head',				array( 'ESS_Elements', 	'get_feed_meta_header' 		) );
@@ -44,6 +48,7 @@ final class ESS_IO
 			
 			add_filter( 'em_deactivate', 			array( 'EM_ESS', 		'set_deactivation' 			) );
 			
+<<<<<<< HEAD
 			self::set_save_filter( TRUE );
 		}
 	}
@@ -53,6 +58,17 @@ final class ESS_IO
 		if ( $activate == TRUE )
 		{
 			if ( get_option( 'ess_feed_push', TRUE ) )
+=======
+			self::set_save_filter( true );
+		}
+	}
+
+	public static function set_save_filter( $activate=true )
+	{
+		if ( $activate == true )
+		{
+			if ( get_option( 'ess_feed_push', true ) )
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 				add_filter( 'em_event_save', array( 'ESS_IO', 'set_event_saved_filter' ) );
 		}
 		else 
@@ -134,8 +150,13 @@ final class ESS_IO
 			ESS_Feed::output( 
 				$_REQUEST[ 'event_id' ], 
 				$_REQUEST[ 'page' ],
+<<<<<<< HEAD
 				( isset( $_REQUEST[ 'download' ] )? ( ( intval( $_REQUEST[ 'download' ] ) >= 1 )? TRUE : FALSE ) : FALSE ),
 				( isset( $_REQUEST[ 'push' ] 	 )? ( ( intval( $_REQUEST[ 'push' ] 	) >= 1 )? TRUE : FALSE ) : FALSE )
+=======
+				( isset( $_REQUEST[ 'download' ] )? ( ( intval( $_REQUEST[ 'download' ] ) >= 1 )? true : false ) : false ),
+				( isset( $_REQUEST[ 'push' ] 	 )? ( ( intval( $_REQUEST[ 'push' ] 	) >= 1 )? true : false ) : false )
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 			);
 			die;
 		}
@@ -162,13 +183,22 @@ final class ESS_IO
 		return ( ( strlen( sys_get_temp_dir() ) >= 0 )? sys_get_temp_dir() : "/tmp" );
 	}
 	
+<<<<<<< HEAD
 	public static function get_feed_url( $event_id=NULL, $download=FALSE, $push=FALSE )
+=======
+	public static function get_feed_url( $event_id=NULL, $download=false, $push=false )
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 	{
 		return trailingslashit( home_url() ) . 
 										   "?".self::EM_ESS_ARGUMENT."=1". 
 			( ( intval( $event_id ) > 0 )? "&event_id=" . $event_id : '' ).
+<<<<<<< HEAD
 			( ( $push 	  == TRUE 		)? "&push=1"				: '' ).
 			( ( $download == TRUE 		)? "&download=1"			: '' );
+=======
+			( ( $push 	  == true 		)? "&push=1"				: '' ).
+			( ( $download == true 		)? "&download=1"			: '' );
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 	}
 	
 	public static function get_rewrite_rules_array( $rules )
@@ -188,14 +218,21 @@ final class ESS_IO
 		{
 			$ch = @curl_init( $file_url );
 			
+<<<<<<< HEAD
 			if ( $ch != FALSE )
 			{
 				curl_setopt( $ch, CURLOPT_NOBODY, 		TRUE );
+=======
+			if ( $ch )
+			{
+				curl_setopt( $ch, CURLOPT_NOBODY, 		true );
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 				curl_setopt( $ch, CURLOPT_TIMEOUT_MS, 	$maxTime ); // execution timeout in miliseconds
 				curl_exec( $ch );
 				$retcode = curl_getinfo( $ch, CURLINFO_HTTP_CODE ); // $retcode > 400 -> not found, $retcode = 200 -> found.
 				curl_close( $ch );
 				
+<<<<<<< HEAD
 				return ( $retcode == 200 )? TRUE : FALSE;
 			}
 			else 
@@ -205,11 +242,18 @@ final class ESS_IO
 			}
 		}
 		return FALSE;
+=======
+				return ( $retcode == 200 )? true : false;
+			}
+		}
+		return false;
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 	}
 	
 	public static function get_curl_result( $target_url, $feed_url='' )
 	{
 		$ch = @curl_init();
+<<<<<<< HEAD
 		
 		$post_data = array( 
 			'REMOTE_ADDR' 	=> @$_SERVER[ 'REMOTE_ADDR' ],
@@ -222,6 +266,19 @@ final class ESS_IO
 			
 		if ( $ch != FALSE )
 		{
+=======
+			
+		if ( $ch !== false )
+		{
+			$post_data = array( 
+				'REMOTE_ADDR' 	=> @$_SERVER[ 'REMOTE_ADDR' ],
+				'SERVER_ADMIN'	=> @$_SERVER[ 'SERVER_ADMIN' ],
+				'PROTOCOL'		=> ( ( stripos( @$_SERVER[ 'SERVER_PROTOCOL' ], 'https' ) === true )? 'https://' : 'http://' ),
+				'HTTP_HOST'		=> @$_SERVER[ 'HTTP_HOST' ],
+				'REQUEST_URI'	=> @$_SERVER[ 'REQUEST_URI' ],
+				'feed'			=> $feed_url 
+			);
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 			curl_setopt( $ch, CURLOPT_URL, 				$target_url );
 			curl_setopt( $ch, CURLOPT_COOKIEJAR,  		self::get_tmp_path() . '/cookies' );
 			curl_setopt( $ch, CURLOPT_REFERER, 			@$_SERVER[ 'REQUEST_URI' ] );
@@ -241,6 +298,7 @@ final class ESS_IO
 		}
 		else 
 		{
+<<<<<<< HEAD
 			if ( ini_get( 'allow_url_fopen' ) ) 
 			{
 				$opts = array( 'http' => array(
@@ -280,15 +338,32 @@ final class ESS_IO
 			}
 		}
 		return FALSE;
+=======
+			global $ESS_Notices;
+			$ESS_Notices->add_error( 
+				__( "PHP cURL must be installed on your server: ", 'dbem' ) .
+				ESS_Elements::get_curl_lib_link()
+			);	
+		}
+		return false;
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 	}
 	
 	public static function set_event_saved_filter( $result=NULL, $event_id=NULL )
 	{
+<<<<<<< HEAD
 		if ( $result == TRUE )
 		{
 			if ( empty( $event_id ) )	
 				global $EM_Event;
 			else
+=======
+		if ( $result == true )
+		{
+			if ( empty( $event_id ) )	
+				global $EM_Event;
+			else 
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 				$EM_Event = em_get_event( $event_id );
 			
 			//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b><br/>";
@@ -296,10 +371,17 @@ final class ESS_IO
 				
 			if ( $EM_Event instanceof EM_Event && intval( $EM_Event->event_id ) > 0 )
 			{
+<<<<<<< HEAD
 				return ( self::get_curl_result( FeedWriter::$AGGREGATOR_WS, self::get_feed_url( $EM_Event->event_id, FALSE, TRUE ) ) !== FALSE );
 			}
 		}
 		return FALSE;
+=======
+				return ( self::get_curl_result( FeedWriter::$AGGREGATOR_WS, self::get_feed_url( $EM_Event->event_id, false, true ) ) !== false );
+			}
+		}
+		return false;
+>>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 	}
 	
 }
