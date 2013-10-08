@@ -121,11 +121,7 @@ final class ESS_Import
 							'feed_url'			=> $feed_url,
 							'feed_status'		=> ESS_Database::FEED_STATUS_ACTIVE,
 							'feed_mode'			=> ( ( $feed_update_daily == 'on' )? ESS_Database::FEED_MODE_CRON : ESS_Database::FEED_MODE_STANDALONE )
-<<<<<<< HEAD
 						) ) === TRUE )
-=======
-						) ) === true )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 						{
 							// -- OK: Feed crawled and inserted.	
 							$ESS_Notices->add_confirm( sprintf( __( "The ESS feed have been %s.", 'dbem' ), __( ( intval( $feed_id ) > 0 )? "updated" : "created", 'dbem' ) ) );
@@ -167,11 +163,8 @@ final class ESS_Import
 				if ( $EM_Event->can_manage( 'edit_events', 'edit_recurring_events', 'edit_others_events' ) && $EM_Event->get_post() ) // user must have permissions.
 				{
 					// -- temporarly remove the save listener to prevent multi-push to search engines
-<<<<<<< HEAD
 					ESS_IO::set_save_filter( FALSE );
-=======
-					ESS_IO::set_save_filter( false );
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
+
 					
 					$EM_Location 	= NULL;
 					$EM_Categories 	= NULL;
@@ -201,19 +194,11 @@ final class ESS_Import
 					
 					
 					// == LOCATION 
-<<<<<<< HEAD
 					if ( $_POST[ 'no_location' ] === FALSE && strlen( $_POST['location_name'] ) > 0 && get_option( 'dbem_locations_enabled' ) )
 					{
 						$EM_Location = new EM_Location();
 						
 						if ( $EM_Location->can_manage('publish_locations') && $EM_Location->get_post(FALSE) )
-=======
-					if ( $_POST[ 'no_location' ] === false && strlen( $_POST['location_name'] ) > 0 && get_option( 'dbem_locations_enabled' ) )
-					{
-						$EM_Location = new EM_Location();
-						
-						if ( $EM_Location->can_manage('publish_locations') && $EM_Location->get_post(false) )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 						{
 							// -- Search if this location already exists in the database
 							$similar_ = $EM_Location->load_similar( array(
@@ -239,13 +224,8 @@ final class ESS_Import
 							}
 							
 							// -- Search & defines latitude / longitude if not set
-<<<<<<< HEAD
 							if ( FeedValidator::isValidLatitude(  (String)$_POST['location_latitude']  ) == FALSE || 
 								 FeedValidator::isValidLongitude( (String)$_POST['location_longitude'] ) == FALSE )
-=======
-							if ( FeedValidator::isValidLatitude(  (String)$_POST['location_latitude']  ) == false || 
-								 FeedValidator::isValidLongitude( (String)$_POST['location_longitude'] ) == false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 							{
 								require_once( EM_ESS_DIR . "/inc/libs/geocoder/GoogleGeocode.php" );
 								$geocode_ = GoogleGeocode::getGeocodeFromAddress(
@@ -271,11 +251,7 @@ final class ESS_Import
 								}
 							}
 							
-<<<<<<< HEAD
 							if ( $EM_Location->save() === FALSE )
-=======
-							if ( $EM_Location->save() === false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 								$ESS_Notices->add_error( $EM_Location->get_errors() );
 							
 							$EM_Event->location_id = $EM_Location->location_id;
@@ -308,12 +284,8 @@ final class ESS_Import
 								$EM_Tickets->tickets[] = $EM_Ticket;
 							}
 						}
-							
-<<<<<<< HEAD
+			
 						$EM_Event->event_rsvp 		= TRUE;
-=======
-						$EM_Event->event_rsvp 		= true;
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 						$EM_Event->event_rsvp_date 	= $ticket_data['event_rsvp_date'];
 						$EM_Event->event_rsvp_time 	= $ticket_data['event_rsvp_time'];
 						$EM_Event->event_spaces 	= $ticket_data['event_spaces'];
@@ -344,11 +316,7 @@ final class ESS_Import
 								$category_slug = sanitize_title_with_dashes( $category_name );
 								$category_term = get_term_by( 'slug', $category_slug, EM_TAXONOMY_CATEGORY );
 								
-<<<<<<< HEAD
 								if ( $category_term === FALSE )
-=======
-								if ( $category_term === false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 								{
 									// Term (with category taxonomy) not created yet, let's create it
 									$term_array = wp_insert_term( $category_name, EM_TAXONOMY_CATEGORY, array(
@@ -366,11 +334,7 @@ final class ESS_Import
 							
 							$_POST['event_categories'] = $caregory_ids_;
 							
-<<<<<<< HEAD
 							if ( $EM_Categories->get_post() === FALSE )
-=======
-							if ( $EM_Categories->get_post() === false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 								$ESS_Notices->add_error( $EM_Categories->get_errors() );
 						}
 						else 
@@ -396,11 +360,7 @@ final class ESS_Import
 							$tag_slug = sanitize_title_with_dashes( $tag_name );
 							$tag_term = get_term_by( 'slug', $tag_slug, EM_TAXONOMY_TAG );
 							
-<<<<<<< HEAD
 							if ( $tag_term === FALSE )
-=======
-							if ( $tag_term === false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 							{
 								// -- Term (with tag taxonomy) not created yet, let's create it
 								$term_array = wp_insert_term( $tag_name, EM_TAXONOMY_TAG, array(
@@ -419,11 +379,7 @@ final class ESS_Import
 						
 						$_POST['event_tags'] = $tag_ids_;
 						
-<<<<<<< HEAD
 						if ( $EM_Tags->get_post() === FALSE )
-=======
-						if ( $EM_Tags->get_post() === false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 							$ESS_Notices->add_error( $EM_Categories->get_errors() );
 					} // end add tags
 					//echo "== TAGS ===<br/>";
@@ -473,11 +429,8 @@ final class ESS_Import
 					
 					// == SAVE EVENT ======
 					$res = $EM_Event->save();
-<<<<<<< HEAD
+					
 					//var_dump( $res ); // return FALSE if two functions are not updated in EM_Events()
-=======
-					//var_dump( $res ); // return false if two functions are not updated in EM_Events()
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 					
 					//echo "event post id: ". $EM_Event->post_id ."<br/>";
 					//echo "event event id: ". $EM_Event->event_id."<br/>";
@@ -505,11 +458,7 @@ final class ESS_Import
 												'post_id'	=> $EM_Event->post_id
 											) );
 											
-<<<<<<< HEAD
 											if ( $attachment_id !== FALSE && intval( $attachment_id ) > 0 )
-=======
-											if ( $attachment_id !== false && intval( $attachment_id ) > 0 )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 											{
 												array_push( $media_attachement_, array( 
 													'attachement_id'	=> $attachment_id,
@@ -527,11 +476,7 @@ final class ESS_Import
 												'uri' 		=> $media_[ 'uri' ],
 												'name'		=> $media_[ 'name' ], 
 												'post_id'	=> $EM_Event->post_id
-<<<<<<< HEAD
 											) ) === FALSE )
-=======
-											) ) === false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 												$ESS_Notices->add_error( __( "Impossible to upload the event's video: ", 'dbem' ).ESS_Elements::get_ahref( $media_[ 'uri' ] ) );
 										} // end add videos
 										
@@ -542,11 +487,7 @@ final class ESS_Import
 												'uri' 		=> $media_[ 'uri' ],
 												'name'		=> $media_[ 'name' ], 
 												'post_id'	=> $EM_Event->post_id
-<<<<<<< HEAD
 											) ) === FALSE )
-=======
-											) ) === false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 												$ESS_Notices->add_error( __( "Impossible to upload the event's audio file: ", 'dbem' ).ESS_Elements::get_ahref( $media_[ 'uri' ] ) );
 										} // end add sounds
 									}
@@ -561,11 +502,7 @@ final class ESS_Import
 							$priority_test = 1;
 							foreach ( $_POST['event_media'] as $media_ ) 
 							{
-<<<<<<< HEAD
 								if ( get_option( 'ess_feed_import_images' ) == FALSE )
-=======
-								if ( get_option( 'ess_feed_import_images' ) == false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 									break;
 								
 								if ( @$media_['priority'] == $priority_test )
@@ -618,11 +555,7 @@ final class ESS_Import
 							$EM_Tickets->blog_id  = $blog_id;
 							$EM_Tickets->event_id = $EM_Event->event_id;
 							
-<<<<<<< HEAD
 							if ( $EM_Tickets->save() === FALSE )
-=======
-							if ( $EM_Tickets->save() === false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 								$ESS_Notices->add_error( $EM_Tickets->get_errors() );
 						} // end assign event to categories
 						
@@ -633,12 +566,8 @@ final class ESS_Import
 						{
 							$EM_Categories->blog_id  = $blog_id;
 							$EM_Categories->event_id = $EM_Event->event_id;
-						
-<<<<<<< HEAD
+							
 							if ( $EM_Categories->save() === FALSE )
-=======
-							if ( $EM_Categories->save() === false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 								$ESS_Notices->add_error( $EM_Categories->get_errors() );
 						} // end assign event to categories
 						
@@ -653,11 +582,7 @@ final class ESS_Import
 							$EM_Tags->event_id = $EM_Event->event_id;
 							
 							// this function doesn't seem to work...
-<<<<<<< HEAD
 							if ( $EM_Tags->save() === FALSE )
-=======
-							if ( $EM_Tags->save() === false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 								$ESS_Notices->add_error( $EM_Tags->get_errors() );
 							
 							$tags_ = array();
@@ -681,11 +606,7 @@ final class ESS_Import
 						//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
 						//var_dump( $EM_Event );die;
 						
-<<<<<<< HEAD
 						ESS_IO::set_save_filter( TRUE );
-=======
-						ESS_IO::set_save_filter( true );
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 					}
 				}
 				else
@@ -711,44 +632,25 @@ final class ESS_Import
 		@assert_options(ASSERT_QUIET_EVAL, 	1 );
 		
 		$timeout_sec = 5; // timeout 5 seconds.
-<<<<<<< HEAD
 		$fp = @fopen( $feed_url, 'r', FALSE, stream_context_create(array('http'=>array('timeout'=>$timeout_sec,'method'=>"GET"))));
 		set_time_limit( $timeout_sec ); 
 		
-		if ( $fp !== FALSE ) 
-=======
-		$fp = @fopen( $feed_url, 'r', false, stream_context_create(array('http'=>array('timeout'=>$timeout_sec,'method'=>"GET"))));
-		set_time_limit( $timeout_sec ); 
-		
-		if ( $fp !== false ) 
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
+		if ( $fp !== FALSE )
 		{
 			try { $ess = simplexml_load_file( urlencode( $feed_url ), "SimpleXMLElement", LIBXML_NOCDATA ); }
 			catch( ErrorException $e )
 			{
-<<<<<<< HEAD
 				$ess = FALSE;
-=======
-				$ess = false;
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 				$RESULT_['error'] = "XML Error: An error occure while trying to read the ESS file from the URL: ". $feed_url;
 			}
 		}
 		else 
 		{
-<<<<<<< HEAD
 			$ess = FALSE;
 			$RESULT_['error'] = "The ESS Feed request timed out with URL: ". $feed_url;
 		}
 		
 		if ( $ess !== FALSE )
-=======
-			$ess = false;
-			$RESULT_['error'] = "The ESS Feed request timed out with URL: ". $feed_url;
-		}
-		
-		if ( $ess !== false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 		{
 			// -- CHANNEL	
 			foreach ( $ess->channel->children() as $child )
@@ -988,11 +890,7 @@ final class ESS_Import
 					
 					//echo "delay: ". $delay . " => " .date( DateTime::ATOM, strtotime( @$date_[ 'start' ]. " + ".$dur." seconds" ) );
 					
-<<<<<<< HEAD
 					$_POST['recurring'] 			= TRUE;
-=======
-					$_POST['recurring'] 			= true;
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 					$_POST['event_end_date']		= date( 'Y-m-d', strtotime( $delay, strtotime( @$date_[ 'start' ] . ( ( $dur > 0 )? " + " . $dur." seconds" : "" ) ) ) );
 					$_POST['event_end_time' ]		= date( 'H:i:s', strtotime( $delay, strtotime( @$date_[ 'start' ] . ( ( $dur > 0 )? " + " . $dur." seconds" : "" ) ) ) );
 					$_POST['recurrence_interval'] 	= @$date_[ 'interval' ];
@@ -1134,17 +1032,10 @@ final class ESS_Import
 					'ticket_max' 			=> $maxpeople,
 					'ticket_spaces' 		=> $maxpeople, // 10
 					'event_spaces'			=> $maxpeople, // 10
-<<<<<<< HEAD
 					'ticket_members' 		=> FALSE,
 					'ticket_guests' 		=> (($price_[ 'mode' ] == 'invitation' 	)? TRUE : FALSE ),
 					'ticket_required' 		=> (($price_[ 'mode' ] != 'free' 		)? TRUE : FALSE ),
 					'event_rsvp'			=> TRUE
-=======
-					'ticket_members' 		=> false,
-					'ticket_guests' 		=> (($price_[ 'mode' ] == 'invitation' 	)? true : false ),
-					'ticket_required' 		=> (($price_[ 'mode' ] != 'free' 		)? true : false ),
-					'event_rsvp'			=> true
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 				));
 				//$_POST['booking_tax_rate'] = '';
 				
@@ -1175,19 +1066,11 @@ final class ESS_Import
 			
 			if ( empty( $place_['name'] ) )
 			{
-<<<<<<< HEAD
 				$_POST['no_location'] = TRUE;
 			}
 			else 
 			{
 				$_POST['no_location'] 		= FALSE;
-=======
-				$_POST['no_location'] = true;
-			}
-			else 
-			{
-				$_POST['no_location'] 		= false;
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 				$_POST['location_name'] 	= $place_['name'];
 				$_POST['location_address'] 	= ((strlen($place_['address'])>0)?$place_['address']:$place_['name']);
 				$_POST['location_town']		= $place_['city'];
@@ -1253,11 +1136,7 @@ final class ESS_Import
 			}
 		}
 		
-<<<<<<< HEAD
 		return TRUE;
-=======
-		return true;
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 	}
 	
 	/**
@@ -1270,7 +1149,6 @@ final class ESS_Import
 	{
 		global $ESS_Notices;
 		
-<<<<<<< HEAD
 		if ( FeedValidator::isValidURL( $feed_url ) == FALSE )
 		{
 			$ESS_Notices->add_error( sprintf( __( "The ESS URL is not valid: <a href='%s' target='_blank'>%s</a>", 'dbem' ), $feed_url, $feed_url ) );
@@ -1281,29 +1159,13 @@ final class ESS_Import
 			$response = json_decode( ESS_IO::get_curl_result( FeedWriter::$VALIDATOR_WS, $feed_url ), TRUE );
 			
 			if ( $response !== FALSE )
-=======
-		if ( FeedValidator::isValidURL( $feed_url ) == false )
-		{
-			$ESS_Notices->add_error( sprintf( __( "The ESS URL is not valid: <a href='%s' target='_blank'>%s</a>", 'dbem' ), $feed_url, $feed_url ) );
-			return false;
-		}
-		else
-		{
-			$response = json_decode( ESS_IO::get_curl_result( FeedWriter::$VALIDATOR_WS, $feed_url ), true );
-			
-			if ( $response !== false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 			{
 				$r = @$response[ 'result' ];
 				
 				//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
 				//var_dump( $r );
 				
-<<<<<<< HEAD
 				if ( ( @isset( $r[ 'result' ] )? ( @isset( $r['result']['error'] )? FALSE : TRUE ) : FALSE ) == FALSE )
-=======
-				if ( ( @isset( $r[ 'result' ] )? ( @isset( $r['result']['error'] )? false : true ) : false ) == false )
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 				{
 					array_unshift( $response['result']['error'], "<b>" . sprintf( __( "The Feed URL is not a valide ESS file: <a href='%s' target='_blank'>%s</a>", 'dbem' ), $feed_url, $feed_url ) . "</b><br>" );
 					array_push( $response['result']['error'], "<b>" . sprintf( __( "More information about the standard: <a href='%s' target='_blank'>%s</a>", 'dbem' ), ESS_IO::ESS_WEBSITE, ESS_IO::ESS_WEBSITE ). "</b><br>" );
@@ -1312,21 +1174,13 @@ final class ESS_Import
 					//var_dump( $response );
 					
 					$ESS_Notices->add_error( $response );
-<<<<<<< HEAD
+					
 					return FALSE;
 				}
 				return TRUE;
 			}
 		}
 		return FALSE;
-=======
-					return false;
-				}
-				return true;
-			}
-		}
-		return false;
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
 	}
 	
 }

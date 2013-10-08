@@ -1,11 +1,7 @@
 <?php
 /*
 Plugin Name: 	Events Manager ESS
-<<<<<<< HEAD
-Version: 		0.3
-=======
-Version: 		0.2
->>>>>>> 23020ca7861a355a808b6991ada0259cd21f985f
+Version: 		0.4
 Plugin URI: 	http://essfeed.org
 Description: 	Integrates ESS Feed into Events Manager to import and export events.
 Author: 		Marcus Sykes, Brice Prissard
@@ -32,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 if ( !defined( 'EM_ESS_NAME' 		) ) define( 'EM_ESS_NAME', 		 trim( dirname( plugin_basename( __FILE__ ) ), '/' ) );
 if ( !defined( 'EM_ESS_DIR'  		) ) define( 'EM_ESS_DIR', 		 WP_PLUGIN_DIR . '/' . EM_ESS_NAME );
 if ( !defined( 'EM_ESS_URL'  		) ) define( 'EM_ESS_URL', 		 WP_PLUGIN_URL . '/' . EM_ESS_NAME );
-if ( !defined( 'EM_ESS_VERSION'		) ) define( 'EM_ESS_VERSION', 	 '1.0.0' );
+if ( !defined( 'EM_ESS_VERSION'		) ) define( 'EM_ESS_VERSION', 	 '0.4' );
 if ( !defined( 'EM_ESS_VERSION_KEY'	) ) define( 'EM_ESS_VERSION_KEY','ess_version' );
 
 add_option( EM_ESS_VERSION_KEY, EM_ESS_VERSION );
