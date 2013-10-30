@@ -13,7 +13,7 @@ ESS_IO.php
 K 25
 svn:wc:ra_dav:version-url
 V 63
-/!svn/ver/784470/events-manager-ess/trunk/inc/models/ESS_IO.php
+/!svn/ver/795960/events-manager-ess/trunk/inc/models/ESS_IO.php
 END
 ESS_Notices.php
 K 25
@@ -25,7 +25,7 @@ ESS_Images.php
 K 25
 svn:wc:ra_dav:version-url
 V 67
-/!svn/ver/783947/events-manager-ess/trunk/inc/models/ESS_Images.php
+/!svn/ver/795960/events-manager-ess/trunk/inc/models/ESS_Images.php
 END
 ESS_Videos.php
 K 25

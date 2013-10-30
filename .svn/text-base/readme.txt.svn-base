@@ -69,9 +69,8 @@ Once installed, you can start adding events straight away and broadcat them to t
 1. When upgrading, visit the plugins page in your admin area, scroll down to events manager and click upgrade.
 2. Wordpress will help you upgrade automatically.
 
-== FAQ ==
+== Frequently Asked Question ==
 You'll find the bug tracking in: [github.com issues](https://github.com/essfeed/wordpress-events-manager-ess/issues)
-
 
 
 == Screenshots ==
