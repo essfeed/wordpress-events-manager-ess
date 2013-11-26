@@ -2,9 +2,9 @@
 /**
  * Universal ESS EventFeed Entry Writer
  * FeedValidator class - contain static method to validate specific ESS Fields
- * 
+ *
  * The feed can be validate in : http://essfeed.org/index.php/ESS:Validator
- * 
+ *
  *
  * @package 	FeedValidator
  * @author  	Brice Pissard
@@ -263,7 +263,7 @@ final class FeedValidator
 	  "ZM" => "Zambia",
 	  "ZW" => "Zimbabwe"
 	);
-	
+
 	public static $LANGUAGES_ = array(
 	    'aa' => 'Afar',
 	    'ab' => 'Abkhaz',
@@ -450,7 +450,7 @@ final class FeedValidator
 	    'zh' => 'Chinese',
 	    'zu' => 'Zulu',
 	);
-	
+
 	public static $CURRENCIES_ = array(
 		'AF' => 'AFA',
 		'AL' => 'ALL',
@@ -693,12 +693,12 @@ final class FeedValidator
 		'ZM' => 'ZMK',
 		'ZW' => 'USD'
 	);
-	
+
 	function __construct(){}
-	
+
 	/**
 	 * Check is the content to evaluate is empty
-	 * 
+	 *
 	 * @access	public
 	 * @param	String	Object to evaluate ()
 	 * @return	Boolean
@@ -706,18 +706,18 @@ final class FeedValidator
 	public static function isNull( $obj=null )
 	{
 		$objS = trim( str_replace( array( '	', ' ' ), '', self::removeBreaklines( $obj ) ) );
-		
-		return ( $objS == '' || $objS == null || 
-			( !is_string( $obj ) && intval( $obj ) <= 0 ) || 
+
+		return ( $objS == '' || $objS == null ||
+			( !is_string( $obj ) && intval( $obj ) <= 0 ) ||
 			( is_numeric( $obj ) && intval( $obj ) <= 0 ) ||
-			( is_bool( $obj ) && $obj == false ) 
+			( is_bool( $obj ) && $obj == false )
 		)? true : false;
 	}
-	
+
 	/**
 	 * Control the correct syntax of the date in UTC format (ISO 8601)
 	 * to check if the string formated UTC date is valid (e.g. 2013-10-31T15:30:59Z)
-	 * 
+	 *
 	 * @access	public
 	 * @param	String	stringDate date string content format ISO 8601 (e.g. 2013-10-31T15:30:59Z)
 	 * @return	Boolean
@@ -725,49 +725,49 @@ final class FeedValidator
 	public static function isValidDate( $stringDate='' )
 	{
 		if ( self::isNull( $stringDate ) ) return false;
-		
+
 		$matcher = preg_match( "/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(Z|(\+|-)\d{2}(:?\d{2})?)$/", str_replace( ' ', 'T', $stringDate ) );
 		$t_sep 	 = explode( 'T', strtoupper( $stringDate ) );
-		
+
 		if ( @count( $t_sep ) > 1 )
 		{
 			$time_sep = explode( ':', $t_sep[ 1 ] );
-			
-			if ( intval( $time_sep[ 0 ] ) > 24 ) 
+
+			if ( intval( $time_sep[ 0 ] ) > 24 )
 				return false;
-			
+
 			if ( @count( $time_sep ) <= 4 )
 			{
 				for ( $i=1 ; $i<@count( $time_sep ) ; $i++ )
 				{
-					if ( intval( $time_sep[ $i ] ) > 59 && $i < 3 ) 
+					if ( intval( $time_sep[ $i ] ) > 59 && $i < 3 )
 						return false;
 				}
 			}
 		}
-		
+
 		//var_dump( $stringDate, $matcher);
-		
+
 		if ( $matcher == 1 )
 		{
 			try
 			{
 				$err = new DateTime( $stringDate, new DateTimeZone( 'GMT' ) );
 				return true;
-			} 
+			}
 			catch( Exception $e )
 			{
 				return false;
-			}	
+			}
 		}
-		
-		return false;		
+
+		return false;
 	}
-	
+
 	/**
 	 * Control if the URL is correctly formated (RFC 3986)
 	 * An IP can also be submited as a URL.
-	 * 
+	 *
 	 * @access	public
 	 * @param	String	stringDate string element to control
 	 * @return	Boolean
@@ -776,13 +776,13 @@ final class FeedValidator
 	{
 		$url = trim( $url );
 		$ereg = "/^(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?/i";
-		
-		return ( preg_match( $ereg, $url ) > 0 && strlen( $url ) > 10 )? true : self::isValidIP( $url );  
+
+		return ( preg_match( $ereg, $url ) > 0 && strlen( $url ) > 10 )? true : self::isValidIP( $url );
 	}
-	
+
 	/**
 	 * Control if the URL is contain a valid media file
-	 * 
+	 *
 	 * @access	public
 	 * @param	String	string Media URL to control
 	 * @return	Boolean
@@ -790,28 +790,28 @@ final class FeedValidator
 	public static function isValidMediaURL( $url, $type='image' )
 	{
 		$url = trim( $url );
-		
-		switch( strtolower( $type ) )	
+
+		switch( strtolower( $type ) )
 		{
 			default :
 			case 'image' : $MEDIA_FORMAT = array('ART','AVI','AVS','BMP','CUR','EPS','GIF','ICO','JPG','PDF','PIX','PNG','PSD','RGB','SVG','TGA','TIF','TIM','TTF','TXT','WMF','WPG','TIF','MPG'); break;
 			case 'video' : $MEDIA_FORMAT = array('FLV','MPG','AVI','MOV','ACC','AAC','MP4','3GP','OGG','FLA','M4V','WMV','DAT','NSV'); break;
 			case 'sound' : $MEDIA_FORMAT = array('M4A','MP3','M4P','MPC','OGG','AMR','GSM','WAV','WMA','VOX','RAW','MPC'); break;
 		}
-		
+
 		$ex_ = @explode( '.', $url );
-		
-		return ( strlen( $url ) > 0 && 
+
+		return ( strlen( $url ) > 0 &&
 			in_array( strtoupper( substr( $ex_[ @count( $ex_ )-1 ],0,3) ), $MEDIA_FORMAT )
 		)? true : false;
 	}
-	
+
 	/**
 	 * Get the media file type.
-	 * 
+	 *
 	 * @access	public
 	 * @param	String	String Media URL to check
-	 * @return	String	Return the media type: 'image', 'video' or 'sound' or null if not found 
+	 * @return	String	Return the media type: 'image', 'video' or 'sound' or null if not found
 	 */
 	public static function getMediaType( $url )
 	{
@@ -820,12 +820,12 @@ final class FeedValidator
 			$MEDIA_IMAGE = array('ART','AVI','AVS','BMP','CUR','EPS','GIF','ICO','JPG','PDF','PIX','PNG','PSD','RGB','SVG','TGA','TIF','TIM','TTF','TXT','WMF','WPG','TIF','MPG');
 			$MEDIA_SOUND = array('M4A','MP3','M4P','MPC','OGG','AMR','GSM','WAV','WMA','VOX','RAW','MPC');
 			$MEDIA_VIDEO = array('FLV','MPG','AVI','MOV','ACC','AAC','MP4','3GP','OGG','FLA','M4V','WMV','DAT','NSV');
-			
+
 			$ex_ = @explode( '.', $url );
-			
+
 			// detect some specific website URL video content
-			$VIDEO_WEBSITES = array( 
-				'youtube.com', 
+			$VIDEO_WEBSITES = array(
+				'youtube.com',
 				'vimeo.com',
 				'ted.com',
 				'dailymotion.com',
@@ -840,11 +840,11 @@ final class FeedValidator
 				'blinkx.com',
 				'wimp.com'
 			);
-			
+
 			$domain = parse_url( $url );
 			$dh_ = explode( '.', $domain['host'] );
 			if ( @count( $dh_ ) > 1 ) { $domain['host'] = $dh_[@count( $dh_ )-2].".".$dh_[@count( $dh_ )-1]; } // remove www.
-			
+
 			if ( in_array( strtolower( $domain['host'] ), $VIDEO_WEBSITES ) ) 					 { return 'video'; }
 			if ( in_array( strtoupper( substr( $ex_[ @count( $ex_ )-1 ],0,3) ), $MEDIA_IMAGE ) ) { return 'image'; }
 			if ( in_array( strtoupper( substr( $ex_[ @count( $ex_ )-1 ],0,3) ), $MEDIA_VIDEO ) ) { return 'video'; }
@@ -852,10 +852,10 @@ final class FeedValidator
 		}
 		return ( self::isValidURL( $url ) )? 'image' : null;
 	}
-	
+
 	/**
-	 * 	Control if the parameter submited is a valide IP v4 
-	 * 
+	 * 	Control if the parameter submited is a valide IP v4
+	 *
 	 * 	@access public
 	 * 	@param	String	Value of the IP to evaluate
 	 * 	@return	Boolean	If the parameter submited is a valide IP return true, false else.
@@ -863,8 +863,8 @@ final class FeedValidator
 	public static function isValidIP( $ip='' )
 	{
 		$ip = trim( $ip );
-		$regexp = '/^((1?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(1?\d{1,2}|2[0-4]\d|25[0-5])$/'; 
-		
+		$regexp = '/^((1?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(1?\d{1,2}|2[0-4]\d|25[0-5])$/';
+
 		if ( preg_match( $regexp, $ip ) <= 0 )
 		{
 			return false;
@@ -872,33 +872,33 @@ final class FeedValidator
 		else
 		{
 			$a = explode( ".", $ip );
-			
+
 			if ( $a[0] > 255) { return false; }
 			if ( $a[1] > 255) { return false; }
 			if ( $a[2] > 255) {	return false; }
 			if ( $a[3] > 255) { return false; }
-			
+
 			return true;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Control if the Email submited is correctly formated (RFC 5321)
-	 * 
+	 *
 	 * @access	public
 	 * @param	String	stringDate string element to control
 	 * @return	Boolean
 	 */
-	public static function isValidEmail( $email ) 
+	public static function isValidEmail( $email )
 	{
 		$email = trim( $email );
 		if ( self::isNull( $email ) ) return false;
-		
+
 		if ( preg_match( '/^\w[-.\w]*@(\w[-._\w]*\.[a-zA-Z]{2,}.*)$/', $email, $matches ) )
         {
         	$hostName = $matches[ 1 ];
-			
+
 			if ( @strlen( $hostName ) > 5 )
 			{
 	         	if ( function_exists('checkdnsrr') )
@@ -909,7 +909,7 @@ final class FeedValidator
 				else
 				{
 					@exec( "nslookup -type=MX ".$hostName, $r );
-					
+
 					if ( @count( $r ) > 0 )
 					{
 						foreach ( $r as $line )
@@ -922,18 +922,18 @@ final class FeedValidator
 				}
 			}
         }
-		else 
+		else
 		{
 			if ( preg_match( "^[0-9a-z]([-_.]?[0-9a-z])*@[0-9a-z]([-.]?[0-9a-z])*\\.[a-z]{2,3}$", $email ) > 0 )
-				return true; 
+				return true;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Control if the Country Code submited is correctly formated (ISO 3166-1)
 	 * It Must be a 2 chars Country Code (US, FR, ES)
-	 * 
+	 *
 	 * @access	public
 	 * @param	String	stringDate string element to control
 	 * @return	Boolean
@@ -941,40 +941,40 @@ final class FeedValidator
 	public static function isValidCountryCode( $countryCode )
 	{
 		$countryCode = strtoupper( trim( $countryCode ) );
-		
+
 		if ( self::isNull( $countryCode ) ) return false;
-		
-		foreach ( self::$COUNTRIES_ as $countryC => $countryN ) 
+
+		foreach ( self::$COUNTRIES_ as $countryC => $countryN )
 		{
 			if ( $countryCode == $countryC ) return true;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Control if the Language Code submited is correctly formated (ISO 4217)
 	 * It Must be a 2 chars Language Code (EN, FR, ES,..)
-	 * 
+	 *
 	 * @access	public
 	 * @param	String	stringDate string element to control
 	 * @return	Boolean
-	 */	
+	 */
 	public static  function isValidLanguageCode( $languageCode )
 	{
 		$languageCode = strtolower( $languageCode );
-		
+
 		if ( self::isNull( $languageCode ) ) return false;
-		
-		foreach ( self::$LANGUAGES_ as $langC => $langN ) 
+
+		foreach ( self::$LANGUAGES_ as $langC => $langN )
 		{
 			if ( $languageCode == $langC ) return true;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 	Check if the parameter submited is a valid decimal Latitude
-	 * 
+	 *
 	 * 	@access	public
 	 * 	@param	Float	Value of the Latitude to evaluate.
 	 * 	@return Boolean	Return true is the Latitude is valide, false else.
@@ -982,13 +982,13 @@ final class FeedValidator
 	public static function isValidLatitude( $latitude=null )
 	{
 		$match_latitude = preg_match( "/^-?([0-8]?[0-9]|90)\.[0-9]{1,7}$/", $latitude );
-		
+
 		return ( $match_latitude == 1 )? true : false;
 	}
-	
+
 	/**
 	 * 	Check if the parameter submited is a valid decimal Longitude
-	 * 
+	 *
 	 * 	@access	public
 	 * 	@param	Float	Value of the Longitude to evaluate.
 	 * 	@return Boolean	Return true is the Longitude is valide, false else.
@@ -996,50 +996,50 @@ final class FeedValidator
 	public static function isValidLongitude( $longitude=null )
 	{
 		$match_longitude = preg_match( "/^-?((1?[0-7]?|[0-9]?)[0-9]|180)\.[0-9]{1,7}$/", $longitude );
-		
+
 		return ( $match_longitude == 1 )? true : false;
 	}
-	
+
 	/**
 	 * 	Check if the parameter submited contain both numbers and alpha characters.
-	 * 
+	 *
 	 * 	@access	public
 	 * 	@param	Object	Value of the String to evaluate.
 	 * 	@return Boolean	Return true is the both elements are found, false else.
 	 */
-	public static function isAlphaNumChars( $in ) 
+	public static function isAlphaNumChars( $in )
 	{
 		return ( ( preg_match( "#(*UTF8)[[:alnum:]]#", $in ) > 0 )? true : false );
 	}
-	
+
 	/**
 	 * 	Check if the parameter submited contain only alpha characters.
-	 * 
+	 *
 	 * 	@access	public
 	 * 	@param	Object	Value of the String to evaluate.
 	 * 	@return Boolean	Return true is only alpha chars are found, false else.
 	 */
-	public static function isOnlyAlphaChars( $in ) 
+	public static function isOnlyAlphaChars( $in )
 	{
 		return ( ( preg_match( "#(*UTF8)[[:alpha:]]#", $in ) > 0 )? true : false );
 	}
-	
+
 	/**
 	 * 	Check if the parameter submited contain only numbers.
-	 * 
+	 *
 	 * 	@access	public
 	 * 	@param	Object	Value of the String to evaluate.
 	 * 	@return Boolean	Return true is only numbers are found, false else.
 	 */
-	public static function isOnlyNumsChars( $in ) 
+	public static function isOnlyNumsChars( $in )
 	{
 		return ( ( preg_match( "/^[0-9]*$/", $in ) > 0 )? true : false );
 	}
-	
+
 	/**
 	 * 	Check if the parameter submited is a valide 3 chars currency
-	 * 	Conform to the standard ISO 
-	 * 
+	 * 	Conform to the standard ISO
+	 *
 	 * 	@access	public
 	 * 	@param	String	Value of the 3 chars currency to evaluate.
 	 * 	@return Boolean	Return true is the currency is valide, false else.
@@ -1047,18 +1047,18 @@ final class FeedValidator
 	public static function isValidCurrency( $currency )
 	{
 		$currency = strtoupper( $currency );
-		
+
 		foreach( self::$CURRENCIES_ as $country => $cur )
 		{
 			if ( $currency == $cur ) return true;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 	Get a simplification of the text: reformat it to the define Charset (UTF-8 by default)
 	 * 	And remove HTML tags and breaklines.
-	 * 
+	 *
 	 * 	@access	public
 	 * 	@param	String	String text to reformat.
 	 * 	@param	String	[OPTIONAL] Charset to reset the text
@@ -1066,7 +1066,7 @@ final class FeedValidator
 	 */
 	public static function getOnlyText( $text='', $charset='UTF-8' )
 	{
-		return self::removeBreaklines( 
+		return self::removeBreaklines(
 			self::removeSpecialChars(
 				strip_tags(
 					self::charsetString( $text, $charset )
@@ -1074,15 +1074,15 @@ final class FeedValidator
 			)
 		);
 	}
-	
+
 	/**
 	 * 	Remove accents from the text submited according to a specific Charset (Default UTF-8)
-	 * 
+	 *
 	 * 	@access	public
 	 * 	@param	String	Text from which the accent have to be substitute by the ASCI equivalent.
 	 * 	@param 	String	Charset to from whitch the submited text have been encoded.
-	 * 	@return String	Text without accent. 
-	 */ 
+	 * 	@return String	Text without accent.
+	 */
 	public static function noAccent( $text='', $charset='UTF-8' )
 	{
 		return ( ( self::utf8_is_ascii( $text ) == true )?
@@ -1091,17 +1091,17 @@ final class FeedValidator
 			self::utf8_strip_ascii_ctrl( self::getOnlyText( $text ) )
 		);
 	}
-	
+
 	/**
 	 * 	Remove somme HTML elements that can distube the event content broadcast.
-	 * 
+	 *
 	 * 	@access	public
 	 * 	@param	String	String HTML text to reformat.
 	 * 	@return String	Return reformated text.
 	 */
 	public static function stripSpecificHTMLtags( $text='' )
 	{
-		return @preg_replace( 
+		return @preg_replace(
 			array(
 				/*
 				 * Leave/Remove Flash Objects
@@ -1114,24 +1114,24 @@ final class FeedValidator
 				'@<source[^>]*?>.*?</source>@si',
 				*/
 				'@<noscript[^>]*?>.*?</noscript>@si',
-				'@<iframe[^>]*?>.*?</iframe>@si', 
-				'@<script[^>]*?>.*?</script>@si', 
-				'@<style[^>]*?>.*?</style>@siU',  
+				'@<iframe[^>]*?>.*?</iframe>@si',
+				'@<script[^>]*?>.*?</script>@si',
+				'@<style[^>]*?>.*?</style>@siU',
 				'@<![\s\S]*?--[ \t\n\r]*>@' // Strip multi-line comments including CDATA
-			), 
-			'', 
+			),
+			'',
 			// Remove extra HTML whitespaces
-			@preg_replace( '~>\s+<~', '><', 
-				$text 
-			) 
+			@preg_replace( '~>\s+<~', '><',
+				$text
+			)
 		);
 	}
-	
+
 	/**
 	 * 	Reformat a text according to a specific Charset (by default UTF-8).
-	 * 	If the Charset is not detected, the text is forwarded with basic reformating	
-	 * 	@see	self::simplifyText() 
-	 * 
+	 * 	If the Charset is not detected, the text is forwarded with basic reformating
+	 * 	@see	self::simplifyText()
+	 *
 	 * 	@access	public
 	 * 	@param	String	String HTML text to reformat.
 	 * 	@return String	Return reformated text.
@@ -1141,31 +1141,31 @@ final class FeedValidator
 		$text_charset_detected = self::resolveUnicode(
 			mb_convert_encoding(
 				self::unhtmlentities(
-					htmlspecialchars( 
+					htmlspecialchars(
 						self::simplifyText( $text )
 					,ENT_DISALLOWED, $charset )
 				)
 			,$charset, "auto" )
 		);
-		return ( strlen( trim( $text_charset_detected ) ) > 0 )? 
-			$text_charset_detected 
-			: 
+		return ( strlen( trim( $text_charset_detected ) ) > 0 )?
+			$text_charset_detected
+			:
 			self::resolveUnicode( self::simplifyText( $text )
 		);
 	}
-	
+
 	/**
-	 * 	Replace anykind of breaklines from a text: HTML, url encoded or graphic breaklines 
+	 * 	Replace anykind of breaklines from a text: HTML, url encoded or graphic breaklines
 	 * 	with aspecific character send as segond parameter.
-	 * 
+	 *
 	 * 	@access	public
 	 * 	@param	String	String HTML text to reformat.
-	 * 	@param 	String	String to substitute from the breakline found.	
+	 * 	@param 	String	String to substitute from the breakline found.
 	 * 	@return String	Return reformated text.
 	 */
 	public static function removeBreaklines( $text='', $replace=' ' )
 	{
-		return @preg_replace( 
+		return @preg_replace(
 			array(
 				'@<br \/>@si',
 				'@<br/>@si',
@@ -1173,18 +1173,18 @@ final class FeedValidator
 				'@&lt;br&gt;@si',
 				'@&lt;br\/&gt;@si',
 				'@&lt;br\ \/&gt;@si',
-				'@\n@si', 
+				'@\n@si',
 				'@\r@si'
-			), 
-			$replace, 
+			),
+			$replace,
 			$text
 		);
 	}
-	
+
 	/**
 	 * 	Get the Date difference between two dates
 	 * 	@see http://www.addedbytes.com/blog/code/php-datediff-function/
-	 * 	
+	 *
 	 * 	@access public
 	 * 	@param	String interval type can be:
 	 *   				yyyy   Number of full years
@@ -1206,86 +1206,86 @@ final class FeedValidator
 	{
 		$datefrom 	= ( ( is_string( $datefrom 	) )? strtotime( $datefrom,  0 ) : intval( $datefrom ) );
 	    $dateto 	= ( ( is_string( $dateto	) )? strtotime( $dateto, 	0 ) : intval( $dateto 	) );
-		
+
 	    $difference = $dateto - $datefrom; // Difference in seconds
-	     
-	    switch( $interval_type ) 
+
+	    switch( $interval_type )
 	    {
 	    	case 'yyyy': // Number of full years
 		        $years_difference = floor( $difference / 31536000 );
-	        	if ( mktime( 
-	        			date("H", $datefrom), 
-	        			date("i", $datefrom), 
-	        			date("s", $datefrom), 
-	        			date("n", $datefrom), 
-	        			date("j", $datefrom), 
+	        	if ( mktime(
+	        			date("H", $datefrom),
+	        			date("i", $datefrom),
+	        			date("s", $datefrom),
+	        			date("n", $datefrom),
+	        			date("j", $datefrom),
 	        			date("Y", $datefrom)+$years_difference
 					) > $dateto
-				) 
+				)
 				{
 	            	$years_difference--;
 	        	}
 	        	if ( mktime(
-	        			date("H", $dateto), 
-	        			date("i", $dateto), 
-	        			date("s", $dateto), 
-	        			date("n", $dateto), 
-	        			date("j", $dateto), 
+	        			date("H", $dateto),
+	        			date("i", $dateto),
+	        			date("s", $dateto),
+	        			date("n", $dateto),
+	        			date("j", $dateto),
 	        			date("Y", $dateto)-( $years_difference+1 )
 					) > $datefrom
-				) 
+				)
 				{
 	            	$years_difference++;
 	        	}
-				
+
 	        	$datediff = $years_difference;
 	        	break;
-	
+
 	    case "q": // Number of full quarters
 	        $quarters_difference = floor($difference / 8035200);
-			
+
 	        while (mktime(
-		        	date("H", $datefrom), 
-		        	date("i", $datefrom), 
-		        	date("s", $datefrom), 
-		        	date("n", $datefrom)+($quarters_difference*3), 
-		        	date("j", $dateto), 
+		        	date("H", $datefrom),
+		        	date("i", $datefrom),
+		        	date("s", $datefrom),
+		        	date("n", $datefrom)+($quarters_difference*3),
+		        	date("j", $dateto),
 		        	date("Y", $datefrom)
 				) < $dateto
-			) 
+			)
 			{
 	            $months_difference++;
 	        }
 	        $quarters_difference--;
 	        $datediff = $quarters_difference;
 	        break;
-	
+
 	    case "m": // Number of full months
 	        $months_difference = floor( $difference / 2678400 );
 	        while (mktime(
-		        	date("H", $datefrom), 
-		        	date("i", $datefrom), 
-		        	date("s", $datefrom), 
-		        	date("n", $datefrom)+($months_difference), 
-		        	date("j", $dateto), 
+		        	date("H", $datefrom),
+		        	date("i", $datefrom),
+		        	date("s", $datefrom),
+		        	date("n", $datefrom)+($months_difference),
+		        	date("j", $dateto),
 		        	date("Y", $datefrom)
 				) < $dateto
-			) 
+			)
 			{
 	            $months_difference++;
 	        }
 	        $months_difference--;
 	        $datediff = $months_difference;
 	        break;
-	
+
 	    case 'y': // Difference between day numbers
 	        $datediff = date("z", $dateto) - date("z", $datefrom);
 	        break;
-	
+
 	    case "d": // Number of full days
 	        $datediff = floor($difference / 86400);
 	        break;
-	
+
 	    case "w": // Number of full weekdays
 	        $days_difference 	= floor($difference / 86400);
 	        $weeks_difference 	= floor($days_difference / 7); // Complete weeks
@@ -1300,39 +1300,39 @@ final class FeedValidator
 	        }
 	        $datediff = ($weeks_difference * 5) + $days_remainder;
 	        break;
-	
+
 	    case "ww": // Number of full weeks
-	
+
 	        $datediff = floor($difference / 604800);
 	        break;
-	
+
 	    case "h": // Number of full hours
 	        $datediff = floor($difference / 3600);
 	        break;
-	
+
 	    case "n": // Number of full minutes
 	        $datediff = floor($difference / 60);
 	        break;
-	
+
 	    default: // Number of full seconds (default)
 	        $datediff = $difference;
 	        break;
-	    }    
-	
+	    }
+
 	    return $datediff;
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
 	//--------------------------------------------------------------------
 	// -- Private Static Methods --
 	//--------------------------------------------------------------------
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * 	Tests whether a string contains only 7bit ASCII bytes.
 	 * 	You might use this to conditionally check whether a string
@@ -1340,12 +1340,12 @@ final class FeedValidator
 	 * 	benefits by using the native PHP equivalent if it's just ASCII e.g.;
 	 *
 	 * 	<code>
-	 * 		if ( utf8_is_ascii( $someString ) ) 
+	 * 		if ( utf8_is_ascii( $someString ) )
 	 * 		{
 	 *     		// It's just ASCII - use the native PHP version
 	 *     		$someString = strtolower($someString);
-	 * 		} 
-	 * 		else 
+	 * 		}
+	 * 		else
 	 * 		{
 	 *     		$someString = utf8_strtolower($someString);
 	 * 		}
@@ -1354,71 +1354,71 @@ final class FeedValidator
 	 * 	@param 	String
 	 * 	@return Boolean TRUE if it's all ASCII
 	 */
-	private static function utf8_is_ascii( $str='' ) 
+	private static function utf8_is_ascii( $str='' )
 	{
 	    // Search for any bytes which are outside the ASCII range...
 	    return ( preg_match('/(?:[^\x00-\x7F])/', @$str ) !== 1 );
 	}
-	
+
 	/**
 	 * 	Strip out all non-7bit ASCII bytes
 	 * 	If you need to transmit a string to system which you know can only
 	 * 	support 7bit ASCII, you could use this function.
-	 * 
+	 *
 	 * 	@param 	String
 	 * 	@return String with non ASCII bytes removed
 	 * 	@see 	utf8_strip_non_ascii_ctrl
 	 */
-	private static function utf8_strip_non_ascii( $str='' ) 
+	private static function utf8_strip_non_ascii( $str='' )
 	{
 	    ob_start();
-		
-	    while ( preg_match( '/^([\x00-\x7F]+)|([^\x00-\x7F]+)/S', @$str, $matches ) ) 
+
+	    while ( preg_match( '/^([\x00-\x7F]+)|([^\x00-\x7F]+)/S', @$str, $matches ) )
 	    {
-	        if ( !isset( $matches[ 2 ] ) ) 
+	        if ( !isset( $matches[ 2 ] ) )
 	        {
 	        	echo $matches[ 0 ];
 	        }
 	        $str = substr( $str, strlen( $matches[ 0 ] ) );
 	    }
-	    
+
 	    $result = ob_get_contents();
-		
+
 	    ob_end_clean();
-		
+
 	    return $result;
-	} 
-	
+	}
+
 	/**
 	 * 	Strip out device control codes in the ASCII range
 	 * 	which are not permitted in XML. Note that this leaves
 	 * 	multi-byte characters untouched - it only removes device control codes.
-	 * 
+	 *
 	 * 	@see 	http://hsivonen.iki.fi/producing-xml/#controlchar
 	 * 	@param 	String
 	 * 	@return String 	control codes removed
 	 */
-	private static function utf8_strip_ascii_ctrl( $str ) 
+	private static function utf8_strip_ascii_ctrl( $str )
 	{
 	    ob_start();
-		
-	    while ( preg_match( '/^([^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+)|([\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+)/S', $str, $matches ) ) 
+
+	    while ( preg_match( '/^([^\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+)|([\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+)/S', $str, $matches ) )
 	    {
-	        if ( !isset( $matches[ 2 ]) ) 
+	        if ( !isset( $matches[ 2 ]) )
 	        {
 	        	echo $matches[ 0 ];
 	        }
-			
+
 	        $str = substr( $str, strlen( $matches[ 0 ] ) );
 	    }
-		
+
 	    $result = ob_get_contents();
-	    
+
 	    ob_end_clean();
-	    
+
 	    return $result;
 	}
-	
+
 	/**
 	 * 	Replace accented UTF-8 characters by unaccented ASCII-7 "equivalents".
 	 * 	The purpose of this function is to replace characters commonly found in Latin
@@ -1433,22 +1433,22 @@ final class FeedValidator
 	 * 	available from the phputf8 project downloads:
 	 * 	http://prdownloads.sourceforge.net/phputf8
 	 *
-	 * 	@author Andreas Gohr <andi@splitbrain.org> 
+	 * 	@author Andreas Gohr <andi@splitbrain.org>
 	 * 	@param 	String 	UTF-8 string
 	 * 	@param 	int 	(optional) -1 lowercase only, +1 uppercase only, 1 both cases
 	 * 	@param 	String 	UTF-8 with accented characters replaced by ASCII chars
 	 * 	@return String 	accented chars replaced with ascii equivalents
-	 
+
 	 */
 	private static function utf8_accents_to_ascii( $str, $case=0 )
 	{
-	
+
 	    static $UTF8_LOWER_ACCENTS = NULL;
 	    static $UTF8_UPPER_ACCENTS = NULL;
-	
+
 	    if ( $case <= 0 )
 	    {
-	        if ( is_null($UTF8_LOWER_ACCENTS) ) 
+	        if ( is_null($UTF8_LOWER_ACCENTS) )
 	        {
 	      		$UTF8_LOWER_ACCENTS = array(
 				  'à' => 'a', 'ô' => 'o', 'ď' => 'd', 'ḟ' => 'f', 'ë' => 'e', 'š' => 's', 'ơ' => 'o',
@@ -1468,17 +1468,17 @@ final class FeedValidator
 				  'û' => 'u', 'þ' => 'th', 'ð' => 'dh', 'æ' => 'ae', 'µ' => 'u', 'ĕ' => 'e',
 	            );
 	        }
-	
+
 	        $str = str_replace(
                 array_keys( $UTF8_LOWER_ACCENTS ),
                 array_values( $UTF8_LOWER_ACCENTS ),
                 $str
             );
 	    }
-	
+
 	    if ( $case >= 0 )
 	    {
-			if ( is_null( $UTF8_UPPER_ACCENTS ) ) 
+			if ( is_null( $UTF8_UPPER_ACCENTS ) )
 			{
 				$UTF8_UPPER_ACCENTS = array(
 				  'À' => 'A', 'Ô' => 'O', 'Ď' => 'D', 'Ḟ' => 'F', 'Ë' => 'E', 'Š' => 'S', 'Ơ' => 'O',
@@ -1505,136 +1505,132 @@ final class FeedValidator
                 $str
             );
 	    }
-	
+
 	    return $str;
 	}
-	
-	private static function removeSpecialChars( $text='' ) 
+
+	private static function removeSpecialChars( $text='' )
 	{
 		return preg_replace( '/[^a-zA-Z0-9_%:[.:\\?&-]\\/-]/s', ' ', str_replace(array(':http','/http'),' http',$text ) );
 	}
-	
+
 	protected static function simplifyText( $text )
 	{
 		return urldecode( stripslashes( $text ) );
 	}
-	
+
 	protected static function unhtmlentities( $text )
 	{
-	   // replace numeric entities
-	   $text = preg_replace( '~&#x([0-9a-f]+);~ei', 'chr(hexdec("\\1"))', 	$text );
-	   $text = preg_replace( '~&#([0-9]+);~e',	  	'chr(\\1)', 			$text );
-	   
-	   // replace literal entities
+	   // replace litteral entities
 	   $trans_tbl = array_flip( @get_html_translation_table( HTML_ENTITIES ) );
-	   
+
 	   return strtr( $text, $trans_tbl );
 	}
-	
+
 	private static function resolveUnicode( $text )
 	{
 		$special_chars = array(
-			'&Agrave;' 	=> 'À', 
-			'&agrave;' 	=> 'à', 
-			'&Aacute;' 	=> 'Á', 
-			'&aacute;' 	=> 'á', 
-			'&Acirc;' 	=> 'Â', 
-			'&acirc;' 	=> 'â', 
-			'&Atilde;' 	=> 'Ã', 
-			'&atilde;' 	=> 'ã', 
-			'&Auml;' 	=> 'Ä', 
-			'&auml;' 	=> 'ä', 
-			'&Aring;'	=> 'Å', 
-			'&aring;' 	=> 'å', 
-			'&AElig;' 	=> 'Æ', 
-			'&aelig;' 	=> 'æ', 
-			'&Ccedil;' 	=> 'Ç', 
+			'&Agrave;' 	=> 'À',
+			'&agrave;' 	=> 'à',
+			'&Aacute;' 	=> 'Á',
+			'&aacute;' 	=> 'á',
+			'&Acirc;' 	=> 'Â',
+			'&acirc;' 	=> 'â',
+			'&Atilde;' 	=> 'Ã',
+			'&atilde;' 	=> 'ã',
+			'&Auml;' 	=> 'Ä',
+			'&auml;' 	=> 'ä',
+			'&Aring;'	=> 'Å',
+			'&aring;' 	=> 'å',
+			'&AElig;' 	=> 'Æ',
+			'&aelig;' 	=> 'æ',
+			'&Ccedil;' 	=> 'Ç',
 			'&ccedil;' 	=> 'ç',
-			'&ETH;' 	=> 'Ð', 
-			'&eth;' 	=> 'ð', 
-			'&Egrave;' 	=> 'È', 
-			'&egrave;' 	=> 'è', 
-			'&Eacute;' 	=> 'É', 
-			'&eacute;' 	=> 'é', 
-			'&Ecirc;' 	=> 'Ê', 
-			'&ecirc;' 	=> 'ê', 
-			'&Euml;' 	=> 'Ë', 
-			'&euml;' 	=> 'ë', 
-			'&Igrave;' 	=> 'Ì', 
-			'&igrave;' 	=> 'ì', 
-			'&Iacute;' 	=> 'Í', 
-			'&iacute;' 	=> 'í', 
-			'&Icirc;' 	=> 'Î', 
-			'&icirc;' 	=> 'î', 
-			'&Iuml;' 	=> 'Ï', 
-			'&iuml;' 	=> 'ï', 
+			'&ETH;' 	=> 'Ð',
+			'&eth;' 	=> 'ð',
+			'&Egrave;' 	=> 'È',
+			'&egrave;' 	=> 'è',
+			'&Eacute;' 	=> 'É',
+			'&eacute;' 	=> 'é',
+			'&Ecirc;' 	=> 'Ê',
+			'&ecirc;' 	=> 'ê',
+			'&Euml;' 	=> 'Ë',
+			'&euml;' 	=> 'ë',
+			'&Igrave;' 	=> 'Ì',
+			'&igrave;' 	=> 'ì',
+			'&Iacute;' 	=> 'Í',
+			'&iacute;' 	=> 'í',
+			'&Icirc;' 	=> 'Î',
+			'&icirc;' 	=> 'î',
+			'&Iuml;' 	=> 'Ï',
+			'&iuml;' 	=> 'ï',
 			'&Ntilde;' 	=> 'Ñ',
 			'&ntilde;' 	=> 'ñ',
-			'&Ograve;' 	=> 'Ò', 
-			'&ograve;' 	=> 'ò', 
-			'&Oacute;' 	=> 'Ó', 
-			'&oacute;' 	=> 'ó', 
-			'&Ocirc;' 	=> 'Ô', 
-			'&ocirc;' 	=> 'ô', 
-			'&Otilde;' 	=> 'Õ', 
-			'&otilde;' 	=> 'õ', 
-			'&Ouml;' 	=> 'Ö', 
-			'&ouml;' 	=> 'ö', 
-			'&Oslash;' 	=> 'Ø', 
+			'&Ograve;' 	=> 'Ò',
+			'&ograve;' 	=> 'ò',
+			'&Oacute;' 	=> 'Ó',
+			'&oacute;' 	=> 'ó',
+			'&Ocirc;' 	=> 'Ô',
+			'&ocirc;' 	=> 'ô',
+			'&Otilde;' 	=> 'Õ',
+			'&otilde;' 	=> 'õ',
+			'&Ouml;' 	=> 'Ö',
+			'&ouml;' 	=> 'ö',
+			'&Oslash;' 	=> 'Ø',
 			'&oslash;' 	=> 'ø',
-			'&OElig;' 	=> 'Œ', 
-			'&oelig;' 	=> 'œ', 
-			'&szlig;' 	=> 'ß', 
-			'&THORN;' 	=> 'Þ', 
-			'&thorn;' 	=> 'þ', 
-			'&Ugrave;'	=> 'Ù', 
-			'&ugrave;' 	=> 'ù', 
-			'&Uacute;' 	=> 'Ú', 
-			'&uacute;' 	=> 'ú', 
-			'&Ucirc;' 	=> 'Û', 
-			'&ucirc;' 	=> 'û', 
-			'&Uuml;' 	=> 'Ü', 
+			'&OElig;' 	=> 'Œ',
+			'&oelig;' 	=> 'œ',
+			'&szlig;' 	=> 'ß',
+			'&THORN;' 	=> 'Þ',
+			'&thorn;' 	=> 'þ',
+			'&Ugrave;'	=> 'Ù',
+			'&ugrave;' 	=> 'ù',
+			'&Uacute;' 	=> 'Ú',
+			'&uacute;' 	=> 'ú',
+			'&Ucirc;' 	=> 'Û',
+			'&ucirc;' 	=> 'û',
+			'&Uuml;' 	=> 'Ü',
 			'&uuml;' 	=> 'ü',
 			'&Yacute;' 	=> 'Ý',
-			'&yacute;' 	=> 'ý', 
-			'&Yuml;' 	=> 'Ÿ', 
+			'&yacute;' 	=> 'ý',
+			'&Yuml;' 	=> 'Ÿ',
 			'&yuml;' 	=> 'ÿ',
 			'&euro;'	=> '€',
 			'&plusmn;'	=> '±',
-			
-			'&sbquo;' 	=> chr(130), // Single Low-9 Quotation Mark 
-        	'&fnof;' 	=> chr(131), // Latin Small Letter F With Hook 
-			'&bdquo;' 	=> chr(132), // Double Low-9 Quotation Mark 
-			'&hellip;' 	=> chr(133), // Horizontal Ellipsis 
-			'&dagger;' 	=> chr(134), // Dagger 
-			'&Dagger;' 	=> chr(135), // Double Dagger 
-			'&circ;' 	=> chr(136), // Modifier Letter Circumflex Accent 
-			'&permil;' 	=> chr(137), // Per Mille Sign 
-			'&Scaron;' 	=> chr(138), // Latin Capital Letter S With Caron 
-			'&lsaquo;' 	=> chr(139), // Single Left-Pointing Angle Quotation Mark 
-			'&OElig;' 	=> chr(140), // Latin Capital Ligature OE 
-			'&lsquo;' 	=> chr(145), // Left Single Quotation Mark 
-			'&rsquo;' 	=> chr(146), // Right Single Quotation Mark 
-			'&ldquo;' 	=> chr(147), // Left Double Quotation Mark 
-			'&rdquo;' 	=> chr(148), // Right Double Quotation Mark 
-			'&bull;' 	=> chr(149), // Bullet 
-			'&ndash;' 	=> chr(150), // En Dash 
-			'&mdash;' 	=> chr(151), // Em Dash 
-			'&tilde;' 	=> chr(152), // Small Tilde 
-			'&trade;' 	=> chr(153), // Trade Mark Sign 
-			'&scaron;' 	=> chr(154), // Latin Small Letter S With Caron 
-			'&rsaquo;' 	=> chr(155), // Single Right-Pointing Angle Quotation Mark 
-			'&oelig;' 	=> chr(156), // Latin Small Ligature OE 
-			'&Yuml;' 	=> chr(159)  // Latin Capital Letter Y With Diaeresis 
+
+			'&sbquo;' 	=> chr(130), // Single Low-9 Quotation Mark
+        	'&fnof;' 	=> chr(131), // Latin Small Letter F With Hook
+			'&bdquo;' 	=> chr(132), // Double Low-9 Quotation Mark
+			'&hellip;' 	=> chr(133), // Horizontal Ellipsis
+			'&dagger;' 	=> chr(134), // Dagger
+			'&Dagger;' 	=> chr(135), // Double Dagger
+			'&circ;' 	=> chr(136), // Modifier Letter Circumflex Accent
+			'&permil;' 	=> chr(137), // Per Mille Sign
+			'&Scaron;' 	=> chr(138), // Latin Capital Letter S With Caron
+			'&lsaquo;' 	=> chr(139), // Single Left-Pointing Angle Quotation Mark
+			'&OElig;' 	=> chr(140), // Latin Capital Ligature OE
+			'&lsquo;' 	=> chr(145), // Left Single Quotation Mark
+			'&rsquo;' 	=> chr(146), // Right Single Quotation Mark
+			'&ldquo;' 	=> chr(147), // Left Double Quotation Mark
+			'&rdquo;' 	=> chr(148), // Right Double Quotation Mark
+			'&bull;' 	=> chr(149), // Bullet
+			'&ndash;' 	=> chr(150), // En Dash
+			'&mdash;' 	=> chr(151), // Em Dash
+			'&tilde;' 	=> chr(152), // Small Tilde
+			'&trade;' 	=> chr(153), // Trade Mark Sign
+			'&scaron;' 	=> chr(154), // Latin Small Letter S With Caron
+			'&rsaquo;' 	=> chr(155), // Single Right-Pointing Angle Quotation Mark
+			'&oelig;' 	=> chr(156), // Latin Small Ligature OE
+			'&Yuml;' 	=> chr(159)  // Latin Capital Letter Y With Diaeresis
        	);
-		
+
 		foreach( $special_chars as $el => &$char )
 		{
 			$text = str_replace( $el, $char, $text );
 		}
-		
+
 		return $text;
 	}
-	
-	
+
+
 }

@@ -13,7 +13,7 @@ README.md
 K 25
 svn:wc:ra_dav:version-url
 V 64
-/!svn/ver/783947/events-manager-ess/trunk/inc/libs/ess/README.md
+/!svn/ver/810292/events-manager-ess/trunk/inc/libs/ess/README.md
 END
 EssDTD.php
 K 25
@@ -25,11 +25,11 @@ FeedWriter.php
 K 25
 svn:wc:ra_dav:version-url
 V 69
-/!svn/ver/795960/events-manager-ess/trunk/inc/libs/ess/FeedWriter.php
+/!svn/ver/810292/events-manager-ess/trunk/inc/libs/ess/FeedWriter.php
 END
 FeedValidator.php
 K 25
 svn:wc:ra_dav:version-url
 V 72
-/!svn/ver/783947/events-manager-ess/trunk/inc/libs/ess/FeedValidator.php
+/!svn/ver/810292/events-manager-ess/trunk/inc/libs/ess/FeedValidator.php
 END
