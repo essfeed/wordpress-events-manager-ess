@@ -120,6 +120,9 @@ final class FeedWriter
 	 */
 	private function setChannelElement( $elementName, $content )
 	{
+		if ( is_string( $content ) )
+			$content = FeedValidator::xml_entities( $content );
+
 		$this->channel[ $elementName ] = $content;
 	}
 
@@ -704,7 +707,13 @@ final class FeedWriter
 				if ( isset( $value ) || $value == 0 )
 				{
 					$nodeText .= $this->t(4) . $this->makeNode( $key,
-						( ( self::REPLACE_ACCENT )? FeedValidator::noAccent( $value, $this->CHARSET ) : $value )
+						( ( self::REPLACE_ACCENT )?
+							FeedValidator::xml_entities(
+								FeedValidator::noAccent( $value, $this->CHARSET )
+							)
+							:
+							$value
+						)
 					);
 				}
 			}
@@ -718,7 +727,12 @@ final class FeedWriter
 			else if ( $tagName == 'start' ) 	{ $nodeText .= self::getISODate( $tagContent ); }
 			else if ( $tagName == 'link' ||
 					  $tagName == 'uri' )		{ $nodeText .= htmlentities( $tagContent ); }
-			else								{ $nodeText .= FeedValidator::noAccent( $tagContent ); }
+			else
+			{
+				$nodeText .= FeedValidator::xml_entities(
+					FeedValidator::noAccent( $tagContent )
+				);
+			}
 		}
 
 		$nodeText .= ( ( in_array( $tagName, $CDATA ) )? self::LN .  $this->t(3) . "]]>" . self::LN . $this->t(3) . "</$tagName>" : "</$tagName>" );
@@ -1041,7 +1055,7 @@ final class FeedWriter
 	{
 		$r = @$response['result'];
 		$isOK = @isset( $r['result'] )? TRUE : FALSE;
-		$isVersionUptoDate = ( (String)$r['version'] != (String)self::LIBRARY_VERSION && $isOK )? FALSE : TRUE;
+		$isVersionUptoDate = ( (String)@$r['version'] != (String)self::LIBRARY_VERSION && $isOK )? FALSE : TRUE;
 
 		if ( $this->DEBUG == TRUE )
 		{

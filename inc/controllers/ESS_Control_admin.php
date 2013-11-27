@@ -2,65 +2,65 @@
 /**
   * Controller ESS_Control_admin
   * Control the user interaction with Admin page
-  *                             
+  *
   * @author  	Brice Pissard
   * @copyright 	No Copyright.
   * @license   	GNU/GPLv2, see http://www.gnu.org/licenses/gpl-2.0.html
   * @link    	http://essfeed.org
-  * @link		https://github.com/essfeed 
-  */ 
+  * @link		https://github.com/essfeed
+  */
 final class ESS_Control_admin
 {
 	function __construct(){}
-	
-	
-	
+
+
+
 	public static function control_requirement()
 	{
 		// If Events Managers is not installed
 		if ( @strlen( EM_DIR ) <= 0 )
 			ESS_Elements::get_events_manager_required();
-			
+
 		// If PHP cURL not installed
 		if ( function_exists( 'curl_version' ) == false )
 			ESS_Elements::get_php_curl_required();
 	}
-	
+
 	public static function control_import_ESS()
 	{
 		$import_url			= urldecode( @$_REQUEST[ 'ess_feed_url' ] );
 		$update_url 		= urldecode( @$_REQUEST[ 'update_once' ] );
 		$selected_event_id 	= intval( @$_REQUEST['selected_event_id'] );
-		
-		if ( (	
-				strlen( $import_url ) <= 0 || $import_url == ESS_IO::HTTP 
+
+		if ( (
+				strlen( $import_url ) <= 0 || $import_url == ESS_IO::HTTP
 			) && (
 				FeedValidator::isValidURL( $update_url ) == false || $selected_event_id <= 0
 			)
 		) return;
-		
+
 		if ( FeedValidator::isValidURL( $update_url ) && $selected_event_id > 0 )
 			ESS_Import::save( $update_url, $_REQUEST[ 'feed_mode_'.$selected_event_id ] );
 		else
 			ESS_Import::save( $import_url, $_REQUEST['ess_feed_mode'] );
 	}
-	
+
 	public static function control_nav_actions()
 	{
 		if(@count($_REQUEST)<=0||strlen($_REQUEST['action'])<=0||$_REQUEST['action']==-1) return;
-		
+
 		if ( @count( @$_REQUEST['feeds'] ) > 0 && strlen( $_REQUEST['action'] ) > 0 )
 		{
 			global $ESS_Notices;
-			
+
 			$count_action = 0;
-			
-			foreach ( $_REQUEST['feeds'] as $feed_id ) 
+
+			foreach ( $_REQUEST['feeds'] as $feed_id )
 			{
-				if ( intval( $feed_id ) > 0 ) 
+				if ( intval( $feed_id ) > 0 )
 				{
 					$count_action++;
-					
+
 					switch ( $_REQUEST['action'] )
 					{
 						default 			: $action = __( 'have been updated', 					'dbem' ); break;
@@ -69,31 +69,31 @@ final class ESS_Control_admin
 						case 'full_deleted'	: $action = __( 'have been definitively removed', 		'dbem' ); break;
 						case 'update_cron'	: $action = __( 'have its daily update reactualized', 	'dbem' ); break;
 					}
-					
-					if ( $_REQUEST['action'] == 'active' || 
+
+					if ( $_REQUEST['action'] == 'active' ||
 						 $_REQUEST['action'] == 'deleted' )
 						ESS_Database::add( array(
-							'feed_id'		=> $feed_id, 
-							'feed_status'	=> strtoupper( $_REQUEST[ 'action' ] ) 
+							'feed_id'		=> $feed_id,
+							'feed_status'	=> strtoupper( $_REQUEST[ 'action' ] )
 						) );
-						
-					else if ( $_REQUEST['action'] == 'full_deleted' ) 
+
+					else if ( $_REQUEST['action'] == 'full_deleted' )
 						ESS_Database::delete( array(
 							'feed_status' 	=> ESS_Database::FEED_STATUS_DELETED,
-							'feed_id'		=> $feed_id 
+							'feed_id'		=> $feed_id
 						) );
-					
+
 					else if ( $_REQUEST['action'] == 'update_cron' )
 					{
-						$feed_mode = ( ( $_REQUEST[ 'feed_mode_'.$feed_id ] == 'on' )? 
-							ESS_Database::FEED_MODE_CRON 
-							: 
+						$feed_mode = ( ( $_REQUEST[ 'feed_mode_'.$feed_id ] == 'on' )?
+							ESS_Database::FEED_MODE_CRON
+							:
 							ESS_Database::FEED_MODE_STANDALONE
 						);
-						
+
 						ESS_Database::add( array(
-							'feed_id'	=> $feed_id, 
-							'feed_mode'	=> $feed_mode 
+							'feed_id'	=> $feed_id,
+							'feed_mode'	=> $feed_mode
 						) );
 					}
 				}
@@ -101,13 +101,13 @@ final class ESS_Control_admin
 			$ESS_Notices->add_confirm( sprintf( __( "%d rows %s.",'dbem'), $count_action, $action ) );
 		}
 	}
-	
+
 	public static function control_export_forms()
 	{
 		if ( !isset( $_REQUEST['save_export'] ) || empty( $_REQUEST['save_export'] ) ) return;
-		
+
 		global $ESS_Notices;
-		
+
 		// -- Feed Settings
 		ESS_Database::set_option( 'ess_feed_title', 			$_REQUEST['ess_feed_title'] 		);
 		ESS_Database::set_option( 'ess_feed_rights', 			$_REQUEST['ess_feed_rights'] 		);
@@ -117,7 +117,7 @@ final class ESS_Control_admin
 		ESS_Database::set_option( 'ess_feed_currency', 			$_REQUEST['ess_feed_currency']		);
 		ESS_Database::set_option( 'ess_feed_language', 			$_REQUEST['ess_feed_language'] 	);
 		ESS_Database::set_option( 'ess_feed_timezone', 			$_REQUEST['ess_feed_timezone'] 	);
-		
+
 		// -- Feed Visibility
 			// -- Global
 			ESS_Database::set_option( 'ess_feed_visibility_web', 	( $_REQUEST['ess_feed_visibility_web'] 	== 'on' ) ? true : false );
@@ -130,7 +130,7 @@ final class ESS_Control_admin
 			ESS_Database::set_option( 'ess_feed_export_videos', 	( $_REQUEST['ess_feed_export_videos'] 	== 'on' ) ? true : false );
 			ESS_Database::set_option( 'ess_feed_import_sounds', 	( $_REQUEST['ess_feed_import_sounds'] 	== 'on' ) ? true : false );
 			ESS_Database::set_option( 'ess_feed_export_sounds', 	( $_REQUEST['ess_feed_export_sounds'] 	== 'on' ) ? true : false );
-		
+
 		// -- Event Organizer
 		ESS_Database::set_option( 'ess_owner_activate', 		( $_REQUEST['ess_owner_activate'] 	== 'on' ) ? true : false );
 			ESS_Database::set_option( 'ess_owner_firstname', 		$_REQUEST['ess_owner_firstname'] 	);
@@ -143,53 +143,53 @@ final class ESS_Control_admin
 			ESS_Database::set_option( 'ess_owner_country', 			$_REQUEST['ess_owner_country'] 		);
 			ESS_Database::set_option( 'ess_owner_website', 			self::url( $_REQUEST['ess_owner_website'] ) );
 			ESS_Database::set_option( 'ess_owner_phone', 			$_REQUEST['ess_owner_phone'] 		);
-		
+
 		// -- Social Platforms
 		foreach ( ESS_Database::$SOCIAL_PLATFORMS as $type => $socials_ )
 		{
 			foreach ( $socials_ as $social )
 			{
 				$url = $_REQUEST[ 'ess_social_'.$social ];
-				
+
 				if ( strlen( $url ) > 10 )
 				{
 					if ( FeedValidator::isValidURL( $url ) )
 						ESS_Database::set_option( 'ess_social_'.$social, $url );
 					else
-						$ESS_Notices->add_error( sprintf( __( 
-							"The URL you have submited for <b>%s</b> is not valide: <a href='%s' target='_blank'>%s</a>", 'dbem' ), 
-							$social, $url, $url 
+						$ESS_Notices->add_error( sprintf( __(
+							"The URL you have submited for <b>%s</b> is not valide: <a href='%s' target='_blank'>%s</a>", 'dbem' ),
+							$social, $url, $url
 						) );
 				}
 			}
 		}
-		
+
 		if ( strlen( $ESS_Notices->get_errors() ) <= 0 )
 			$ESS_Notices->add_info( __( "The export setting page have been save correctly.", 'dbem' ) );
 	}
-	
-	
+
+
 	public static function get_categories_types()
 	{
 		$cat_ = EssDTD::getFeedDTD();
-		
+
 		return ( @count( $cat_ ) > 0 )? $cat_['categories']['types'] : NULL;
 	}
-	
+
 	public static function is_form_import_ess_visible()
 	{
 		global $ESS_Notices;
 		if ( @count( $ESS_Notices->get_errors() ) > 0 )
 			return false;
-		
-		return ( ( 
-			strlen( $_REQUEST['ess_feed_url'] ) > 0 && 
-			$_REQUEST['ess_feed_url'] != ESS_IO::HTTP 
+
+		return ( (
+			strlen( $_REQUEST['ess_feed_url'] ) > 0 &&
+			$_REQUEST['ess_feed_url'] != ESS_IO::HTTP
 		)? true : false );
 	}
-	
-	private static function url( $url ) 
+
+	private static function url( $url )
 	{
 		return preg_replace( '/[^A-Za-z0-9\.\_\-\:\/\&\?\%\=\*\#\;\(\)\]\[\}\{]/', '', urldecode( $url ) );
-	} 
+	}
 }

@@ -1527,6 +1527,20 @@ final class FeedValidator
 	   return strtr( $text, $trans_tbl );
 	}
 
+	public static function xml_entities( $text )
+	{
+   		return strtr(
+	        $text,
+	        array(
+	            "<" => "&lt;",
+	            ">" => "&gt;",
+	            '"' => "&quot;",
+	            "'" => "&apos;",
+	            "&" => "&amp;",
+	        )
+	    );
+	}
+
 	private static function resolveUnicode( $text )
 	{
 		$special_chars = array(
