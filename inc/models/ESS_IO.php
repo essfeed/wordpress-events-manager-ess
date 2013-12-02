@@ -16,7 +16,7 @@ final class ESS_IO
 	const HTTP				= 'http://';
 	const ESS_WEBSITE 		= 'http://essfeed.org';
 	const PLUGIN_WEBSITE	= 'http://wp-events-plugin.com';
-	const HYPECAL_WEBSITE	= 'http://hypecal.com';
+	const HYPECAL_WEBSITE	= 'http://www.hypecal.com';
 	const CURL_LIB_URL		= 'http://php.net/manual/en/book.curl.php';
 
 	function __construct() {}
@@ -32,7 +32,7 @@ final class ESS_IO
 				add_action( 'wp_head',				array( 'ESS_Elements', 	'get_feed_meta_header' 		) );
 			}
 
-			add_filter( 'init', 					array( 'ESS_IO', 		'set_feed_handler' 			) );
+			add_filter( 'init', 					array( 'ESS_IO', 		'set_ess_feed_handler' 		), TRUE );
 			add_filter( 'rewrite_rules_array', 		array( 'ESS_IO', 		'get_rewrite_rules_array' 	) );
 			add_filter( 'query_vars', 				array( 'ESS_IO', 		'get_query_vars' 			) );
 
@@ -127,13 +127,13 @@ final class ESS_IO
 		wp_clear_scheduled_hook( 'daily_event_hook' );
 	}
 
-	public static function set_feed_handler()
+	public static function set_ess_feed_handler()
 	{
-		if ( preg_match( '/^\/?ess\/?$/', $_SERVER['REQUEST_URI']) || !empty( $_REQUEST[ self::EM_ESS_ARGUMENT ] ) )
+		if ( preg_match( '/^\/?em_ess\/?$/', $_SERVER['REQUEST_URI']) || !empty( $_REQUEST[ self::EM_ESS_ARGUMENT ] ) )
 		{
 			ESS_Feed::output(
-				$_REQUEST[ 'event_id' ],
-				$_REQUEST[ 'page' ],
+				( ( isset( $_REQUEST[ 'event_id' ] ) )? $_REQUEST[ 'event_id' ] : '' ),
+				( ( isset( $_REQUEST[ 'page' ] ) )? $_REQUEST[ 'page' ] : '' ),
 				( isset( $_REQUEST[ 'download' ] )? ( ( intval( $_REQUEST[ 'download' ] ) >= 1 )? TRUE : FALSE ) : FALSE ),
 				( isset( $_REQUEST[ 'push' ] 	 )? ( ( intval( $_REQUEST[ 'push' ] 	) >= 1 )? TRUE : FALSE ) : FALSE )
 			);
@@ -268,7 +268,7 @@ final class ESS_IO
 			'PROTOCOL'		=> ( ( stripos( @$_SERVER[ 'SERVER_PROTOCOL' ], 'https' ) === TRUE )? 'https://' : 'http://' ),
 			'HTTP_HOST'		=> @$_SERVER[ 'HTTP_HOST' ],
 			'REQUEST_URI'	=> @$_SERVER[ 'REQUEST_URI' ],
-			'feed'			=> $feed_url
+			'feed'			=> urlencode( $feed_url )
 		);
 
 		if ( $ch != FALSE )
@@ -286,7 +286,7 @@ final class ESS_IO
 			$result = curl_exec( $ch );
 
 			//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-			//var_dump( $target_url, $feed_url, $result );
+			//var_dump( $target_url, $feed_url, urlencode( $feed_url ), $result );
 			//var_dump( $result );
 
 			return $result;

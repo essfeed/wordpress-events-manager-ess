@@ -28,9 +28,9 @@ final class ESS_Control_admin
 
 	public static function control_import_ESS()
 	{
-		$import_url			= urldecode( @$_REQUEST[ 'ess_feed_url' ] );
-		$update_url 		= urldecode( @$_REQUEST[ 'update_once' ] );
-		$selected_event_id 	= intval( @$_REQUEST['selected_event_id'] );
+		$import_url			= ( isset( $_REQUEST[ 'ess_feed_url' ] 		) )? urldecode( @$_REQUEST[ 'ess_feed_url' ] 	) : '';
+		$update_url 		= ( isset( $_REQUEST[ 'update_once' ] 		) )? urldecode( @$_REQUEST[ 'update_once' ] 	) : '';
+		$selected_event_id 	= ( isset( $_REQUEST[ 'selected_event_id' ] ) )? intval( 	@$_REQUEST['selected_event_id'] ) : '';
 
 		if ( (
 				strlen( $import_url ) <= 0 || $import_url == ESS_IO::HTTP
@@ -47,7 +47,7 @@ final class ESS_Control_admin
 
 	public static function control_nav_actions()
 	{
-		if(@count($_REQUEST)<=0||strlen($_REQUEST['action'])<=0||$_REQUEST['action']==-1) return;
+		if ( !isset( $_REQUEST[ 'action' ] ) && !isset( $_REQUEST[ 'feeds' ] ) ) return;
 
 		if ( @count( @$_REQUEST['feeds'] ) > 0 && strlen( $_REQUEST['action'] ) > 0 )
 		{

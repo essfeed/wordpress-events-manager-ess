@@ -7,11 +7,11 @@ ESS_Import.php
 K 25
 svn:wc:ra_dav:version-url
 V 72
-/!svn/ver/784470/events-manager-ess/trunk/inc/controllers/ESS_Import.php
+/!svn/ver/813381/events-manager-ess/trunk/inc/controllers/ESS_Import.php
 END
 ESS_Control_admin.php
 K 25
 svn:wc:ra_dav:version-url
 V 79
-/!svn/ver/783947/events-manager-ess/trunk/inc/controllers/ESS_Control_admin.php
+/!svn/ver/813337/events-manager-ess/trunk/inc/controllers/ESS_Control_admin.php
 END

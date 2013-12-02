@@ -3,8 +3,8 @@ Contributors: netweblogic, essfeed
 Donate link: http://essfeed.org
 Tags: events, event, event registration, event calendar, events calendar, event management, events manager, feed, syndication, locations, maps, calendar,happenings, concerts, meetings, festivals,sport,diary,availability,feeds syndication, RSS, Atom, event publishers, XML, aggregator, crawling,crawler,google,indexation,high ranking,visibility,broadcast, schedule, SEO, booking, places, venue, upcoming, diary, ical, icalendar, organizer, planner,social events,social gatherings,cultural,museum,expo,cinema,movies,concert,jazz,festival,exhibition
 Requires at least: 3.2
-Tested up to: 3.6
-Stable tag: 0.4
+Tested up to: 3.7
+Stable tag: 0.95
 License: GPLv2 or later
 
 Extends Events Manager Wordpress plugin to import, export and sync events through ESS feeds.
@@ -14,14 +14,14 @@ ESS (Event Standard Syndication) is The Events Feed.
 
 **EVENTS MANAGER PLUGIN IS REQUIRED DO BE INSTALLED FIRST**
 
-Events Manager is a full-featured event plugin for WordPress: 
+Events Manager is a full-featured event plugin for WordPress:
 [Events Manager Plugin](http://wordpress.org/plugins/events-manager/)
 
 
 This plugin add several crucial SEO optimisations to Events Manager Plugin:
 
 * ESS standard is a new free and open-source XML feed invented exclusively for events.
-* ESS extension gives the ability to import and export ESS feeds 
+* ESS extension gives the ability to import and export ESS feeds
 * ESS facilitate SEO and event's broadcast.
 * ESS federates provider’s events into one feed that can be updated in real-time.
 
@@ -84,6 +84,14 @@ You'll find the bug tracking in: [github.com issues](https://github.com/essfeed/
 
 
 == Changelog ==
+
+= 0.9 =
+correct importation with multiple events in one feed
+correct some encoder in XTML and XML to be retrocompatible with php <= 5.3
+
+= 0.5 =
+* update the search engine push
+* events automaticaly visible on https://www.hypecal.com/search
 
 = 0.4 =
 * combine GitHub repository with Worpress SVN

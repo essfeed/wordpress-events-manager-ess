@@ -1,6 +1,8 @@
 <?php
-//error_reporting(E_ERROR | E_PARSE);
-@mb_detect_order( "UTF-8,eucjp-win,sjis-win" );
+//error_reporting(E_ALL); // DEBUG
+if ( function_exists( 'mb_detect_order' ) )
+	mb_detect_order( "UTF-8,eucjp-win,sjis-win" );
+
 require_once( "EssDTD.php" );
 require_once( 'FeedValidator.php' );
 require_once( 'EventFeed.php' );
@@ -18,7 +20,7 @@ require_once( 'EventFeed.php' );
   */
 final class FeedWriter
 {
-	const LIBRARY_VERSION	= '1.2';	// GitHub library versioning control.
+	const LIBRARY_VERSION	= '1.4';	// GitHub library versioning control.
 	const ESS_VERSION		= '0.9'; 	// ESS Feed version.
 	const CHARSET			= 'UTF-8';	// Defines the encoding Chartset for the whole document and the value inserted.
 	public $lang			= 'en';		// Default 2 chars language (ISO 3166-1).
@@ -35,10 +37,6 @@ final class FeedWriter
 	const LN				= '
 ';										// Display breaklines (for humans).
 
-	public static $AGGREGATOR_WS = "http://www.hypecal.com/api/v1/ess/aggregator.json";
-	public static $VALIDATOR_WS  = 'http://www.hypecal.com/api/v1/ess/validator.json';
-
-
 	/**
 	 * FeedWriter Class Constructor
 	 *
@@ -47,20 +45,23 @@ final class FeedWriter
 	 * @param  	Array 	[OPTIONAL] array of event's feed tags definition.
 	 * @return 	void
 	 */
-	function __construct( $lang='en', $data_=null )
+	function __construct( $lang='en', $data_=NULL )
 	{
+		if ( function_exists( 'set_error_handler' ) )
+			set_error_handler( "FeedValidator::error_handler" );
+
 		$channelDTD = EssDTD::getChannelDTD(); // DTD Array of Channel first XML child elements.
 
-		$this->lang = ( strlen($lang)==2 )? strtolower($lang) : $this->lang;
+		$this->lang = ( strlen( $lang ) == 2 )? strtolower( $lang ) : $this->lang;
 
 		$this->setGenerator( 'ess:php:generator:version:' . self::LIBRARY_VERSION );
 
 		$mandatoryRequiredCount = 0;
 		$mandatoryCount 		= 0;
 
-		if ( $data_ != null )
+		if ( $data_ != NULL )
 		{
-			if ( @count( $data_ ) > 0 )
+			if ( count( $data_ ) > 0 )
 			{
 				foreach ( $data_ as $key => $el )
 				{
@@ -121,7 +122,7 @@ final class FeedWriter
 	private function setChannelElement( $elementName, $content )
 	{
 		if ( is_string( $content ) )
-			$content = FeedValidator::xml_entities( $content );
+			$content = FeedValidator::xml_entities( $content, self::CHARSET );
 
 		$this->channel[ $elementName ] = $content;
 	}
@@ -135,12 +136,13 @@ final class FeedWriter
 	 */
 	public function genarateFeed( $filePath='', $displayResult=TRUE )
 	{
-		@mb_internal_encoding( self::CHARSET );
+		if ( function_exists( 'mb_internal_encoding' ) )
+			mb_internal_encoding( self::CHARSET );
 
 		if ( $this->DEBUG == FALSE && $displayResult == TRUE )
 		{
-			ob_end_clean();
-			header_remove();
+			if ( function_exists( 'header_remove' ) )
+				header_remove();
 
 			header( "Expires: Mon, 26 Jul 1997 05:00:00 GMT" );
 			header( "Cache-Control: no-cache" );
@@ -153,8 +155,13 @@ final class FeedWriter
 
 		$feedData = $this->getFeedData();
 
+		//var_dump( $feedData );
+
 		if ( FeedValidator::isNull( $filePath ) == FALSE && $this->DEBUG == FALSE )
 			$this->genarateFeedFile( $filePath, $feedData );
+
+		if ( function_exists( 'restore_error_handler' ) )
+			restore_error_handler();
 
 		if ( $displayResult == TRUE )
 			echo $feedData;
@@ -170,9 +177,10 @@ final class FeedWriter
 	 * @param	URL		URL of the same feed but available online. this URL will be used to broadcast your event to events search engines.
 	 * @return	void
 	 */
-	public function genarateFeedFile( $filePath='', $feedData=null )
+	public function genarateFeedFile( $filePath='', $feedData=NULL )
 	{
-		@mb_internal_encoding( self::CHARSET );
+		if ( function_exists( 'mb_internal_encoding' ) )
+			mb_internal_encoding( self::CHARSET );
 
 		try
 		{
@@ -180,7 +188,7 @@ final class FeedWriter
 
 			if ( $fp !== FALSE )
 			{
-				fwrite( $fp, ( ( $feedData != null )? $feedData : $this->getFeedData() ) );
+				fwrite( $fp, ( ( $feedData != NULL )? $feedData : $this->getFeedData() ) );
 				fclose( $fp );
 			}
 		}
@@ -217,21 +225,21 @@ final class FeedWriter
 	 * @access  public
 	 * @return 	Object  instance of EventFeed class
 	 */
-	public function newEventFeed( Array $arr_= null )
+	public function newEventFeed( Array $arr_= NULL )
 	{
-		$newEvent = new EventFeed( null, self::CHARSET, self::REPLACE_ACCENT );
+		$newEvent = new EventFeed( NULL, self::CHARSET, self::REPLACE_ACCENT );
 
 		if ( $arr_ )
 		{
-			if ( @count( $arr_ ) > 0 )
+			if ( count( $arr_ ) > 0 )
 			{
-				if ( FeedValidator::isNull( 	 @$arr_['title'] 		) == FALSE ) { $newEvent->setTitle( 		$arr_['title'] 			); }
-				if ( FeedValidator::isNull( 	 @$arr_['uri'] 			) == FALSE ) { $newEvent->setUri( 			$arr_['uri'] 			); }
-				if ( FeedValidator::isValidDate( @$arr_['published'] 	) == TRUE  ) { $newEvent->setPublished( 	$arr_['published'] 		); } else { $newEvent->setPublished( self::getISODate() ); }
-				if ( FeedValidator::isValidDate( @$arr_['updated'] 		) == TRUE  ) { $newEvent->setUpdated( 		$arr_['updated'] 		); }
-				if ( FeedValidator::isNull( 	 @$arr_['access'] 		) == FALSE ) { $newEvent->setAccess( 		$arr_['access'] 		); } else { $newEvent->setAccess( EssDTD::ACCESS_PUBLIC ); }
-				if ( FeedValidator::isNull(	 	 @$arr_['description']	) == FALSE ) { $newEvent->setDescription(	$arr_['description'] 	); }
-				if ( @count( $arr_['tags'] ) > 0 ) 								 	 { $newEvent->setTags(			$arr_['tags'] 			); }
+				if ( isset( $arr_['title'] 		) ) { if ( FeedValidator::isNull( 	   $arr_['title'] 		) == FALSE ) { $newEvent->setTitle( 		$arr_['title'] 			); }}
+				if ( isset( $arr_['uri'] 		) ) { if ( FeedValidator::isNull( 	   $arr_['uri'] 		) == FALSE ) { $newEvent->setUri( 			$arr_['uri'] 			); }}
+				if ( isset( $arr_['published'] 	) ) { if ( FeedValidator::isValidDate( $arr_['published'] 	) == TRUE  ) { $newEvent->setPublished( 	$arr_['published'] 		); } else { $newEvent->setPublished( self::getISODate() ); }}
+				if ( isset( $arr_['updated'] 	) ) { if ( FeedValidator::isValidDate( $arr_['updated'] 	) == TRUE  ) { $newEvent->setUpdated( 		$arr_['updated'] 		); }}
+				if ( isset( $arr_['access'] 	) ) { if ( FeedValidator::isNull( 	   $arr_['access'] 		) == FALSE ) { $newEvent->setAccess( 		$arr_['access'] 		); } else { $newEvent->setAccess( EssDTD::ACCESS_PUBLIC ); }}
+				if ( isset( $arr_['description']) ) { if ( FeedValidator::isNull(	   $arr_['description']	) == FALSE ) { $newEvent->setDescription(	$arr_['description'] 	); }}
+				if ( isset( $arr_['tags'] 		) ) { if ( count( $arr_['tags'] ) > 0 ) 								 { $newEvent->setTags(			$arr_['tags'] 			); }}
 			}
 		}
 		return $newEvent;
@@ -252,7 +260,11 @@ final class FeedWriter
 
 	public static function getCurrentURL()
 	{
-		return ( ( stripos( $_SERVER[ 'SERVER_PROTOCOL' ], 'https' ) === TRUE )? 'https://' : 'http://' ) . $_SERVER[ 'HTTP_HOST' ] . $_SERVER[ 'REQUEST_URI' ];
+		$protocol 	= ( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] 	) )? ( ( stripos( $_SERVER[ 'SERVER_PROTOCOL' ], 'https' ) === TRUE )? 'https://' : 'http://' ) : 'http://' );
+		$host		= ( ( isset( $_SERVER[ 'HTTP_HOST' ]		) )? $_SERVER[ 'HTTP_HOST' ] 	: '' );
+		$request 	= ( ( isset( $_SERVER[ 'REQUEST_URI' ]		) )? $_SERVER[ 'REQUEST_URI' ]	: '' );
+
+		return $protocol . $host . $request;
 	}
 
 
@@ -287,7 +299,7 @@ final class FeedWriter
 			if ( !isset( $this->channel[ 'id' ] ) || FeedValidator::isNull( $this->channel[ 'id' ] ) )
 				$this->setId( $el );
 		}
-		else throw new Exception( "Error: '<channel><$elNane>' XML element is mandatory and can not be empty." );
+		else throw new Exception( "Error: '< channel >< $elNane>' XML element is mandatory and can not be empty." );
 	}
 	public function getTitle()
 	{
@@ -315,7 +327,7 @@ final class FeedWriter
 			if ( !isset( $this->channel[ 'id' ] ) || FeedValidator::isNull( $this->channel[ 'id' ] ) )
 				$this->setId( $el );
 		}
-		else throw new Exception( "Error: '<channel><$elNane>' XML element is mandatory and can not be empty, it must be a valid URL that specified the location of this feed." );
+		else throw new Exception( "Error: '< channel >< $elNane>' XML element is mandatory and can not be empty, it must be a valid URL that specified the location of this feed." );
 	}
 	public function getLink()
 	{
@@ -337,7 +349,7 @@ final class FeedWriter
 		if ( self::controlChannelElements( $elNane, $el ) )
 			$this->setChannelElement( $elNane, $this->uuid( $el, 'ESSID:' ) );
 
-		else throw new Exception( "Error: '<channel><$elNane>' XML element is mandatory and can not be empty." );
+		else throw new Exception( "Error: '< channel >< $elNane>' XML element is mandatory and can not be empty." );
 	}
 	public function getId()
 	{
@@ -359,7 +371,7 @@ final class FeedWriter
 		if ( self::controlChannelElements( $elNane, $el ) )
 			$this->setChannelElement( $elNane, ( self::REPLACE_ACCENT )? FeedValidator::noAccent( $el, $this->CHARSET ) : $el );
 
-		else throw new Exception( "Error: '<channel><$elNane>' XML element, if it is defined, can not be empty." );
+		else throw new Exception( "Error: '< channel >< $elNane>' XML element, if it is defined, can not be empty." );
 	}
 	public function getGenerator()
 	{
@@ -386,7 +398,7 @@ final class FeedWriter
 		if ( self::controlChannelElements( $elNane, $el ) )
 			$this->setChannelElement( $elNane, FeedWriter::getISODate( $el ) );
 
-		else throw new Exception( "Error: '<channel><$elNane>' XML element is mandatory and can not be empty." );
+		else throw new Exception( "Error: '< channel >< $elNane>' XML element is mandatory and can not be empty." );
 	}
 	public function getPublished()
 	{
@@ -412,7 +424,7 @@ final class FeedWriter
 		if ( self::controlChannelElements( $elNane, $el ) )
 			$this->setChannelElement( 'updated', FeedWriter::getISODate( $el ) );
 
-		else throw new Exception( "Error: '<channel><$elNane>' XML element, if it is defined, can not be empty." );
+		else throw new Exception( "Error: '< channel >< $elNane>' XML element, if it is defined, can not be empty." );
 	}
 	public function getUpdated()
 	{
@@ -439,7 +451,7 @@ final class FeedWriter
 		if ( self::controlChannelElements( $elNane, $el ) )
 			$this->setChannelElement( $elNane, ( self::REPLACE_ACCENT )? FeedValidator::noAccent( $el, $this->CHARSET ) : $el );
 
-		else throw new Exception( "Error: '<channel><$elNane>' XML element, if it is defined, can not be empty." );
+		else throw new Exception( "Error: '< channel >< $elNane>' XML element, if it is defined, can not be empty." );
 	}
 	public function getRights()
 	{
@@ -458,7 +470,7 @@ final class FeedWriter
   	 * @param 	String  [OPTIONAL] String prefix
   	 * @return 	String  the formated uuid
   	 */
-  	public static function uuid( $key=null, $prefix='ESSID:' )
+  	public static function uuid( $key=NULL, $prefix='ESSID:' )
 	{
 		$key = ( FeedValidator::isNull( $key ) )? uniqid( rand() ) : $key;
 		$chars = md5( $key );
@@ -479,7 +491,7 @@ final class FeedWriter
 	 *  					to convert in a ISO 8601 Date format: 'Y-m-d\TH:i:sZ'
 	 * 	@return  	String
 	 */
-	public static function getISODate( $date=null )
+	public static function getISODate( $date=NULL )
 	{
 		if ( FeedValidator::isNull( $date ) == FALSE )
 		{
@@ -506,11 +518,11 @@ final class FeedWriter
 			$datetime_template = 'Y-m-d\TH:i:s';
 
 			// control if PHP is configured with the same timezone then the server
-			$timezone_server = @exec( 'date +%:z' );
+			$timezone_server = exec( 'date +%:z' );
 			$timezone_php	 = date( 'P' );
 
 			if ( strlen( $timezone_server ) > 0 && $timezone_php != $timezone_server )
-				return date( $datetime_template, @exec( "date --date='@" . date( 'U' ) . "'" ) ) . $timezone_server;
+				return date( $datetime_template, exec( "date --date='@" . date( 'U' ) . "'" ) ) . $timezone_server;
 			else
 			{
 				if ( date_default_timezone_get() == 'UTC' )
@@ -543,17 +555,17 @@ final class FeedWriter
 	 * @param	String	HTML content that can content fom <img /> XHTML element
 	 * @return 	Array	Return an array of the images URL founds.
 	 */
-	public static function getMediaURLfromHTML( $text=null )
+	public static function getMediaURLfromHTML( $text=NULL )
 	{
 		$media_ = array();
 
 		if ( strlen( trim( $text ) ) > 0 )
 		{
-			$tt = @preg_match_all( '/<(source|iframe|embed|param|img)[^>]+src=[\'"]([^\'"]+)[\'"].*>/i', str_replace( '><', '>
+			$tt = preg_match_all( '/<(source|iframe|embed|param|img)[^>]+src=[\'"]([^\'"]+)[\'"].*>/i', str_replace( '><', '>
 <', FeedValidator::removeBreaklines( $text,'
 ' ) ), $matches );
 
-			if ( $tt > 0 && @count( $matches[ 2 ] ) > 0 )
+			if ( $tt > 0 && count( $matches[ 2 ] ) > 0 )
 			{
 				foreach ( $matches[ 2 ] as $i => $value )
 				{
@@ -566,11 +578,11 @@ final class FeedWriter
 						$simple_tag = str_replace( "'","\"",strtolower( stripcslashes( $matches[ 0 ][ $i ] ) ) );
 
 						$sb1 = explode( 'title="', $simple_tag );
-						if ( @count( $sb1 ) > 1 )
+						if ( count( $sb1 ) > 1 )
 							$sb3 = explode( '"', $sb1[1] );
 
 						$sb2 = explode( 'alt="', $simple_tag );
-						if ( @count( $sb2 ) > 1 )
+						if ( count( $sb2 ) > 1 )
 							$sb4 = explode( '"', $sb2[1] );
 
 						$media_type = FeedValidator::getMediaType( $value );
@@ -580,7 +592,7 @@ final class FeedWriter
 							array(
 								'uri' 	=> $value,
 								'type'	=> $media_type,
-								'name'	=> ( ( strlen( @$sb3[ 0 ] ) > 0 )? $sb3[ 0 ] : ( ( strlen( @$sb4[ 0 ] ) > 0 )? $sb4[ 0 ] : $media_type . " - " . $i ) )
+								'name'	=> ( ( isset( $sb3[ 0 ] ) )? $sb3[ 0 ] : ( ( isset( $sb4[ 0 ] ) )? $sb4[ 0 ] : $media_type . " - " . $i ) )
 							)
 						);
 					}
@@ -590,7 +602,7 @@ final class FeedWriter
 			// Strip HTML content and analyzed individual world to find URL in the text. (CF: MediaWiki content).
 			$text_split = explode( ' ', FeedValidator::getOnlyText( $text, self::CHARSET ) );
 
-			if ( @count( $text_split ) > 0 )
+			if ( count( $text_split ) > 0 )
 			{
 				foreach ( $text_split as $value )
 				{
@@ -619,7 +631,7 @@ final class FeedWriter
 
 
 
-	private static function controlChannelElements( $elmName, $val=null  )
+	private static function controlChannelElements( $elmName, $val=NULL  )
 	{
 		switch ( $elmName )
 		{
@@ -683,7 +695,7 @@ final class FeedWriter
 	 * @param    Array   Attributes(if any) in 'attrName' => 'attrValue' format
 	 * @return   String  formatted XML tag
 	 */
-	private function makeNode( $tagName, $tagContent, $attributes = null )
+	private function makeNode( $tagName, $tagContent, $attributes = NULL )
 	{
 		$CDATA = array( 'description' ); // Names of the tags to be displayed with <[CDATA[...]]>.
 
@@ -694,7 +706,7 @@ final class FeedWriter
 		{
 			foreach ( $attributes as $key => $value )
 			{
-				if ( @strlen( $value ) > 0 )
+				if ( strlen( $value ) > 0 )
 					$attrText .= " $key=\"$value\" ";
 			}
 		}
@@ -709,7 +721,8 @@ final class FeedWriter
 					$nodeText .= $this->t(4) . $this->makeNode( $key,
 						( ( self::REPLACE_ACCENT )?
 							FeedValidator::xml_entities(
-								FeedValidator::noAccent( $value, $this->CHARSET )
+								FeedValidator::noAccent( $value, self::CHARSET ),
+								self::CHARSET
 							)
 							:
 							$value
@@ -726,11 +739,12 @@ final class FeedWriter
 				 $tagName == 'value' )			{ $nodeText .= $tagContent; }
 			else if ( $tagName == 'start' ) 	{ $nodeText .= self::getISODate( $tagContent ); }
 			else if ( $tagName == 'link' ||
-					  $tagName == 'uri' )		{ $nodeText .= htmlentities( $tagContent ); }
+					  $tagName == 'uri' )		{ $nodeText .= htmlspecialchars( $tagContent, ENT_NOQUOTES ); }
 			else
 			{
 				$nodeText .= FeedValidator::xml_entities(
-					FeedValidator::noAccent( $tagContent )
+					FeedValidator::noAccent( $tagContent, self::CHARSET ),
+					self::CHARSET
 				);
 			}
 		}
@@ -773,63 +787,78 @@ final class FeedWriter
 
 			$out .= $this->startFeed();
 
-			if ( @count( $thisRoots ) > 0 )
+			if ( is_array( $thisRoots ) )
 			{
-				foreach ( $thisRoots as $elm => $val )
+				if ( count( $thisRoots ) > 0 )
 				{
-					if ( strlen( $elm ) > 0 && ( @strlen( $val ) > 0 || @count( $val ) > 0 ) )
+					foreach ( $thisRoots as $elm => $val )
 					{
-						if ( $elm != 'tags' )
-							$out .= $this->t(1) .$this->makeNode( $elm, $val );
+
+						if ( $elm != 'tags' && is_string( $val ) )
+						{
+							if ( strlen( $elm ) > 0 && strlen( $val ) > 0 )
+							{
+								$out .= $this->t(1) .$this->makeNode( $elm, $val );
+							}
+						}
 						else
 						{
-							$out .= $this->t(3) . "<tags>" . self::LN;
+							if ( is_array( $val ) )
+							{
+								if  ( count( $val ) > 0 )
+								{
+									$out .= $this->t(3) . "<tags>" . self::LN;
 
-							foreach( $val as $tag )
-								$out .= $this->t(2) . $this->makeNode( 'tag', ( self::REPLACE_ACCENT )? FeedValidator::noAccent( $tag, $this->CHARSET ) : $tag );
+									foreach( $val as $tag )
+										$out .= $this->t(2) . $this->makeNode( 'tag', ( self::REPLACE_ACCENT )? FeedValidator::noAccent( $tag, self::CHARSET ) : $tag );
 
-							$out .= $this->t(3) . "</tags>" . self::LN;
+									$out .= $this->t(3) . "</tags>" . self::LN;
+								}
+							}
 						}
 					}
 				}
 			}
 
-			if ( @count( $thisItems ) > 0 )
+			if ( is_array( $thisItems ) )
 			{
-				foreach ( $thisItems as $key => $val )
+				if ( count( $thisItems ) > 0 )
 				{
-					if ( @count( $thisItems[ $key ] ) > 0 && @strlen( $key ) > 0 )
+					foreach ( $thisItems as $key => $val )
 					{
-						$out .= $this->t(3) . "<{$key}>" . self::LN;
-
-						foreach ( $val as $position => $feedItem )
+						if ( count( $thisItems[ $key ] ) > 0 && strlen( $key ) > 0 )
 						{
-							$out .= $this->t(4) . "<item type='". strtolower( $feedItem[ 'type' ] ) ."'".
-								( ( isset( $feedItem[ 'unit' ]			) && strlen( @$feedItem[ 'unit' ] 			) > 0 )? " unit='".			strtolower( $feedItem[ 'unit' ]				) . "'" : '' ) .
-								( ( isset( $feedItem[ 'mode' ]			) && strlen( @$feedItem[ 'mode' ] 		 	) > 0 )? " mode='".			strtolower( $feedItem[ 'mode' ]				) . "'" : '' ) .
-								( ( isset( $feedItem[ 'selected_day' ]	) && strlen( @$feedItem[ 'selected_day' ] 	) > 0 )? " selected_day='".	strtolower( $feedItem[ 'selected_day' ]		) . "'" : '' ) .
-								( ( isset( $feedItem[ 'selected_week' ]	) && strlen( @$feedItem[ 'selected_week' ]	) > 0 )? " selected_week='".strtolower( $feedItem[ 'selected_week' ]	) . "'" : '' ) .
-								( ( intval( @$feedItem[ 'interval' ]		) > 1 )? " interval='".			intval( $feedItem[ 'interval' ]			) . "'" : '' ) .
-								( ( intval( @$feedItem[ 'limit' ] 			) > 0 )? " limit='".			intval( $feedItem[ 'limit' ]			) . "'" : '' ) .
-								( ( intval( @$feedItem[ 'moving_position' ]	) > 0 )? " moving_position='".	intval( $feedItem[ 'moving_position' ]	) . "'" : '' ) .
-								( ( intval( @$feedItem[ 'priority' ]		) > 0 )? " priority='".			intval( $feedItem[ 'priority' ] 		) . "'" : " priority='".( $position + 1 ) . "'" ).
-							">" . self::LN;
+							$out .= $this->t(3) . "<{$key}>" . self::LN;
 
-							if ( $key == 'prices' && ( $feedItem[ 'mode' ] == 'free' || $feedItem[ 'mode' ] == 'invitation' ) )
+							foreach ( $val as $position => $feedItem )
 							{
-								$out .= $this->t(3) . $this->makeNode( 'name', $feedItem['content']['name'] );
-								$out .= $this->t(3) . $this->makeNode( 'value', 0 );
-							}
-							else
-							{
-								foreach ( $feedItem['content'] as $elm => $feedElm )
+								$out .= $this->t(4) . "<item type='". strtolower( $feedItem[ 'type' ] ) ."'".
+									( ( isset( $feedItem[ 'unit' ]				) )? ( ( strlen( $feedItem[ 'unit' ] 				) > 0 )? " unit='".				strtolower( $feedItem[ 'unit' ]				) . "'" : '' ) : '' ) .
+									( ( isset( $feedItem[ 'mode' ]				) )? ( ( strlen( $feedItem[ 'mode' ] 		 		) > 0 )? " mode='".				strtolower( $feedItem[ 'mode' ]				) . "'" : '' ) : '' ) .
+									( ( isset( $feedItem[ 'selected_day' ]		) )? ( ( strlen( $feedItem[ 'selected_day' ] 		) > 0 )? " selected_day='".		strtolower( $feedItem[ 'selected_day' ]		) . "'" : '' ) : '' ) .
+									( ( isset( $feedItem[ 'selected_week' ]		) )? ( ( strlen( $feedItem[ 'selected_week' ]		) > 0 )? " selected_week='".	strtolower( $feedItem[ 'selected_week' ]	) . "'" : '' ) : '' ) .
+									( ( isset( $feedItem[ 'interval' ]			) )? ( ( intval( $feedItem[ 'interval' ]			) > 1 )? " interval='".			intval( $feedItem[ 'interval' ]				) . "'" : '' ) : '' )  .
+									( ( isset( $feedItem[ 'limit' ]				) )? ( ( intval( $feedItem[ 'limit' ] 			) > 0 )? " limit='".			intval( $feedItem[ 'limit' ]				) . "'" : '' ) : '' )  .
+									( ( isset( $feedItem[ 'moving_position' ]	) )? ( ( intval( $feedItem[ 'moving_position' ]	) > 0 )? " moving_position='".	intval( $feedItem[ 'moving_position' ]		) . "'" : '' ) : '' )  .
+									( ( isset( $feedItem[ 'priority' ]			) )? ( ( intval( $feedItem[ 'priority' ]			) > 0 )? " priority='".			intval( $feedItem[ 'priority' ] 			) . "'" : " priority='".( $position + 1 ) . "'" )  : '' ) .
+								">" . self::LN;
+
+								if ( $key == 'prices' && ( $feedItem[ 'mode' ] == 'free' || $feedItem[ 'mode' ] == 'invitation' ) )
 								{
-									$out .= $this->t(3) . $this->makeNode( $elm, $feedElm );
+									$out .= $this->t(3) . $this->makeNode( 'name', $feedItem['content']['name'] );
+									$out .= $this->t(3) . $this->makeNode( 'value', 0 );
 								}
+								else
+								{
+									foreach ( $feedItem['content'] as $elm => $feedElm )
+									{
+										$out .= $this->t(3) . $this->makeNode( $elm, $feedElm );
+									}
+								}
+								$out .= $this->t(4) . "</item>" . self::LN;
 							}
-							$out .= $this->t(4) . "</item>" . self::LN;
+							$out .= $this->t(3) . "</{$key}>" . self::LN;
 						}
-						$out .= $this->t(3) . "</{$key}>" . self::LN;
 					}
 				}
 			}
@@ -869,9 +898,9 @@ final class FeedWriter
 	 * 	@param	String	Message to be sent in HTML format.
 	 * 	@return Boolean	bool TRUE if the mail was successfully accepted for delivery, FALSE otherwise.
 	 */
-	private static function sendEmail( $email=null, $subject=null, $message=null )
+	private static function sendEmail( $email=NULL, $subject=NULL, $message=NULL )
 	{
-		if ( isset( $email ) || isset( $subject ) || isset( $message ) )
+		if ( isset( $email ) || isset( $subject ) || isset( $message ) && function_exists( 'email' ) )
 		{
 			$headers  = "From: " . 		strip_tags( $email ) . "\r\n";
 			$headers .= "Reply-To: ". 	strip_tags( $email ) . "\r\n";
@@ -887,7 +916,7 @@ final class FeedWriter
 		return FALSE;
 	}
 
-	private static function htmlvardump()
+	public static function htmlvardump()
  	{
 		ob_start();
 		call_user_func_array( 'var_dump', func_get_args() );
@@ -906,7 +935,7 @@ final class FeedWriter
      */
     public static function tmp()
     {
-        static $tmp = null;
+        static $tmp = NULL;
 
         if ( !$tmp )
         {
@@ -955,7 +984,7 @@ final class FeedWriter
 		// if the essfeed library is placed on a Google App Engine server
 		if ( isset( $_SERVER[ 'HTTP_X_APPENGINE_CITYLATLONG' ] ) )
 		{
-			$ll_ = explode( ',', @$_SERVER[ 'HTTP_X_APPENGINE_CITYLATLONG' ] );
+			$ll_ = explode( ',', $_SERVER[ 'HTTP_X_APPENGINE_CITYLATLONG' ] );
 
 			$_lat = $ll_[0];
 			$_lng = $ll_[1];
@@ -963,8 +992,8 @@ final class FeedWriter
 		// if mod_geoip is installed. (http://dev.maxmind.com/geoip/mod_geoip2)
 		else if ( isset( $_SERVER[ 'GEOIP_LATITUDE' ] ) ) // if mod_deoip installed on server
 		{
-			$_lat = @$_SERVER[ 'GEOIP_LATITUDE' ];
-			$_lng = @$_SERVER[ 'GEOIP_LONGITUDE' ];
+			$_lat = $_SERVER[ 'GEOIP_LATITUDE' ];
+			$_lng = $_SERVER[ 'GEOIP_LONGITUDE' ];
 		}
 		else
 		{
@@ -977,7 +1006,11 @@ final class FeedWriter
 		);
 	}
 
-	public function pushToAggregators( $feedURL='', $feedData=null )
+
+	public static $AGGREGATOR_WS = "http://www.hypecal.com/api/v1/ess/aggregator.json";
+	public static $VALIDATOR_WS  = 'http://www.hypecal.com/api/v1/ess/validator.json';
+
+	public function pushToAggregators( $feedURL='', $feedData=NULL )
 	{
 		if ( $this->AUTO_PUSH )
 		{
@@ -985,17 +1018,17 @@ final class FeedWriter
 
 			$post_data = array(
 				'LIBRARY_VERSION'	=> self::LIBRARY_VERSION,
-				'REMOTE_ADDR' 		=> @$_SERVER[ 'REMOTE_ADDR' ],
-				'SERVER_ADMIN'		=> @$_SERVER[ 'SERVER_ADMIN' ],
-				'PROTOCOL'			=> ( ( stripos( @$_SERVER[ 'SERVER_PROTOCOL' ], 'https' ) === TRUE )? 'https://' : 'http://' ),
-				'HTTP_HOST'			=> @$_SERVER[ 'HTTP_HOST' ],
-				'REQUEST_URI'		=> @$_SERVER[ 'REQUEST_URI' ],
+				'REMOTE_ADDR' 		=> ( ( isset( $_SERVER[ 'REMOTE_ADDR' ] 	) )? $_SERVER[ 'REMOTE_ADDR' ] 	: '' ),
+				'SERVER_ADMIN'		=> ( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) )? $_SERVER[ 'SERVER_ADMIN' ] : '' ),
+				'PROTOCOL'			=> ( ( isset( $_SERVER[ 'SERVER_PROTOCOL' ] ) )? ( ( stripos( $_SERVER[ 'SERVER_PROTOCOL' ], 'https' ) === TRUE )? 'https://' : 'http://' ) : 'http://' ),
+				'HTTP_HOST'			=> ( ( isset( $_SERVER[ 'HTTP_HOST' ] 		) )? $_SERVER[ 'HTTP_HOST' ] 	: '' ),
+				'REQUEST_URI'		=> ( ( isset( $_SERVER[ 'REQUEST_URI' ] 	) )? $_SERVER[ 'REQUEST_URI' ] 	: '' ),
 
-				'GEOIP_LATITUDE' 	=> @$geo_['lat'],
-				'GEOIP_LONGITUDE'	=> @$geo_['lng']
+				'GEOIP_LATITUDE' 	=> ( ( isset( $_SERVER[ 'lat' ] 			) )? $geo_['lat'] 				: '' ),
+				'GEOIP_LONGITUDE'	=> ( ( isset( $_SERVER[ 'lng' ] 			) )? $geo_['lng'] 				: '' )
 			);
 
-			if ( $feedData == null && FeedValidator::isValidURL( $feedURL ) )
+			if ( $feedData == NULL && FeedValidator::isValidURL( $feedURL ) )
 				$post_data[ 'feed' ] = $feedURL;
 			else
 				$post_data[ 'feed_file' ] = $feedData;
@@ -1013,10 +1046,12 @@ final class FeedWriter
 				curl_setopt( $ch, CURLOPT_TIMEOUT, 			20 );
 				curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 	0 );
 				curl_setopt( $ch, CURLOPT_COOKIEJAR,  		self::tmp() . '/cookies' );
-				curl_setopt( $ch, CURLOPT_REFERER, 			@$_SERVER[ 'REQUEST_URI' ] );
+				curl_setopt( $ch, CURLOPT_REFERER, 			( ( isset( $_SERVER[ 'REQUEST_URI' ] ) )? $_SERVER[ 'REQUEST_URI' ] : '' ));
 
 				$result = json_decode( curl_exec( $ch ), TRUE );
 				$this->getAggregatorResponse( $result );
+
+				//var_dump( $post_data, $result );
 			}
 			else
 			{
@@ -1031,20 +1066,20 @@ final class FeedWriter
 						)
 					);
 
-					$result = @file_get_contents( self::$AGGREGATOR_WS, false, stream_context_create( $opts ), -1, 40000 );
+					$result = file_get_contents( self::$AGGREGATOR_WS, false, stream_context_create( $opts ), -1, 40000 );
 					$this->getAggregatorResponse( $result );
 				}
 				else
 				{
 					// -- submit (only) %_GET data with "wget -q"
-					if ( $feedData == null && FeedValidator::isValidURL( $feedURL ) )
+					if ( $feedData == NULL && FeedValidator::isValidURL( $feedURL ) )
 					{
 						$file = self::$AGGREGATOR_WS . "?";
 
 						foreach ( $post_data as $att => $value )
 							$file .= $att . "=" . urlencode( $value ) . "&";
 
-						$result = @exec( "wget -q \"" . $file . "\"" );
+						$result = exec( "wget -q \"" . $file . "\"" );
 					}
 				}
 			}
@@ -1053,9 +1088,9 @@ final class FeedWriter
 
 	private function getAggregatorResponse( $response )
 	{
-		$r = @$response['result'];
-		$isOK = @isset( $r['result'] )? TRUE : FALSE;
-		$isVersionUptoDate = ( (String)@$r['version'] != (String)self::LIBRARY_VERSION && $isOK )? FALSE : TRUE;
+		$r = $response['result'];
+		$isOK = isset( $r['result'] )? TRUE : FALSE;
+		$isVersionUptoDate = ( ( isset( $r['version'] ) )? ( (String) $r['version'] != (String)self::LIBRARY_VERSION && $isOK )? FALSE : TRUE : TRUE );
 
 		if ( $this->DEBUG == TRUE )
 		{

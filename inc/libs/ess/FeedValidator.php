@@ -710,8 +710,8 @@ final class FeedValidator
 		return ( $objS == '' || $objS == null ||
 			( !is_string( $obj ) && intval( $obj ) <= 0 ) ||
 			( is_numeric( $obj ) && intval( $obj ) <= 0 ) ||
-			( is_bool( $obj ) && $obj == false )
-		)? true : false;
+			( is_bool( $obj ) && $obj == FALSE )
+		)? TRUE : FALSE;
 	}
 
 	/**
@@ -724,7 +724,7 @@ final class FeedValidator
 	 */
 	public static function isValidDate( $stringDate='' )
 	{
-		if ( self::isNull( $stringDate ) ) return false;
+		if ( self::isNull( $stringDate ) ) return FALSE;
 
 		$matcher = preg_match( "/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(Z|(\+|-)\d{2}(:?\d{2})?)$/", str_replace( ' ', 'T', $stringDate ) );
 		$t_sep 	 = explode( 'T', strtoupper( $stringDate ) );
@@ -734,14 +734,14 @@ final class FeedValidator
 			$time_sep = explode( ':', $t_sep[ 1 ] );
 
 			if ( intval( $time_sep[ 0 ] ) > 24 )
-				return false;
+				return FALSE;
 
 			if ( @count( $time_sep ) <= 4 )
 			{
 				for ( $i=1 ; $i<@count( $time_sep ) ; $i++ )
 				{
 					if ( intval( $time_sep[ $i ] ) > 59 && $i < 3 )
-						return false;
+						return FALSE;
 				}
 			}
 		}
@@ -753,15 +753,15 @@ final class FeedValidator
 			try
 			{
 				$err = new DateTime( $stringDate, new DateTimeZone( 'GMT' ) );
-				return true;
+				return TRUE;
 			}
 			catch( Exception $e )
 			{
-				return false;
+				return FALSE;
 			}
 		}
 
-		return false;
+		return FALSE;
 	}
 
 	/**
@@ -777,7 +777,7 @@ final class FeedValidator
 		$url = trim( $url );
 		$ereg = "/^(http|https|ftp):\/\/([A-Z0-9][A-Z0-9_-]*(?:\.[A-Z0-9][A-Z0-9_-]*)+):?(\d+)?\/?/i";
 
-		return ( preg_match( $ereg, $url ) > 0 && strlen( $url ) > 10 )? true : self::isValidIP( $url );
+		return ( preg_match( $ereg, $url ) > 0 && strlen( $url ) > 10 )? TRUE : self::isValidIP( $url );
 	}
 
 	/**
@@ -799,11 +799,11 @@ final class FeedValidator
 			case 'sound' : $MEDIA_FORMAT = array('M4A','MP3','M4P','MPC','OGG','AMR','GSM','WAV','WMA','VOX','RAW','MPC'); break;
 		}
 
-		$ex_ = @explode( '.', $url );
+		$ex_ = explode( '.', $url );
 
 		return ( strlen( $url ) > 0 &&
-			in_array( strtoupper( substr( $ex_[ @count( $ex_ )-1 ],0,3) ), $MEDIA_FORMAT )
-		)? true : false;
+			in_array( strtoupper( substr( $ex_[ count( $ex_ )-1 ],0,3) ), $MEDIA_FORMAT )
+		)? TRUE : FALSE;
 	}
 
 	/**
@@ -811,7 +811,7 @@ final class FeedValidator
 	 *
 	 * @access	public
 	 * @param	String	String Media URL to check
-	 * @return	String	Return the media type: 'image', 'video' or 'sound' or null if not found
+	 * @return	String	Return the media type: 'image', 'video', 'sound' or 'website' or NULL if not found
 	 */
 	public static function getMediaType( $url )
 	{
@@ -821,7 +821,7 @@ final class FeedValidator
 			$MEDIA_SOUND = array('M4A','MP3','M4P','MPC','OGG','AMR','GSM','WAV','WMA','VOX','RAW','MPC');
 			$MEDIA_VIDEO = array('FLV','MPG','AVI','MOV','ACC','AAC','MP4','3GP','OGG','FLA','M4V','WMV','DAT','NSV');
 
-			$ex_ = @explode( '.', $url );
+			$ex_ = explode( '.', $url );
 
 			// detect some specific website URL video content
 			$VIDEO_WEBSITES = array(
@@ -843,14 +843,14 @@ final class FeedValidator
 
 			$domain = parse_url( $url );
 			$dh_ = explode( '.', $domain['host'] );
-			if ( @count( $dh_ ) > 1 ) { $domain['host'] = $dh_[@count( $dh_ )-2].".".$dh_[@count( $dh_ )-1]; } // remove www.
+			if ( count( $dh_ ) > 1 ) { $domain['host'] = $dh_[ count( $dh_ )-2].".".$dh_[ count( $dh_ )-1]; } // remove www.
 
 			if ( in_array( strtolower( $domain['host'] ), $VIDEO_WEBSITES ) ) 					 { return 'video'; }
-			if ( in_array( strtoupper( substr( $ex_[ @count( $ex_ )-1 ],0,3) ), $MEDIA_IMAGE ) ) { return 'image'; }
-			if ( in_array( strtoupper( substr( $ex_[ @count( $ex_ )-1 ],0,3) ), $MEDIA_VIDEO ) ) { return 'video'; }
-			if ( in_array( strtoupper( substr( $ex_[ @count( $ex_ )-1 ],0,3) ), $MEDIA_SOUND ) ) { return 'sound'; }
+			if ( in_array( strtoupper( substr( $ex_[ count( $ex_ )-1 ],0,3) ), $MEDIA_IMAGE ) ) { return 'image'; }
+			if ( in_array( strtoupper( substr( $ex_[ count( $ex_ )-1 ],0,3) ), $MEDIA_VIDEO ) ) { return 'video'; }
+			if ( in_array( strtoupper( substr( $ex_[ count( $ex_ )-1 ],0,3) ), $MEDIA_SOUND ) ) { return 'sound'; }
 		}
-		return ( self::isValidURL( $url ) )? 'image' : null;
+		return ( self::isValidURL( $url ) )? 'website' : NULL;
 	}
 
 	/**
@@ -858,7 +858,7 @@ final class FeedValidator
 	 *
 	 * 	@access public
 	 * 	@param	String	Value of the IP to evaluate
-	 * 	@return	Boolean	If the parameter submited is a valide IP return true, false else.
+	 * 	@return	Boolean	If the parameter submited is a valide IP return TRUE, FALSE else.
 	 */
 	public static function isValidIP( $ip='' )
 	{
@@ -867,20 +867,20 @@ final class FeedValidator
 
 		if ( preg_match( $regexp, $ip ) <= 0 )
 		{
-			return false;
+			return FALSE;
 		}
 		else
 		{
 			$a = explode( ".", $ip );
 
-			if ( $a[0] > 255) { return false; }
-			if ( $a[1] > 255) { return false; }
-			if ( $a[2] > 255) {	return false; }
-			if ( $a[3] > 255) { return false; }
+			if ( $a[0] > 255) { return FALSE; }
+			if ( $a[1] > 255) { return FALSE; }
+			if ( $a[2] > 255) {	return FALSE; }
+			if ( $a[3] > 255) { return FALSE; }
 
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 	}
 
 	/**
@@ -893,41 +893,41 @@ final class FeedValidator
 	public static function isValidEmail( $email )
 	{
 		$email = trim( $email );
-		if ( self::isNull( $email ) ) return false;
+		if ( self::isNull( $email ) ) return FALSE;
 
 		if ( preg_match( '/^\w[-.\w]*@(\w[-._\w]*\.[a-zA-Z]{2,}.*)$/', $email, $matches ) )
         {
         	$hostName = $matches[ 1 ];
 
-			if ( @strlen( $hostName ) > 5 )
+			if ( strlen( $hostName ) > 5 )
 			{
 	         	if ( function_exists('checkdnsrr') )
 				{
-					if ( checkdnsrr( $hostName . '.', 'MX' ) ) return true;
-					if ( checkdnsrr( $hostName . '.', 'A'  ) ) return true;
+					if ( checkdnsrr( $hostName . '.', 'MX' ) ) return TRUE;
+					if ( checkdnsrr( $hostName . '.', 'A'  ) ) return TRUE;
 				}
 				else
 				{
-					@exec( "nslookup -type=MX ".$hostName, $r );
+					exec( "nslookup -type=MX ".$hostName, $r );
 
-					if ( @count( $r ) > 0 )
+					if ( count( $r ) > 0 )
 					{
 						foreach ( $r as $line )
 						{
-							if ( @preg_match( "^$hostName", $line ) ) return true;
+							if ( preg_match( "^$hostName", $line ) ) return TRUE;
 						}
-						return false;
+						return FALSE;
 					}
-					else return true; // if a problem occured while resolving the MX consider the email as valid
+					else return TRUE; // if a problem occured while resolving the MX consider the email as valid
 				}
 			}
         }
 		else
 		{
 			if ( preg_match( "^[0-9a-z]([-_.]?[0-9a-z])*@[0-9a-z]([-.]?[0-9a-z])*\\.[a-z]{2,3}$", $email ) > 0 )
-				return true;
+				return TRUE;
 		}
-		return false;
+		return FALSE;
 	}
 
 	/**
@@ -942,13 +942,13 @@ final class FeedValidator
 	{
 		$countryCode = strtoupper( trim( $countryCode ) );
 
-		if ( self::isNull( $countryCode ) ) return false;
+		if ( self::isNull( $countryCode ) ) return FALSE;
 
 		foreach ( self::$COUNTRIES_ as $countryC => $countryN )
 		{
-			if ( $countryCode == $countryC ) return true;
+			if ( $countryCode == $countryC ) return TRUE;
 		}
-		return false;
+		return FALSE;
 	}
 
 	/**
@@ -963,13 +963,13 @@ final class FeedValidator
 	{
 		$languageCode = strtolower( $languageCode );
 
-		if ( self::isNull( $languageCode ) ) return false;
+		if ( self::isNull( $languageCode ) ) return FALSE;
 
 		foreach ( self::$LANGUAGES_ as $langC => $langN )
 		{
-			if ( $languageCode == $langC ) return true;
+			if ( $languageCode == $langC ) return TRUE;
 		}
-		return false;
+		return FALSE;
 	}
 
 	/**
@@ -977,13 +977,13 @@ final class FeedValidator
 	 *
 	 * 	@access	public
 	 * 	@param	Float	Value of the Latitude to evaluate.
-	 * 	@return Boolean	Return true is the Latitude is valide, false else.
+	 * 	@return Boolean	Return TRUE is the Latitude is valide, FALSE else.
 	 */
 	public static function isValidLatitude( $latitude=null )
 	{
 		$match_latitude = preg_match( "/^-?([0-8]?[0-9]|90)\.[0-9]{1,7}$/", $latitude );
 
-		return ( $match_latitude == 1 )? true : false;
+		return ( $match_latitude == 1 )? TRUE : FALSE;
 	}
 
 	/**
@@ -991,13 +991,13 @@ final class FeedValidator
 	 *
 	 * 	@access	public
 	 * 	@param	Float	Value of the Longitude to evaluate.
-	 * 	@return Boolean	Return true is the Longitude is valide, false else.
+	 * 	@return Boolean	Return TRUE is the Longitude is valide, FALSE else.
 	 */
 	public static function isValidLongitude( $longitude=null )
 	{
 		$match_longitude = preg_match( "/^-?((1?[0-7]?|[0-9]?)[0-9]|180)\.[0-9]{1,7}$/", $longitude );
 
-		return ( $match_longitude == 1 )? true : false;
+		return ( $match_longitude == 1 )? TRUE : FALSE;
 	}
 
 	/**
@@ -1005,11 +1005,11 @@ final class FeedValidator
 	 *
 	 * 	@access	public
 	 * 	@param	Object	Value of the String to evaluate.
-	 * 	@return Boolean	Return true is the both elements are found, false else.
+	 * 	@return Boolean	Return TRUE is the both elements are found, FALSE else.
 	 */
 	public static function isAlphaNumChars( $in )
 	{
-		return ( ( preg_match( "#(*UTF8)[[:alnum:]]#", $in ) > 0 )? true : false );
+		return ( ( preg_match( "#(*UTF8)[[:alnum:]]#", $in ) > 0 )? TRUE : FALSE );
 	}
 
 	/**
@@ -1017,11 +1017,11 @@ final class FeedValidator
 	 *
 	 * 	@access	public
 	 * 	@param	Object	Value of the String to evaluate.
-	 * 	@return Boolean	Return true is only alpha chars are found, false else.
+	 * 	@return Boolean	Return TRUE is only alpha chars are found, FALSE else.
 	 */
 	public static function isOnlyAlphaChars( $in )
 	{
-		return ( ( preg_match( "#(*UTF8)[[:alpha:]]#", $in ) > 0 )? true : false );
+		return ( ( preg_match( "#(*UTF8)[[:alpha:]]#", $in ) > 0 )? TRUE : FALSE );
 	}
 
 	/**
@@ -1029,11 +1029,11 @@ final class FeedValidator
 	 *
 	 * 	@access	public
 	 * 	@param	Object	Value of the String to evaluate.
-	 * 	@return Boolean	Return true is only numbers are found, false else.
+	 * 	@return Boolean	Return TRUE is only numbers are found, FALSE else.
 	 */
 	public static function isOnlyNumsChars( $in )
 	{
-		return ( ( preg_match( "/^[0-9]*$/", $in ) > 0 )? true : false );
+		return ( ( preg_match( "/^[0-9]*$/", $in ) > 0 )? TRUE : FALSE );
 	}
 
 	/**
@@ -1042,7 +1042,7 @@ final class FeedValidator
 	 *
 	 * 	@access	public
 	 * 	@param	String	Value of the 3 chars currency to evaluate.
-	 * 	@return Boolean	Return true is the currency is valide, false else.
+	 * 	@return Boolean	Return TRUE is the currency is valide, FALSE else.
 	 */
 	public static function isValidCurrency( $currency )
 	{
@@ -1050,9 +1050,9 @@ final class FeedValidator
 
 		foreach( self::$CURRENCIES_ as $country => $cur )
 		{
-			if ( $currency == $cur ) return true;
+			if ( $currency == $cur ) return TRUE;
 		}
-		return false;
+		return FALSE;
 	}
 
 	/**
@@ -1085,7 +1085,7 @@ final class FeedValidator
 	 */
 	public static function noAccent( $text='', $charset='UTF-8' )
 	{
-		return ( ( self::utf8_is_ascii( $text ) == true )?
+		return ( ( self::utf8_is_ascii( $text ) == TRUE )?
 			self::utf8_accents_to_ascii( self::getOnlyText( $text ) )
 			:
 			self::utf8_strip_ascii_ctrl( self::getOnlyText( $text ) )
@@ -1101,7 +1101,7 @@ final class FeedValidator
 	 */
 	public static function stripSpecificHTMLtags( $text='' )
 	{
-		return @preg_replace(
+		return preg_replace(
 			array(
 				/*
 				 * Leave/Remove Flash Objects
@@ -1121,7 +1121,7 @@ final class FeedValidator
 			),
 			'',
 			// Remove extra HTML whitespaces
-			@preg_replace( '~>\s+<~', '><',
+			preg_replace( '~>\s+<~', '><',
 				$text
 			)
 		);
@@ -1138,16 +1138,50 @@ final class FeedValidator
 	 */
 	public static function charsetString( $text, $charset='UTF-8' )
 	{
-		$text_charset_detected = self::resolveUnicode(
-			mb_convert_encoding(
-				self::unhtmlentities(
+		if ( strlen( $text ) > 0 )
+		{
+			$text = trim( self::simplifyText( $text ) );
+
+			if ( function_exists( 'htmlspecialchars' ) )
+			{
+				$textORG = $text;
+				$text = trim(
 					htmlspecialchars(
-						self::simplifyText( $text )
-					,ENT_DISALLOWED, $charset )
-				)
-			,$charset, "auto" )
-		);
-		return ( strlen( trim( $text_charset_detected ) ) > 0 )?
+						$text,
+						( !defined( 'ENT_DISALLOWED' )? ENT_IGNORE : ENT_DISALLOWED ),
+						$charset
+					)
+				);
+
+				if ( strlen( $text ) <= 0 )
+					$text = $textORG;
+			}
+
+			$textORG = $text;
+			$text = trim( self::unhtmlentities( $text ) );
+
+			if ( strlen( $text ) <= 0 )
+				$text = $textORG;
+
+			if ( function_exists( 'mb_convert_encoding' ) )
+			{
+				$textORG = $text;
+				$text = trim( mb_convert_encoding( $text, $charset, "auto" ) );
+
+				if ( strlen( $text ) <= 0 )
+					$text = $textORG;
+			}
+
+			$textORG = $text;
+			$text = trim( self::resolveUnicode( $text ) );
+
+			if ( strlen( $text ) <= 0 )
+				$text = $textORG;
+		}
+
+		$text_charset_detected = trim( $text );
+
+		return ( strlen( $text_charset_detected ) > 0 )?
 			$text_charset_detected
 			:
 			self::resolveUnicode( self::simplifyText( $text )
@@ -1165,7 +1199,7 @@ final class FeedValidator
 	 */
 	public static function removeBreaklines( $text='', $replace=' ' )
 	{
-		return @preg_replace(
+		return preg_replace(
 			array(
 				'@<br \/>@si',
 				'@<br/>@si',
@@ -1357,7 +1391,7 @@ final class FeedValidator
 	private static function utf8_is_ascii( $str='' )
 	{
 	    // Search for any bytes which are outside the ASCII range...
-	    return ( preg_match('/(?:[^\x00-\x7F])/', @$str ) !== 1 );
+	    return ( preg_match('/(?:[^\x00-\x7F])/', $str ) !== 1 );
 	}
 
 	/**
@@ -1373,7 +1407,7 @@ final class FeedValidator
 	{
 	    ob_start();
 
-	    while ( preg_match( '/^([\x00-\x7F]+)|([^\x00-\x7F]+)/S', @$str, $matches ) )
+	    while ( preg_match( '/^([\x00-\x7F]+)|([^\x00-\x7F]+)/S', $str, $matches ) )
 	    {
 	        if ( !isset( $matches[ 2 ] ) )
 	        {
@@ -1521,24 +1555,34 @@ final class FeedValidator
 
 	protected static function unhtmlentities( $text )
 	{
+		$trans_tbl = '';
+
 	   // replace litteral entities
-	   $trans_tbl = array_flip( @get_html_translation_table( HTML_ENTITIES ) );
+	   if ( function_exists( 'get_html_translation_table' ) )
+		   $trans_tbl = array_flip( get_html_translation_table( HTML_ENTITIES ) );
 
 	   return strtr( $text, $trans_tbl );
 	}
 
-	public static function xml_entities( $text )
+	public static function xml_entities( $text, $charset='UTF-8' )
 	{
-   		return strtr(
-	        $text,
-	        array(
-	            "<" => "&lt;",
-	            ">" => "&gt;",
-	            '"' => "&quot;",
-	            "'" => "&apos;",
-	            "&" => "&amp;",
-	        )
-	    );
+   		try
+		{
+			return htmlspecialchars( $text, ENT_QUOTES | ENT_XML1, $charset ); // ENT_XML1 const only available for PHP > 5.4
+   		}
+   		catch( Error $e )
+   		{
+	   		return strtr(
+		        $text,
+		        array(
+		            "<" => "&lt;",
+		            ">" => "&gt;",
+		            '"' => "&quot;",
+		            "'" => "&apos;",
+		            "&" => "&amp;"
+		        )
+		    );
+		}
 	}
 
 	private static function resolveUnicode( $text )
@@ -1646,5 +1690,43 @@ final class FeedValidator
 		return $text;
 	}
 
+	public static function error_submit( $error_blob )
+	{
+		if ( is_string( $error_blob ) )
+		{
+			if ( function_exists( 'mail' ) && strlen( $error_blob ) > 10 )
+			{
+				$protocol = ( ( isset( $_SERVER['HTTPS'] ) )? ( ( !empty( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] != 'off' )? 'https://' : 'http://' ) : 'http://' );
 
+				$headers  = 'MIME-Version: 1.0' . "\r\n";
+	    		$headers .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
+	    		$error_url = "<h4><a href='".$protocol . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']."' target='_blank'>".$protocol.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']."</a></h4>\n";
+				mail('esserrorcontroller@peach.fr','### ESS-ERROR '.FeedWriter::LIBRARY_VERSION.' ###', $error_url . $error_blob, $headers );
+			}
+		}
+	}
+
+	public static function error_handler( $errno, $errstr, $errfile, $errline )
+	{
+		$err = "<b>ERROR ".$errno."</b>: ". $errstr ."<br/>\n" .
+    	"<p>Error in " . $errfile .":". $errline ."</p><br/>\n" .
+   		"<i>PHP " . PHP_VERSION . " (" . PHP_OS . ")</i><br/>\n";
+
+		switch ( $errno )
+		{
+			default: //echo $err;
+				return TRUE;
+				break;
+
+			case E_ERROR:
+			case E_PARSE:
+  	       		FeedValidator::error_submit(
+					$err .
+					FeedWriter::htmlvardump( $_SERVER  ) .
+					"<br/>=================<br/>" .
+					FeedWriter::htmlvardump( $_REQUEST )
+				);
+			break;
+		}
+	}
 }

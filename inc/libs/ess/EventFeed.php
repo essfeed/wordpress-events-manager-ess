@@ -28,7 +28,7 @@ final class EventFeed
 	 *
 	 * 	@return void;
 	 */
-	function __construct( $data_=null, $CHARSET='UTF-8', $REPLACE_ACCENT=FALSE )
+	function __construct( $data_=NULL, $CHARSET='UTF-8', $REPLACE_ACCENT=FALSE )
 	{
 		$this->CHARSET 			= $CHARSET; 			// Defines the document encoding Charset (Default UTF-8).
 		$this->REPLACE_ACCENT 	= $REPLACE_ACCENT;		// Defines if the ASCI accent have to be remplaced (Default FALSE).
@@ -40,22 +40,22 @@ final class EventFeed
 			$this->elements[ $key ]	= array();
 		}
 
-		if ( $data_ != null && @count( $data_ ) > 0 )
+		if ( $data_ != NULL && count( $data_ ) > 0 )
 		{
 			foreach ( $this->rootDTD as $elementName => $mandatory )
 			{
-				if ( $mandatory == true && @strlen( $data_[ $elementName ] ) <= 0 )
+				if ( $mandatory == TRUE && strlen( $data_[ $elementName ] ) <= 0 )
 					throw new Exception("Error: Event element ". $elementName . " is mandatory.", 1);
 			}
 
 			foreach ( $data_ as $tagTest => $value )
 			{
-				$isFound = false;
+				$isFound = FALSE;
 
 				if ( in_array( strtolower( $tagTest ), $this->rootDTD ) )
-					$isFound = true;
+					$isFound = TRUE;
 
-				if ( $isFound == false )
+				if ( $isFound == FALSE )
 					throw new Exception("Error: Event XML element < ". $tagTest . " > is not specified in ESS Feed DTD." );
 			}
 
@@ -91,7 +91,7 @@ final class EventFeed
 		$CDATA = array('description');
 
 		if ( is_string( $content ) && !in_array( $elementName, $CDATA ) )
-			$content = FeedValidator::xml_entities( $content );
+			$content = FeedValidator::xml_entities( $content, $this->CHARSET );
 
 		$this->roots[ $elementName ] = $content ;
 	}
@@ -116,7 +116,7 @@ final class EventFeed
 	{
 		if ( $el != NULL )
 		{
-			if ( $this->controlRoot( 'title', $el ) == false )
+			if ( $this->controlRoot( 'title', $el ) == FALSE )
 			{
 				throw new Exception( "Error: '< title >' element is mandatory." );
 				return;
@@ -152,13 +152,13 @@ final class EventFeed
 	{
 		if ( $el != NULL )
 		{
-			if ( $this->controlRoot( 'uri', $el ) == false )
+			if ( $this->controlRoot( 'uri', htmlspecialchars( $el, ENT_NOQUOTES ) ) == FALSE )
 			{
 				throw new Exception( "Error: '< uri >' element is mandatory." );
 				return;
 			}
 
-			$this->setRootElement( 'uri', FeedValidator::charsetString( $el, $this->CHARSET ) );
+			$this->setRootElement( 'uri', $el );
 
 			// Set a tempory Feed ID from the Feed URI
 			if ( !isset( $this->roots[ 'id' ] ) || FeedValidator::isNull( $this->roots[ 'id' ] ) )
@@ -188,7 +188,7 @@ final class EventFeed
 	{
 		if ( $el != NULL )
 		{
-			if ( $this->controlRoot( 'id', $el ) == false )
+			if ( $this->controlRoot( 'id', $el ) == FALSE )
 			{
 				throw new Exception( "Error: '< id >' element is mandatory." );
 				return;
@@ -218,7 +218,7 @@ final class EventFeed
 	{
 		if ( $el != NULL )
 		{
-			if ( $this->controlRoot( 'published', $el ) == false )
+			if ( $this->controlRoot( 'published', $el ) == FALSE )
 			{
 				throw new Exception( "Error: '< published >' element is mandatory." );
 				return;
@@ -249,7 +249,7 @@ final class EventFeed
 	{
 		if ( $el != NULL )
 		{
-			if ( $this->controlRoot( 'updated', $el ) == false )
+			if ( $this->controlRoot( 'updated', $el ) == FALSE )
 			{
 				throw new Exception( "Error: '< updated >' element is mandatory." );
 				return;
@@ -278,7 +278,7 @@ final class EventFeed
 	{
 		if ( $el != NULL )
 		{
-			if ( $this->controlRoot( 'access', $el ) == false )
+			if ( $this->controlRoot( 'access', $el ) == FALSE )
 			{
 				throw new Exception( "Error: '< access >' element is mandatory." );
 				return;
@@ -316,7 +316,7 @@ final class EventFeed
 	{
 		if ( $el != NULL )
 		{
-			if ( $this->controlRoot( 'description', $el ) == false )
+			if ( $this->controlRoot( 'description', $el ) == FALSE )
 			{
 				throw new Exception( "Error: '< description >' element is mandatory." );
 				return;
@@ -346,7 +346,7 @@ final class EventFeed
 	{
 		if ( $el != NULL )
 		{
-			if ( $this->controlRoot( 'tags', $el ) == false )
+			if ( $this->controlRoot( 'tags', $el ) == FALSE )
 			{
 				throw new Exception( "Error: '< tags >' element is mandatory." );
 				return;
@@ -397,9 +397,9 @@ final class EventFeed
 
 		$errorType = 'Error['.$groupName.']: ';
 
-		if ( @strlen( $type ) > 0 )
+		if ( strlen( $type ) > 0 )
 		{
-			if ( @count( $data_ ) > 0 )
+			if ( count( $data_ ) > 0 )
 			{
 				if ( $this->controlType( $groupName, $type ) == TRUE )
 				{
@@ -413,7 +413,7 @@ final class EventFeed
 								{
 									foreach ( $data_ as $tag => $value )
 									{
-										if ( $this->controlNodeContent( $tag, $value ) == false )
+										if ( $this->controlNodeContent( $tag, $value ) == FALSE )
 										{
 											throw new Exception( $errorType . "The XML element < $tag > have an invalid content: '$value', please control the correct syntax in ESS DTD." );
 											break;
@@ -442,11 +442,11 @@ final class EventFeed
 									$mandatories = "";
 									foreach ( $this->feedDTD[ $groupName ][ 'tags' ] as $tag => $mandatory )
 									{
-										if ( $mandatory == TRUE && @strlen( $data_[ $tag ] ) <= 0 )
+										if ( $mandatory == TRUE && strlen( $data_[ $tag ] ) <= 0 )
 											$mandatories .= "< " .$tag." > ";
 									}
 
-									if ( FeedValidator::isNull( $mandatories ) == false )
+									if ( FeedValidator::isNull( $mandatories ) == FALSE )
 										throw new Exception( $errorType . "All the mandatories XML sub-elements of < $groupName > are not provided (".$mandatories.")." );
 								}
 							}
@@ -830,14 +830,14 @@ final class EventFeed
 		{
 			if ( strtolower( $elmName ) != 'tags' )
 			{
-				if ( $mandatory == TRUE && @strlen( $val ) <= 0 )
+				if ( $mandatory == TRUE && strlen( $val ) <= 0 )
 					return FALSE;
 			}
 			else
 			{
 				if ( is_array( $val ) )
 				{
-					if ( @count( $val ) <= 0 )
+					if ( count( $val ) <= 0 )
 						return FALSE;
 				}
 				else FALSE;
@@ -861,20 +861,20 @@ final class EventFeed
 
 		foreach ( $data_ as $tagTest => $value )
 		{
-			if ( FeedValidator::isNull( $value ) == false )
+			if ( FeedValidator::isNull( $value ) == FALSE )
 			{
-				if ( in_array( strtolower( $tagTest ), $this->feedDTD[ $elmName ][ 'tags' ] ) == false )
-					return false;
+				if ( in_array( strtolower( $tagTest ), $this->feedDTD[ $elmName ][ 'tags' ] ) == FALSE )
+					return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 	}
 
 	private function controlType( $elmName='', $typeToControl='' )
 	{
 		if ( in_array( strtolower( $typeToControl ), $this->feedDTD[ $elmName ][ 'types' ] ) )
-			return true;
-		return false;
+			return TRUE;
+		return FALSE;
 	}
 
 	private function controlMode( $elmName='', $modeToControl='' )
@@ -882,31 +882,31 @@ final class EventFeed
 		if ( isset( $this->feedDTD[ $elmName ][ 'modes' ] ) )
 		{
 			if ( in_array( strtolower( $modeToControl ), $this->feedDTD[ $elmName ][ 'modes' ] ) )
-				return true;
+				return TRUE;
 		}
-		else return true;
-		return false;
+		else return TRUE;
+		return FALSE;
 	}
 
 	private function controlSelectedDay( $elmName='', $selected_dayToControl='' )
 	{
-		if ( isset( $this->feedDTD[ $elmName ][ 'selected_days' ] ) && FeedValidator::isNull( $selected_dayToControl ) == false )
+		if ( isset( $this->feedDTD[ $elmName ][ 'selected_days' ] ) && FeedValidator::isNull( $selected_dayToControl ) == FALSE )
 		{
 			$selected_ = explode( ',', $selected_dayToControl );
 
-			if ( @count( $selected_ ) > 0 )
+			if ( count( $selected_ ) > 0 )
 			{
 				foreach( $selected_ as $selected_dayToControl )
 				{
-					$elFound = false;
+					$elFound = FALSE;
 					if ( in_array( strtolower( $selected_dayToControl ), $this->feedDTD[ $elmName ][ 'selected_days' ] ) )
-						$elFound = true;
+						$elFound = TRUE;
 
-					if ( $elFound == false )
+					if ( $elFound == FALSE )
 					{
 						if ( intval( $selected_dayToControl ) <= 0 || intval( $selected_dayToControl ) > 31 )
-							return false;
-						else $elFound = true;
+							return FALSE;
+						else $elFound = TRUE;
 					}
 				}
 				return $elFound;
@@ -914,47 +914,47 @@ final class EventFeed
 			else
 			{
 				if ( in_array( strtolower( $selected_dayToControl ), $this->feedDTD[ $elmName ][ 'selected_days' ] ) )
-					return true;
+					return TRUE;
 			}
 		}
-		else return true;
-		return false;
+		else return TRUE;
+		return FALSE;
 	}
 
 	private function controlSelectedWeek( $elmName='', $selected_weekToControl='' )
 	{
-		if ( isset( $this->feedDTD[ $elmName ][ 'selected_weeks' ] ) && FeedValidator::isNull( $selected_weekToControl ) == false  )
+		if ( isset( $this->feedDTD[ $elmName ][ 'selected_weeks' ] ) && FeedValidator::isNull( $selected_weekToControl ) == FALSE  )
 		{
 			$selected_ = explode( ',', $selected_weekToControl );
 
-			if ( @count( $selected_ ) > 0 )
+			if ( count( $selected_ ) > 0 )
 			{
 				foreach( $selected_ as $selected_weekToControl )
 				{
 					if ( in_array( strtolower( $selected_weekToControl ), $this->feedDTD[ $elmName ][ 'selected_weeks' ] ) )
-						return true;
+						return TRUE;
 				}
 			}
 			else
 			{
 				if ( in_array( strtolower( $selected_weekToControl ), $this->feedDTD[ $elmName ][ 'selected_weeks' ] ) )
-					return true;
+					return TRUE;
 			}
 		}
-		else return true;
-		return false;
+		else return TRUE;
+		return FALSE;
 	}
 
 	private function controlNodeContent( $name, $value )
 	{
-		if ( FeedValidator::isNull( $value ) == false )
+		if ( FeedValidator::isNull( $value ) == FALSE )
 		{
 			switch ( strtolower( $name ) )
 			{
 				case 'start'			:
 				case 'published' 		:
 				case 'updated' 			: return FeedValidator::isValidDate( FeedWriter::getISODate( $value ) ); break;
-				case 'name' 			: return ( FeedValidator::isNull( 			$value ) == false )? true : false; break;
+				case 'name' 			: return ( FeedValidator::isNull( 			$value ) == FALSE )? TRUE : FALSE; break;
 				case 'email' 			: return FeedValidator::isValidEmail( 		$value ); break;
 				case 'logo' 			:
 				case 'icon' 			:
@@ -963,10 +963,10 @@ final class EventFeed
 				case 'longitude'		: return FeedValidator::isValidLongitude(	$value ); break;
 				case 'country_code' 	: return FeedValidator::isValidCountryCode( $value ); break;
 				case 'currency' 		: return FeedValidator::isValidCurrency(	$value ); break;
-				default					: return true; break;
+				default					: return TRUE; break;
 			}
 		}
-		return true;
+		return TRUE;
 	}
 
 

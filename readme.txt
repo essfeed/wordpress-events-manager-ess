@@ -4,7 +4,7 @@ Donate link: http://essfeed.org
 Tags: events, event, event registration, event calendar, events calendar, event management, events manager, feed, syndication, locations, maps, calendar,happenings, concerts, meetings, festivals,sport,diary,availability,feeds syndication, RSS, Atom, event publishers, XML, aggregator, crawling,crawler,google,indexation,high ranking,visibility,broadcast, schedule, SEO, booking, places, venue, upcoming, diary, ical, icalendar, organizer, planner,social events,social gatherings,cultural,museum,expo,cinema,movies,concert,jazz,festival,exhibition
 Requires at least: 3.2
 Tested up to: 3.7
-Stable tag: 0.5
+Stable tag: 0.95
 License: GPLv2 or later
 
 Extends Events Manager Wordpress plugin to import, export and sync events through ESS feeds.
@@ -84,6 +84,11 @@ You'll find the bug tracking in: [github.com issues](https://github.com/essfeed/
 
 
 == Changelog ==
+
+= 0.9 =
+correct importation with multiple events in one feed
+correct some encoder in XTML and XML to be retrocompatible with php <= 5.3
+
 = 0.5 =
 * update the search engine push
 * events automaticaly visible on https://www.hypecal.com/search

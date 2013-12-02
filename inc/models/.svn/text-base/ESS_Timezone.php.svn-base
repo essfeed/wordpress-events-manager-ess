@@ -1,43 +1,53 @@
 <?php
 final class ESS_Timezone
 {
-	public function __construct() {} 
-	
-	
+	public function __construct() {}
+
+
 	public static function get_timezone_offset( $timezone=NULL )
 	{
 		$timezone = ( $timezone == NULL )? self::get_default_timezone() : $timezone;
 		$offset = timezone_offset_get( new DateTimeZone( $timezone ), new DateTime() );
-		
+
 		return sprintf( "%s%02d:%02d", ( $offset >= 0 ) ? '+' : '-', abs( $offset / 3600 ), abs( $offset % 3600 ) );
 	}
-	
+
 	public static function get_date_GMT( $timestamp_unix )
 	{
-		$dt = new DateTime( 
-			date( 'Y-m-d H:i:s', $timestamp_unix ), 
-			new DateTimeZone( get_option( 'ess_feed_timezone' ) ) 
+		$timezone = @get_option( 'ess_feed_timezone' );
+
+		if ( $timezone == '' || $timezone == NULL || $timezone == FALSE || !isset( $timezone ) )
+		{
+			if ( function_exists( 'date_default_timezone_get' ) )
+				$timezone = date_default_timezone_get();
+			else
+				$timezone = 'Europe/Paris';
+		}
+
+		$dt = new DateTime(
+			date( 'Y-m-d H:i:s', $timestamp_unix ),
+			new DateTimeZone( $timezone )
 		);
-		
+
 		return $dt->format( DateTime::ATOM );
 	}
-	
+
 	public static function get_default_timezone()
 	{
 		$timezone = ini_get('date.timezone');
-		
+
 		if ( strlen( date_default_timezone_get() ) <= 0 )
 		{
 			//$timezone_server = @exec( 'date +%:z' );
 		}
-		else 
+		else
 		{
 			if ( date_default_timezone_get() > 10 )
-				return date_default_timezone_get();	
+				return date_default_timezone_get();
 		}
 		return $timezone;
 	}
-	
+
 public static $WORLD_TIMEZONES_ = array(
 array( 'timezone' => "Africa/Abidjan", 					'country' => "CI", 'pin' => "196,94", 	'offset' => "0", 'shape' => "poly", 'coords' => "193,95,192,95,192,94,190,93,191,92,191,91,191,91,192,91,191,89,193,88,193,89,194,89,195,89,196,89,197,91,196,93,197,94,193,95"),
 array( 'timezone' => "Africa/Accra", 					'country' => "GH", 'pin' => "200,94", 	'offset' => "0", 'shape' => "poly", 'coords' => "201,94,198,95,197,94,197,94,196,92,197,91,197,88,200,88,201,91,201,92,201,93,201,94"),

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: 	Events Manager ESS
-Version: 		0.5
+Version: 		0.95
 Plugin URI: 	http://essfeed.org
 Description: 	Integrates ESS Feed into Events Manager to import and export events.
 Author: 		Marcus Sykes, Brice Prissard
@@ -36,6 +36,9 @@ add_action( 'plugins_loaded', array( 'EM_ESS', 'init' ) );
 
 require_once( EM_ESS_DIR . "/inc/models/ESS_Database.php" );
 require_once( EM_ESS_DIR . "/inc/models/ESS_IO.php" );
+
+if ( WP_DEBUG )
+	require_once( EM_ESS_DIR . "/inc/libs/kint-0.9/Kint.class.php" );
 
 final class EM_ESS
 {

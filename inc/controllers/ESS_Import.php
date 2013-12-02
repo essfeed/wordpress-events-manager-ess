@@ -16,7 +16,13 @@ final class ESS_Import
 
 	public static function save( $feed_url, $feed_update_daily='on' )
 	{
-		$feed_url = str_replace( '&push=1', '', str_replace( '&download=1', '', urldecode( esc_html( $feed_url ) ) ) );
+		$feed_url = strtr( str_replace( '&push=1', '', str_replace( '&download=1', '', urldecode( esc_html( $feed_url ) ) ) ), array(
+		    "&lt;"   => "<",
+		    "&gt;"   => ">",
+		    "&quot;" => '""',
+		    "&apos;" => "'",
+		    "&amp;"  => "&"
+		) );
 
 		if ( !is_user_logged_in() ) return;
 
@@ -28,14 +34,16 @@ final class ESS_Import
 		{
 			$RESULT_ = self::get_feed_content( $feed_url );
 
+			//dd( $feed_url, $RESULT_ );
+
 			if ( !isset( $RESULT_['error'] ) )
 			{
 				//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
 				//var_dump( $RESULT_ );die;
 
-				if ( @count( $RESULT_['feeds'] ) > 0 )
+				if ( @count( @$RESULT_['feeds'] ) > 0 && $RESULT_['feeds'] != NULL )
 				{
-					if ( $feed_url != $RESULT_['link'] )
+					if ( trim($feed_url) != trim($RESULT_['link']) )
 					{
 						$ESS_Notices->add_info(
 							__("The URL of the feed defined within the feed is not the same then the one you have aggregate.",'dbem') .
@@ -81,6 +89,8 @@ final class ESS_Import
 
 					//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
 					//var_dump( $existing_events_ );die;
+
+					//dd( $RESULT_['feeds'] );
 
 					foreach ( $RESULT_['feeds'] as $i_feed => $FEED_ )
 					{
@@ -625,11 +635,19 @@ final class ESS_Import
 	 */
 	private static function get_feed_content( $feed_url="" )
 	{
+		$feed_url = strtr( @urldecode( $feed_url ), array(
+		    "&lt;"   => "<",
+		    "&gt;"   => ">",
+		    "&quot;" => '""',
+		    "&apos;" => "'",
+		    "&amp;"  => "&"
+		) );
+
 		$RESULT_ = array();
 
-		@assert_options(ASSERT_ACTIVE, 		1 );
-		@assert_options(ASSERT_BAIL, 		1 );
-		@assert_options(ASSERT_QUIET_EVAL, 	1 );
+		@assert_options( ASSERT_ACTIVE, 	1 );
+		@assert_options( ASSERT_BAIL, 		1 );
+		@assert_options( ASSERT_QUIET_EVAL, 1 );
 
 		$timeout_sec = 5; // timeout 5 seconds.
 		$fp = @fopen( $feed_url, 'r', FALSE, stream_context_create(array('http'=>array('timeout'=>$timeout_sec,'method'=>"GET"))));
@@ -637,7 +655,11 @@ final class ESS_Import
 
 		if ( $fp !== FALSE )
 		{
-			try { $ess = simplexml_load_file( urlencode( $feed_url ), "SimpleXMLElement", LIBXML_NOCDATA ); }
+			try
+			{
+				$ess = simplexml_load_file( $feed_url, "SimpleXMLElement", LIBXML_NOCDATA );
+				//var_dump( $feed_url, $ess );
+			}
 			catch( ErrorException $e )
 			{
 				$ess = FALSE;
@@ -652,6 +674,8 @@ final class ESS_Import
 
 		if ( $ess !== FALSE )
 		{
+			$RESULT_['feeds'] = array();
+
 			// -- CHANNEL
 			foreach ( $ess->channel->children() as $child )
 			{
@@ -662,7 +686,6 @@ final class ESS_Import
 				else
 				{
 					// -- FEED
-					$RESULT_['feeds'] = array();
 					$FEED_ = array();
 					foreach ( $child->children() as $feedChild )
 					{
@@ -710,6 +733,7 @@ final class ESS_Import
 						{
 							// -- Check <item>s childs values
 							$FEED_[ $feed ] = array();
+
 							foreach ( $child->$feed->item as $complexItem )
 							{
 								$arr_ = array();
@@ -766,7 +790,7 @@ final class ESS_Import
 						}
 					}
 					//echo "------------------------------------------<br>";
-					if ( @count( $FEED_ ) > 0 )
+					if ( count( $FEED_ ) > 0 )
 						array_push( $RESULT_['feeds'], $FEED_ );
 				}
 			}
@@ -1170,7 +1194,7 @@ final class ESS_Import
 					if ( $response['result']['error'] == NULL )
 						$response['result']['error'] = array();
 
-					array_unshift( $response['result']['error'], "<b>" . sprintf( __( "The Feed URL is not a valide ESS file: <a href='%s' target='_blank'>%s</a>", 'dbem' ), $feed_url, $feed_url ) . "</b><br>" );
+					array_unshift( $response['result']['error'], "<b>" . sprintf( __( "The Feed URL is not a valid ESS file: <a href='%s' target='_blank'>%s</a>", 'dbem' ), $feed_url, $feed_url ) . "</b><br>" );
 					array_push( $response['result']['error'], "<b>" . sprintf( __( "More information about the standard: <a href='%s' target='_blank'>%s</a>", 'dbem' ), ESS_IO::ESS_WEBSITE, ESS_IO::ESS_WEBSITE ). "</b><br>" );
 
 					//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";

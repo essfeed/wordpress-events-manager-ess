@@ -13,7 +13,7 @@ ESS_IO.php
 K 25
 svn:wc:ra_dav:version-url
 V 63
-/!svn/ver/795960/events-manager-ess/trunk/inc/models/ESS_IO.php
+/!svn/ver/813337/events-manager-ess/trunk/inc/models/ESS_IO.php
 END
 ESS_Notices.php
 K 25
@@ -37,11 +37,11 @@ ESS_Timezone.php
 K 25
 svn:wc:ra_dav:version-url
 V 69
-/!svn/ver/783947/events-manager-ess/trunk/inc/models/ESS_Timezone.php
+/!svn/ver/812393/events-manager-ess/trunk/inc/models/ESS_Timezone.php
 END
 ESS_Database.php
 K 25
 svn:wc:ra_dav:version-url
 V 69
-/!svn/ver/783947/events-manager-ess/trunk/inc/models/ESS_Database.php
+/!svn/ver/813668/events-manager-ess/trunk/inc/models/ESS_Database.php
 END
