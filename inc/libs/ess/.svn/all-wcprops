@@ -1,13 +1,13 @@
 K 25
 svn:wc:ra_dav:version-url
 V 54
-/!svn/ver/784432/events-manager-ess/trunk/inc/libs/ess
+/!svn/ver/976968/events-manager-ess/trunk/inc/libs/ess
 END
 EventFeed.php
 K 25
 svn:wc:ra_dav:version-url
 V 68
-/!svn/ver/813337/events-manager-ess/trunk/inc/libs/ess/EventFeed.php
+/!svn/ver/976968/events-manager-ess/trunk/inc/libs/ess/EventFeed.php
 END
 README.md
 K 25
@@ -19,17 +19,17 @@ EssDTD.php
 K 25
 svn:wc:ra_dav:version-url
 V 65
-/!svn/ver/783947/events-manager-ess/trunk/inc/libs/ess/EssDTD.php
+/!svn/ver/976968/events-manager-ess/trunk/inc/libs/ess/EssDTD.php
 END
 FeedWriter.php
 K 25
 svn:wc:ra_dav:version-url
 V 69
-/!svn/ver/813337/events-manager-ess/trunk/inc/libs/ess/FeedWriter.php
+/!svn/ver/976968/events-manager-ess/trunk/inc/libs/ess/FeedWriter.php
 END
 FeedValidator.php
 K 25
 svn:wc:ra_dav:version-url
 V 72
-/!svn/ver/813337/events-manager-ess/trunk/inc/libs/ess/FeedValidator.php
+/!svn/ver/976968/events-manager-ess/trunk/inc/libs/ess/FeedValidator.php
 END

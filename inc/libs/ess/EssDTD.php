@@ -12,188 +12,200 @@ final class EssDTD
 	// -- Event Privacity
 	const ACCESS_PRIVATE	= 'PRIVATE';
 	const ACCESS_PUBLIC		= 'PUBLIC';
-	
+
 	public function __construct() {}
-	
+
 	/**
 	 *  Get ESS XML element attributes
-	 * 
+	 *
 	 * 	@access public
 	 * 	@return Array	Return an Array of the <ess> XML element attributes with mandatory Boolean value DTD
 	 */
 	public static function getESSAttributeDTD()
 	{
 		return array(
-			'xmlns' 	=> true,
-			'version'	=> true,
-			'lang'		=> true
-		);	
+			'xmlns' 	=> TRUE,
+			'version'	=> TRUE,
+			'lang'		=> TRUE
+		);
 	}
-	
+
 	/**
 	 *  Get Channel's first available XML child
-	 * 
+	 *
 	 * 	@access public
 	 * 	@return Array	Return an Array of the <channel> first XML childs with mandatory Boolean value DTD
 	 */
 	public static function getChannelDTD()
 	{
 		return array(
-			'title'     	=> true,
-			'link'			=> true,
-			'id'			=> true,
-			'published'		=> true,
-			'updated'		=> false,
-			'generator'		=> false,
-			'rights'		=> false,
-			'feed'			=> true  
+			'title'     	=> TRUE,
+			'link'			=> TRUE,
+			'id'			=> TRUE,
+			'published'		=> TRUE,
+			'updated'		=> FALSE,
+			'generator'		=> FALSE,
+			'rights'		=> FALSE,
+			'feed'			=> TRUE
 		);
 	}
-	
+
 	/**
 	 *  Get Feed first XML element DTD
-	 * 
+	 *
 	 * 	@access public
 	 * 	@return Array	Return an Array of the DTD
 	 */
 	public static function getRootDTD()
 	{
 		return array(
-			'title' 		=> true,
-		    'id'			=> true,
-		    'access'		=> true,
-		    'description'	=> true,
-		    'published'		=> true,
-		    'uri'			=> false,
-		    'updated'		=> false, 
-		    'tags'			=> false
+			'title' 		=> TRUE,
+		    'id'			=> TRUE,
+		    'access'		=> TRUE,
+		    'description'	=> TRUE,
+		    'published'		=> TRUE,
+		    'uri'			=> FALSE,
+		    'updated'		=> FALSE,
+		    'tags'			=> FALSE
 		);
 	}
-	
+
 	/**
 	 *  Get Feed Complex XML child element DTD
-	 * 
+	 *
 	 * 	@access public
 	 * 	@return Array	Return an Array of the DTD
-	 */	
+	 */
 	public static function getFeedDTD()
 	{
-		return array( 
+		return array(
 			'categories' => array(
-				'mandatory' => true,
+				'mandatory' => TRUE,
 				'types' 	=> array( 	'award',
 										'competition',
 										'commemoration',
 										'conference',
 										'concert',
-										'diner',
-										'entertainment',
 										'cocktail',
 										'course',
+										'diner',
+										'entertainment',
 										'exhibition',
 										'family',
 										'friends',
 										'festival',
+										'lecture',
 										'meeting',
 										'networking',
 										'party',
 										'seminar',
+										'trade show',
 										'general'
 									),
 				'tags' 		=> array(
-					'name' 			=> true,
-					'id' 			=> false 
+					'name' 			=> TRUE,
+					'id' 			=> FALSE,
+					'description'	=> FALSE
 				)
 			),
 			'dates' => array(
-				'mandatory'			=> true,
+				'mandatory'			=> TRUE,
 				'types' 			=> array('standalone','recurrent','permanent'),
 				'units'				=> array('hour','day','week','month','year'),
 				'selected_days'		=> array("monday","tuesday","wednesday","thursday","friday","saturday","sunday"),
 				'selected_weeks'	=> array("first","second","third","fourth","last"),
 				'tags' 				=> array(
-					'name' 			=> true,
-					'start' 		=> true,
-					'duration' 		=> false
+					'name' 			=> TRUE,
+					'start' 		=> TRUE,
+					'duration' 		=> FALSE,
+					'description'	=> FALSE
 				)
 			),
 			'places' => array(
-				'mandatory' => true,
+				'mandatory' => TRUE,
 				'types' 	=> array('fixed','area','moving','virtual'),
 				'tags' 		=> array(
-					'name' 			=> true,
-					'country_code' 	=> false,
-					'country' 		=> false,
-					'latitude' 		=> false,
-					'longitude' 	=> false,
-					'address' 		=> false,
-					'city' 			=> false,
-					'zip' 			=> false,
-					'state' 		=> false,
-					'state_code'	=> false,
-					'medium_name' 	=> false,
-					'medium_type'	=> false,
-					'kml' 			=> false
-				)	
+					'name' 			=> TRUE,
+					'description'	=> FALSE,
+					'country_code' 	=> FALSE,
+					'country' 		=> FALSE,
+					'latitude' 		=> FALSE,
+					'longitude' 	=> FALSE,
+					'address' 		=> FALSE,
+					'city' 			=> FALSE,
+					'zip' 			=> FALSE,
+					'state' 		=> FALSE,
+					'state_code'	=> FALSE,
+					'medium_name' 	=> FALSE,
+					'medium_type'	=> FALSE,
+					'kml' 			=> FALSE
+				)
 			),
 			'prices' => array(
-				'mandatory' 		=> false, 
+				'mandatory' 		=> FALSE,
 				'types' 			=> array('standalone','recurrent'),
-				'modes'				=> array('fixed','free','invitation','renumerated','prepaid'),
+				'modes'				=> array('fixed','free','donation','invitation','renumerated','prepaid'),
 				'units'				=> array('hour','day','week','month','year'),
 				'selected_days'		=> array("monday","tuesday","wednesday","thursday","friday","saturday","sunday"),
 				'selected_weeks'	=> array("first","second","third","fourth","last"),
 				'tags' 				=> array(
-					'name' 			=> true,
-					'value' 		=> true,
-					'currency'		=> false,
-					'start' 		=> false,
-					'duration'		=> false,
-					'uri' 			=> false
+					'name' 			=> TRUE,
+					'value' 		=> TRUE,
+					'currency'		=> FALSE,
+					'start' 		=> FALSE,
+					'duration'		=> FALSE,
+					'description'	=> FALSE,
+					'quantity'		=> FALSE,
+					'maximum'		=> FALSE,
+					'minimum'		=> FALSE,
+					'uri' 			=> FALSE
 				)
 			),
 			'media' => array(
-				'mandatory' => false,
+				'mandatory' => FALSE,
 				'types' 	=> array('image','sound','video','website'),
 				'tags' 		=> array(
-					'name' 			=> true,
-					'uri' 			=> true
+					'name' 			=> TRUE,
+					'uri' 			=> TRUE,
+					'description'	=> FALSE
 				)
 			),
 			'people' => array(
-				'mandatory' => false,
+				'mandatory' => FALSE,
 				'types' 	=> array('organizer','performer','attendee','social','author','contributor'),
 				'tags' 		=> array(
-					'name' 			=> true,
-					'id' 			=> false,
-					'firstname' 	=> false,
-					'lastname' 		=> false,
-					'organization' 	=> false,
-					'logo' 			=> false,
-					'icon' 			=> false,
-					'uri' 			=> false,
-					'address' 		=> false,
-					'city' 			=> false,
-					'zip' 			=> false,
-					'state' 		=> false,
-					'state_code'	=> false,
-					'country' 		=> false,
-					'country_code' 	=> false,
-					'email' 		=> false,
-					'phone' 		=> false,
-					'minpeople' 	=> false,
-					'maxpeople' 	=> false,
-					'minage' 		=> false,
-					'restriction'	=> false,
+					'name' 			=> TRUE,
+					'id' 			=> FALSE,
+					'firstname' 	=> FALSE,
+					'lastname' 		=> FALSE,
+					'organization' 	=> FALSE,
+					'logo' 			=> FALSE,
+					'icon' 			=> FALSE,
+					'uri' 			=> FALSE,
+					'address' 		=> FALSE,
+					'city' 			=> FALSE,
+					'zip' 			=> FALSE,
+					'state' 		=> FALSE,
+					'state_code'	=> FALSE,
+					'country' 		=> FALSE,
+					'country_code' 	=> FALSE,
+					'email' 		=> FALSE,
+					'phone' 		=> FALSE,
+					'minpeople' 	=> FALSE,
+					'maxpeople' 	=> FALSE,
+					'minage' 		=> FALSE,
+					'restriction'	=> FALSE,
+					'description'	=> FALSE
 				)
 			),
 			'relations' => array(
-				'mandatory' => false,
+				'mandatory' => FALSE,
 				'types' 	=> array('alternative','related','enclosure'),
 				'tags' 		=> array(
-					'name' 			=> true,
-					'uri'			=> true,
-					'id' 			=> true
+					'name' 			=> TRUE,
+					'uri'			=> TRUE,
+					'id' 			=> TRUE,
+					'description'	=> FALSE
 				)
 			),
 		);

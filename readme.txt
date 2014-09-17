@@ -1,29 +1,27 @@
 === Events Manager ESS ===
-Contributors: netweblogic, essfeed
+Contributors: essfeed
 Donate link: http://essfeed.org
 Tags: events, event, event registration, event calendar, events calendar, event management, events manager, feed, syndication, locations, maps, calendar,happenings, concerts, meetings, festivals,sport,diary,availability,feeds syndication, RSS, Atom, event publishers, XML, aggregator, crawling,crawler,google,indexation,high ranking,visibility,broadcast, schedule, SEO, booking, places, venue, upcoming, diary, ical, icalendar, organizer, planner,social events,social gatherings,cultural,museum,expo,cinema,movies,concert,jazz,festival,exhibition
 Requires at least: 3.2
-Tested up to: 3.7
-Stable tag: 0.95
+Tested up to: 4.0
+Stable tag: 1.2
 License: GPLv2 or later
 
 Extends Events Manager Wordpress plugin to import, export and sync events through ESS feeds.
 
 == Description ==
-ESS (Event Standard Syndication) is The Events Feed.
+ESS for Event Standard Syndication is The Events Feed.
+ESS is a free and open-source XML feed dedicated to describe events. This feed is read by search engines and robot crawlers to index your event pages and forward the web users to the your event URL.
 
-**EVENTS MANAGER PLUGIN IS REQUIRED DO BE INSTALLED FIRST**
 
-Events Manager is a full-featured event plugin for WordPress:
+**EVENTS MANAGER PLUGIN IS REQUIRED TO BE INSTALLED TO USE THIS PLUGIN**
 [Events Manager Plugin](http://wordpress.org/plugins/events-manager/)
 
 
-This plugin add several crucial SEO optimisations to Events Manager Plugin:
+This plugin add several crucial SEO optimisations to **Events Manager** Plugin:
 
-* ESS standard is a new free and open-source XML feed invented exclusively for events.
 * ESS extension gives the ability to import and export ESS feeds
-* ESS facilitate SEO and event's broadcast.
-* ESS federates provider’s events into one feed that can be updated in real-time.
+* ESS facilitate SEO and the event's broadcast.
 
 * [ESS Documentation](http://essfeed.org)
 
@@ -34,13 +32,12 @@ This plugin add several crucial SEO optimisations to Events Manager Plugin:
 * Import single event throught ESS Feed format
 * Syndicate to 3rd party ESS feeds to automaticaly have the events updated.
 * Export events into ESS format
-* Auto submit events to Search Engines
-* With ESS import, it also create tags, images, tickets and categories.
+* Auto submit events to Search Engines.
 
 = Benefits of ESS =
 
 * ESS increases user web traffic on event portal.
-* ESS structures and organizes crucial event information to broadcast efficiently.
+* ESS structures and organizes crucial event information to broadcast them efficiently.
 * ESS prevents the duplication of content by centralizing event information in one website.
 * ESS provide automatic transmition of events all over the web.
 * ESS reduces the cost of event promotion thanks to centralization and automatization.
@@ -85,9 +82,33 @@ You'll find the bug tracking in: [github.com issues](https://github.com/essfeed/
 
 == Changelog ==
 
+= 1.2 =
+* add a "source link" at the end of the event description to get a back-link and improve the SEO
+* prevent the duplication of category's name in the ESS feed
+
+= 1.1 =
+* fix the CRON auto update of syndicated feeds
+* add a ESS to schema.org/Event binding to boost the google indexation
+* update PHP 5.5 functions support
+* set the ESS icon display as optional, ca be custom on the admin settings section.
+
+= 0.98 =
+* fix the duplicated 'exerpt' field in case of multiple events aggregation.
+* update date calculation if the 'unit' attribute is provided within the important feed.
+* update the category detection with the 'name' instead of the 'slug' because some languages have special chars that are url encoded.
+* update the url encoding.
+* improve the existing event detection in case of feed update.
+* force country code transcription from 'xe' to 'gb' for england.
+* leave HTML comments in the description of the ESS feed.
+* set 'hour' as default value for every durations.
+
 = 0.9 =
-correct importation with multiple events in one feed
-correct some encoder in XTML and XML to be retrocompatible with php <= 5.3
+* handle PHP < 5.4 with ENT_XML1 native constant that doesn't exists
+* prevent PHP E_STRICT and E_WARNINGS to be displayed on user screen.
+
+= 0.8 =
+* correct importation with multiple events in one feed
+* correct some encoder in XTML and XML to be retrocompatible with php <= 5.3
 
 = 0.5 =
 * update the search engine push

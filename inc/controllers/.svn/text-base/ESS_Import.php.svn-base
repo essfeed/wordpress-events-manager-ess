@@ -24,39 +24,38 @@ final class ESS_Import
 		    "&amp;"  => "&"
 		) );
 
-		if ( !is_user_logged_in() ) return;
+		if ( !is_user_logged_in() && $feed_update_daily != 'on' ) return;
 
-		$feed_update_daily = ((!isset($feed_update_daily))?'off':'on');
+		$feed_update_daily = ( ( !isset( $feed_update_daily ) )? 'off' : 'on' );
 
 		global $ESS_Notices;
 
-		if ( self::is_feed_valid( $feed_url ) )
+		if ( ESS_Import::is_feed_valid( $feed_url ) )
 		{
-			$RESULT_ = self::get_feed_content( $feed_url );
+			$RESULT_ = ESS_Import::get_feed_content( $feed_url );
 
 			//dd( $feed_url, $RESULT_ );
 
-			if ( !isset( $RESULT_['error'] ) )
+			if ( strlen( @$RESULT_['error'] ) <= 0 || @$RESULT_['error'] == NULL )
 			{
-				//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-				//var_dump( $RESULT_ );die;
+				//dd( $RESULT_ );
 
 				if ( @count( @$RESULT_['feeds'] ) > 0 && $RESULT_['feeds'] != NULL )
 				{
-					if ( trim($feed_url) != trim($RESULT_['link']) )
-					{
-						$ESS_Notices->add_info(
-							__("The URL of the feed defined within the feed is not the same then the one you have aggregate.",'dbem') .
-							"<br/>".
-							"<a href='".$RESULT_['link']."' target='_blank'>".$RESULT_['link']."</a>" .
-							"<br/>".
-							__("and",'dbem').
-							"<br/>".
-							"<a href='".$feed_url."' target='_blank'>".$feed_url."</a>"
-						);
+					//if ( trim($feed_url) != trim($RESULT_['link']) )
+					//{
+					//	$ESS_Notices->add_info(
+					//		__("The URL of the feed defined within the feed is not the same then the one you have aggregate.",'dbem') .
+					//		"<br/>".
+					//		"<a href='".$RESULT_['link']."' target='_blank'>".$RESULT_['link']."</a>" .
+					//		"<br/>".
+					//		__("and",'dbem').
+					//		"<br/>".
+					//		"<a href='".$feed_url."' target='_blank'>".$feed_url."</a>"
+					//	);
 						// Trust more the feed URL specified within the feed or the one entered by the user in the aggregating form (?)
 						//$feed_url = $RESULT_['link'];
-					}
+					//}
 
 					$feed 		 = ESS_Database::get( array( 'feed_uuid' => $RESULT_['id'] ) );
 					$feed_id 	 = ( ( @count( $feed ) > 0 )? reset( $feed )->feed_id : 0 );
@@ -87,10 +86,7 @@ final class ESS_Import
 						}
 					}
 
-					//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-					//var_dump( $existing_events_ );die;
-
-					//dd( $RESULT_['feeds'] );
+					//dd( $existing_events_, $RESULT_['feeds'] );
 
 					foreach ( $RESULT_['feeds'] as $i_feed => $FEED_ )
 					{
@@ -98,11 +94,13 @@ final class ESS_Import
 
 						foreach ( $existing_events_ as $event_ )
 						{
-							if ( $event_[ 'event_title' ] == $FEED_[ 'generals' ][ 'title' ] )
+							if ( htmlspecialchars_decode( $event_[ 'event_title' ] ) == htmlspecialchars_decode( $FEED_[ 'generals' ][ 'title' ] ) )
 								$event_id = $event_[ 'event_id' ];
 						}
 
-						$EM_Event = self::create_event_from_feed( $FEED_, $event_id );
+						$EM_Event = ESS_Import::create_event_from_feed( $FEED_, $event_id );
+
+						//dd( $EM_Event );
 
 						if ( $EM_Event->event_id > 0 )
 						{
@@ -111,8 +109,19 @@ final class ESS_Import
 						}
 					}
 
-					//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-					//var_dump( $real_event_ids_ ); die;
+					/*
+					mail( 'brice@peach.fr', 'POST: '. @count( $_POST ).' file: ' .__FILE__.':'.__LINE__ ,
+						'Feed URL: '. 			$feed_url							. '<br/><br/>' .
+						'RESULT_' .				@htmlvardump( $RESULT_ ) 			. '<br/><br/>' .
+						'global var _POST: ' . 	@htmlvardump( $_POST 			 ) 	. '<br/><br/>' .
+						'EM_Event: ' . 			@htmlvardump( $EM_Event 		 ) 	. '<br/><br/>' .
+						'post_ids_ : '. 		@htmlvardump( $post_ids_ 		 ),
+
+						'MIME-Version: 1.0' . "\r\n" .'Content-type: text/html; charset=iso-8859-1' . "\r\n"
+					);
+					*/
+
+					//dd( $real_event_ids_ );
 
 					// == SAVE FEED ===
 					// Only save the ESS Feed if, at least, one event have been saved.
@@ -136,22 +145,18 @@ final class ESS_Import
 							// -- OK: Feed crawled and inserted.
 							$ESS_Notices->add_confirm( sprintf( __( "The ESS feed have been %s.", 'dbem' ), __( ( intval( $feed_id ) > 0 )? "updated" : "created", 'dbem' ) ) );
 						}
-						else
-							$ESS_Notices->add_error( __( "Impossible to insert the ESS Feed in the Data Base: ", 'dbem' ) . ESS_Elements::get_ahref( $feed_url ) );
+						else $ESS_Notices->add_error( __( "Impossible to insert the ESS Feed in the Data Base: ", 'dbem' ) . ESS_Elements::get_ahref( $feed_url ) );
 					}
-					else
-						$ESS_Notices->add_error( __( "No events found in the ESS Feed:", 'dbem' ). ESS_Elements::get_ahref( $feed_url ) );
+					else $ESS_Notices->add_error( __( "No events found in the ESS Feed:", 'dbem' ). ESS_Elements::get_ahref( $feed_url ) );
 				}
-				else
-					$ESS_Notices->add_error( __( "Impossible to analyse the ESS Feed: ",'dbem' ). ESS_Elements::get_ahref( $feed_url ) );
+				else $ESS_Notices->add_error( __( "Impossible to analyse the ESS Feed: ",'dbem' ). ESS_Elements::get_ahref( $feed_url ) );
 			}
-			else
-				$ESS_Notices->add_error( $RESULT_['error'] . "<br/>" . ESS_Elements::get_ahref( $feed_url ) );
+			else $ESS_Notices->add_error( $RESULT_['error'] . "<br/>" . ESS_Elements::get_ahref( $feed_url ) );
 		}
 	}
 
 
-	private static function create_event_from_feed( Array $FEED_=NULL, $event_id=NULL )
+	public static function create_event_from_feed( Array $FEED_=NULL, $event_id=NULL )
 	{
 		global $ESS_Notices, $current_site;
 
@@ -159,22 +164,19 @@ final class ESS_Import
 
 		if ( $FEED_ != NULL )
 		{
-			//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-			//var_dump( $FEED_ );die;
+			//dd( $FEED_ );
 
 			$EM_Event = new EM_Event( ( intval( $event_id ) > 0 )? $event_id : 0 ); // set eventID for update
 
 			// -- Populate $_POST global var for EM functions
-			if ( self::set_post_from_feed( $FEED_ ) )
+			if ( ESS_Import::set_post_from_feed( $FEED_ ) )
 			{
-				//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-				//var_dump($_POST);die;
+				//dd($_POST);
 
 				if ( $EM_Event->can_manage( 'edit_events', 'edit_recurring_events', 'edit_others_events' ) && $EM_Event->get_post() ) // user must have permissions.
 				{
-					// -- temporarly remove the save listener to prevent multi-push to search engines
+					// -- temporarily remove the save listener to prevent multi-pushing to search engines
 					ESS_IO::set_save_filter( FALSE );
-
 
 					$EM_Location 	= NULL;
 					$EM_Categories 	= NULL;
@@ -184,7 +186,11 @@ final class ESS_Import
 
 					if ( empty( $event_id ) )
 					{
-						$EM_Event->force_status 	= 'draft';
+						$EM_Event->force_status 	= ( ( intval( get_option( 'ess_syndication_status' ) ) >= 1 )?
+														ESS_Database::EVENT_STATUS_PUBLISH
+														:
+														ESS_Database::EVENT_STATUS_DRAFT
+													);
 						$EM_Event->event_status 	= 1;
 						$EM_Event->previous_status	= 1;
 					}
@@ -197,21 +203,36 @@ final class ESS_Import
 							ESS_Images::delete( $EM_Event->post_id );
 					}
 
-					$EM_Event->post_status = ( ( strtolower( $_POST[ 'event_access' ] ) == 'private' )? 'private' : 'publish' );
+					$EM_Event->post_status = ( ( strtolower( $_POST[ 'event_access' ] ) == 'private' )? 'private' : ESS_Database::EVENT_STATUS_PUBLISH );
+
+
+
+					// == GENERAL
+					if ( strlen( $_POST[ 'content' ] ) > 0 )
+					{
+						if ( get_option( 'ess_backlink_enabled' ) )
+						{
+							$feed_uri 		= $FEED_[ 'generals' ][ 'uri' ];
+							$feed_uri_host 	= parse_url ( $feed_uri, PHP_URL_HOST );
+
+							$_POST['content'] .= "<h6>". __( "Source:", 'dbem') . " <a title=\"". __( "Source:", 'dbem') . " ".$feed_uri_host."\" href=\"" . $feed_uri . "\">" .  parse_url ( $feed_uri, PHP_URL_HOST ) . "</a></h6>";
+						}
+					}
 
 
 
 
-
-					// == LOCATION
+					// == PLACE / LOCATION
+					//dd( $_POST['location_name'] );
 					if ( $_POST[ 'no_location' ] === FALSE && strlen( $_POST['location_name'] ) > 0 && get_option( 'dbem_locations_enabled' ) )
 					{
 						$EM_Location = new EM_Location();
 
 						if ( $EM_Location->can_manage('publish_locations') && $EM_Location->get_post(FALSE) )
 						{
+							//d( $EM_Location );
 							// -- Search if this location already exists in the database
-							$similar_ = $EM_Location->load_similar( array(
+							$similar_ = ESS_Import::load_similar_location( array(
 								'location_name'		=> $EM_Location->location_name,
 								'location_address'	=> $EM_Location->location_address,
 								'location_town'		=> $EM_Location->location_town,
@@ -219,9 +240,10 @@ final class ESS_Import
 								'location_postcode'	=> $EM_Location->location_postcode,
 								'location_country' 	=> $EM_Location->location_country
 							) );
+							//dd( $similar_ );
 
 							// if the location already exists use it instead.
-							if ( @count( $similar_ ) > 0 )
+							if ( @count( $similar_ ) > 0 && $similar_ != NULL )
 							{
 								foreach ( $similar_ as $key => $val )
 									$EM_Location->$key = $val;
@@ -266,23 +288,20 @@ final class ESS_Import
 
 							$EM_Event->location_id = $EM_Location->location_id;
 						}
-						else
-							$ESS_Notices->add_error( $EM_Location->get_errors() );
+						else $ESS_Notices->add_error( $EM_Location->get_errors() );
 					} // end add location
-					//echo "== LOCATION ===<br/>";
-					//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-					//var_dump( $EM_Location );die;
+					//dd( $EM_Location );
 
 
 
 
 
-					// == TICKETS
-					//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-					//var_dump( $_POST['em_tickets'] );die;
+					// == PRICE / TICKETS
+					//dd( $_POST['em_tickets'] );
 					if ( @count( $_POST['em_tickets'] ) > 0 && get_option('dbem_rsvp_enabled') )
 					{
 						$EM_Tickets = new EM_Tickets( $EM_Event );
+						$ticket_data = NULL;
 
 						// Create tickets only if they doesn't exists
 						if ( @count( $EM_Tickets->tickets ) <= 0 )
@@ -295,24 +314,23 @@ final class ESS_Import
 							}
 						}
 
-						$EM_Event->event_rsvp 		= TRUE;
-						$EM_Event->event_rsvp_date 	= $ticket_data['event_rsvp_date'];
-						$EM_Event->event_rsvp_time 	= $ticket_data['event_rsvp_time'];
-						$EM_Event->event_spaces 	= $ticket_data['event_spaces'];
-						$EM_Event->rsvp_time		= $ticket_data['event_rsvp_time'];
-
+						if ( $ticket_data != NULL )
+						{
+							$EM_Event->event_rsvp 		= TRUE;
+							$EM_Event->event_rsvp_date 	= $ticket_data[ 'event_rsvp_date'	];
+							$EM_Event->event_rsvp_time 	= $ticket_data[ 'event_rsvp_time'	];
+							$EM_Event->event_spaces 	= $ticket_data[ 'event_spaces'		];
+							$EM_Event->rsvp_time		= $ticket_data[ 'event_rsvp_time'	];
+						}
 					} // end add tickets
-					//echo "== TICKETS ===<br/>";
-					//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-					//var_dump( $EM_Tickets );
+					//dd( $EM_Tickets );
 
 
 
 
 
 					// == CATEGORIES
-					//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-					//var_dump( $_POST['event_categories'] );
+					//dd( $_POST['event_categories'] );
 					if ( @count( $_POST['event_categories'] ) > 0 && get_option( 'dbem_categories_enabled' ) )
 					{
 						$EM_Categories = new EM_Categories();
@@ -323,15 +341,19 @@ final class ESS_Import
 
 							foreach( $_POST['event_categories'] as $category_name )
 							{
-								$category_slug = sanitize_title_with_dashes( $category_name );
-								$category_term = get_term_by( 'slug', $category_slug, EM_TAXONOMY_CATEGORY );
+								$category_term = get_term_by( 'name', $category_name, EM_TAXONOMY_CATEGORY );
+
+								// DEBUG: 2014-01-30
+								// Fix a internationalization bug report: http://wordpress.org/support/topic/finding-event-category-by-slug-is-not-always-a-good-idea
+								//$category_slug = sanitize_title_with_dashes( $category_name );
+								//$category_term = get_term_by( 'slug', $category_slug, EM_TAXONOMY_CATEGORY );
 
 								if ( $category_term === FALSE )
 								{
 									// Term (with category taxonomy) not created yet, let's create it
-									$term_array = wp_insert_term( $category_name, EM_TAXONOMY_CATEGORY, array(
-										'slug' => $category_slug
-									));
+									//$term_array = wp_insert_term( $category_name, EM_TAXONOMY_CATEGORY, array( 'slug' => $category_slug ) );
+									$term_array = wp_insert_term( $category_name, EM_TAXONOMY_CATEGORY, array( 'name' => $category_name ) );
+
 									if ( intval( $term_array['term_id'] ) > 0 )
 										array_push( $caregory_ids_, intval( $term_array['term_id'] ) );
 								}
@@ -347,19 +369,17 @@ final class ESS_Import
 							if ( $EM_Categories->get_post() === FALSE )
 								$ESS_Notices->add_error( $EM_Categories->get_errors() );
 						}
-						else
-							$ESS_Notices->add_error( $EM_Categories->get_errors() );
+						else $ESS_Notices->add_error( $EM_Categories->get_errors() );
 					} // end add categories
 					$EM_Event->categories = $EM_Categories;
-					//echo "== CATEGORIES ===<br/>";
-					//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-					//var_dump( $EM_Categories );
+					//dd( $EM_Categories );
 
 
 
 
 
 					// == TAGS
+					//dd( $_POST['event_tags'] );
 					if ( @count( $_POST[ 'event_tags' ] ) > 0 && get_option( 'dbem_tags_enabled' ) )
 					{
 						$EM_Tags = new EM_Tags();
@@ -392,9 +412,7 @@ final class ESS_Import
 						if ( $EM_Tags->get_post() === FALSE )
 							$ESS_Notices->add_error( $EM_Categories->get_errors() );
 					} // end add tags
-					//echo "== TAGS ===<br/>";
-					//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-					//var_dump( $EM_Tags );
+					//dd( $EM_Tags );
 
 
 
@@ -430,17 +448,23 @@ final class ESS_Import
 					$EM_Event->post_excerpt = ( ( strlen( $_POST[ 'event_excerpt' ] ) > 0 )? $_POST[ 'event_excerpt' ] : '' );
 
 
+					// -- update the information already set line 187
+					//dd( get_option( 'ess_syndication_status' ) );
+					$EM_Event->force_status = ( ( intval( get_option( 'ess_syndication_status' ) ) >= 1 )?
+						ESS_Database::EVENT_STATUS_PUBLISH
+						:
+						ESS_Database::EVENT_STATUS_DRAFT
+					);
 
 
-					//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-					//var_dump( $EM_Event );die;
+					//dd( $EM_Event );
 
 
 
 					// == SAVE EVENT ======
 					$res = $EM_Event->save();
 
-					//var_dump( $res ); // return FALSE if two functions are not updated in EM_Events()
+					//dd( $res ); // return FALSE if two of some functions are not updated in EM_Events()
 
 					//echo "event post id: ". $EM_Event->post_id ."<br/>";
 					//echo "event event id: ". $EM_Event->event_id."<br/>";
@@ -501,11 +525,9 @@ final class ESS_Import
 												$ESS_Notices->add_error( __( "Impossible to upload the event's audio file: ", 'dbem' ).ESS_Elements::get_ahref( $media_[ 'uri' ] ) );
 										} // end add sounds
 									}
-									else
-										$ESS_Notices->add_error( $EM_Event->get_errors() );
+									else $ESS_Notices->add_error( $EM_Event->get_errors() );
 								}
-								else
-									$ESS_Notices->add_info( sprintf( __( "A media file defined in the ESS feed is not reachable: <a href='%s' target='_blank'>%s</a>", 'dbem' ), $media_[ 'uri' ], $media_[ 'uri' ] ) );
+								else $ESS_Notices->add_info( sprintf( __( "A media file defined in the ESS feed is not reachable: <a href='%s' target='_blank'>%s</a>", 'dbem' ), $media_[ 'uri' ], $media_[ 'uri' ] ) );
 							}
 
 							// -- Define image with the highest 'priority' as first attachement
@@ -613,14 +635,12 @@ final class ESS_Import
 
 
 
-						//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-						//var_dump( $EM_Event );die;
+						//dd( $EM_Event );
 
 						ESS_IO::set_save_filter( TRUE );
 					}
 				}
-				else
-					$ESS_Notices->add_error( $EM_Event->get_errors() );
+				else $ESS_Notices->add_error( $EM_Event->get_errors() );
 			}
 		}
 
@@ -633,7 +653,7 @@ final class ESS_Import
 	 * @param 	String 	feed_url	URL of the feed to parse
 	 * @return 	Array	RESULT_		Enumerate at each row each Event Object contains within the feed
 	 */
-	private static function get_feed_content( $feed_url="" )
+	public static function get_feed_content( $feed_url="" )
 	{
 		$feed_url = strtr( @urldecode( $feed_url ), array(
 		    "&lt;"   => "<",
@@ -649,21 +669,21 @@ final class ESS_Import
 		@assert_options( ASSERT_BAIL, 		1 );
 		@assert_options( ASSERT_QUIET_EVAL, 1 );
 
-		$timeout_sec = 5; // timeout 5 seconds.
-		$fp = @fopen( $feed_url, 'r', FALSE, stream_context_create(array('http'=>array('timeout'=>$timeout_sec,'method'=>"GET"))));
-		set_time_limit( $timeout_sec );
+		$timeout_sec = 20; // timeout 20 seconds.
+		$fp = @fopen( $feed_url, 'r', FALSE, stream_context_create( array( 'http' => array( 'timeout' => $timeout_sec, 'method' => "GET" ) ) ) );
+		@set_time_limit( $timeout_sec );
 
 		if ( $fp !== FALSE )
 		{
 			try
 			{
-				$ess = simplexml_load_file( $feed_url, "SimpleXMLElement", LIBXML_NOCDATA );
+				$ess = @simplexml_load_file( $feed_url, "SimpleXMLElement", LIBXML_NOCDATA );
 				//var_dump( $feed_url, $ess );
 			}
 			catch( ErrorException $e )
 			{
 				$ess = FALSE;
-				$RESULT_['error'] = "XML Error: An error occure while trying to read the ESS file from the URL: ". $feed_url;
+				$RESULT_['error'] = "XML Error: An error occure while trying to read the ESS file from the URL: ". $feed_url . "(" .$e. ")";
 			}
 		}
 		else
@@ -711,7 +731,7 @@ final class ESS_Import
 
 						if ( $feed == 'tags' )
 						{
-							if ( $child->$feed->count() > 0 )
+							if ( ( version_compare( PHP_VERSION, '5.3.0' ) >= 0 )? $child->$feed->count() : @count( $child->$feed->children() ) > 0 )
 							{
 								$FEED_[ $feed ] = array();
 
@@ -789,13 +809,44 @@ final class ESS_Import
 							}
 						}
 					}
+
 					//echo "------------------------------------------<br>";
+					//dd( $FEED_ );
+
 					if ( count( $FEED_ ) > 0 )
 						array_push( $RESULT_['feeds'], $FEED_ );
 				}
 			}
 		}
 		return $RESULT_;
+	}
+
+	/*
+	 *	temporary function
+	 *	Rewrite the EM function in /events-manager/classes/em-location.php:536
+	 **/
+	public static function load_similar_location( Array $DATA_ = NULL )
+	{
+		$r_ = array();
+
+		global $wpdb;
+		$wpdb->show_errors( FALSE );
+
+		if ( !empty( $DATA_[ 'location_name' ] ) )
+		{
+			$sql =
+			" SELECT * FROM ". EM_LOCATIONS_TABLE .
+			" WHERE location_name = ". 															$wpdb->prepare( "%s", $DATA_['location_name'] 			   ) .
+			( ( strlen( @$DATA_['location_address'] 	) > 0 )? " AND 	location_address = " . 	$wpdb->prepare( "%s", $DATA_['location_address'] 	) : "" ) .
+			( ( strlen( @$DATA_['location_town'] 		) > 0 )? " AND 	location_town = " . 	$wpdb->prepare( "%s", $DATA_['location_town'] 		) : "" ) .
+			( ( strlen( @$DATA_['location_state'] 		) > 0 )? " AND 	location_state = " . 	$wpdb->prepare( "%s", $DATA_['location_state'] 		) : "" ) .
+			( ( strlen( @$DATA_['location_postcode'] 	) > 0 )? " AND 	location_postcode = " . $wpdb->prepare( "%s", $DATA_['location_postcode'] 	) : "" ) .
+			( ( strlen( @$DATA_['location_country'] 	) > 0 )? " AND 	location_country = " . 	$wpdb->prepare( "%s", $DATA_['location_country'] 	) : "" ) .
+			"";
+
+			return $wpdb->get_row( $sql, ARRAY_A );
+		}
+		return $r_;
 	}
 
 
@@ -807,33 +858,44 @@ final class ESS_Import
 	 * @return 	Boolean	result	return a boolean value.
 	 *
 	 */
-	private static function set_post_from_feed( $FEED_ )
+	public static function set_post_from_feed( $FEED_ )
 	{
-		//var_dump( $FEED_ );die;
+		//dd( $FEED_ );
 
-		$_REQUEST['action'] 	= 'event_save';
-		$_REQUEST['event_id']	= 0;
+		$_REQUEST[ 'action'	  ] = 'event_save';
+		$_REQUEST[ 'event_id' ]	= 0;
 
-		//echo "<br><br>== GENERALS ===========================<br>";
-		//var_dump( $FEED_[ 'generals' ] );die;
+		$_POST[ 'action'	] 	= $_REQUEST[ 'action'   ];
+		$_POST[ 'event_id'	] 	= $_REQUEST[ 'event_id' ];
 
-		$_POST['event_attributes'] = array();
+		//dd( $FEED_[ 'generals' ] );
 
-		$_POST['event_slug'] 	= $FEED_[ 'generals' ][ 'id' ];
-		$_POST['event_name'] 	= $FEED_[ 'generals' ][ 'title' ];
-		$_POST['content'] 	 	= $FEED_[ 'generals' ][ 'description' ];
-		$_POST['event_access'] 	= $FEED_[ 'generals' ][ 'access' ];
+		$event_attr_ = explode( ESS_Feed::CUSTOM_ATTRIBUTE_SEPARATOR, $FEED_[ 'generals' ][ 'description' ] );
+		$_POST[ 'event_attributes' ] = ( ( @count( $event_attr_ ) == 3 && $event_attr_ != NULL && strlen( ESS_Feed::CUSTOM_ATTRIBUTE_SEPARATOR ) > 0 )?
+			json_decode( @$event_attr_[ 1 ], TRUE )
+			:
+			array()
+		);
+
+		$_POST[ 'em_attributes' ] = $_POST[ 'event_attributes' ];
+
+		$_POST[ 'event_excerpt' ] 	= NULL;
+		$_POST[ 'event_slug' ] 		= $FEED_[ 'generals' ][ 'id' ];
+		$_POST[ 'event_name' ] 		= $FEED_[ 'generals' ][ 'title' ];
+		$_POST[ 'content' ] 	 	= $FEED_[ 'generals' ][ 'description' ];
+		$_POST[ 'event_access' ] 	= $FEED_[ 'generals' ][ 'access' ];
 		//$FEED_[ 'generals' ][ 'uri' ];
         //$FEED_[ 'generals' ][ 'published' ];
 
-        $minpeople 	= 0;
+		//dd( $_POST );
+
+        $minpeople 	= 0; // can also be in custom attributes...
         $maxpeople 	= 0;
 
 		// ==== PEOPLE ============================
-		if ( @count( $FEED_[ 'people' ] ) > 0 )
+		if ( @count( @$FEED_[ 'people' ] ) > 0 && @$FEED_[ 'people' ] != NULL )
     	{
-    		//echo "== PEOPLE =========================<br>";
-			//var_dump( $FEED_[ 'people' ] );
+    		//dd( $FEED_[ 'people' ] );
 
 			foreach ( $FEED_[ 'people' ] as $people_ )
 			{
@@ -861,11 +923,11 @@ final class ESS_Import
 
 				else if ( $people_[ 'type' ] == 'attendee' )
 				{
-					$maxpeople 	= $people_[ 'maxpeople' ];
-					$minpeople	= $people_[ 'minpeople' ];
+					$maxpeople 	= @$people_[ 'maxpeople' ];
+					$minpeople	= @$people_[ 'minpeople' ];
 
-       				$_POST[ 'event_excerpt' ] = trim( $people_[ 'restriction' ].
-       					( ( intval( $people_[ 'minage' ] ) > 0 )?
+       				$_POST[ 'event_excerpt' ] = trim( @$people_[ 'restriction' ] .
+       					( ( intval( @$people_[ 'minage' ] ) > 0 )?
        						" min age:" . $people_[ 'minage' ]
        						: ''
 			   			)
@@ -881,42 +943,50 @@ final class ESS_Import
 		}
 
 		// ==== DATES ============================
-        if ( @count( $FEED_[ 'dates' ] ) > 0 )
+        if ( @count( @$FEED_[ 'dates' ] ) > 0 && @$FEED_[ 'dates' ] != NULL )
  		{
 	    	$_POST['event_all_day'] = 0;
 
-	        //echo "== DATES =========================<br>";
-			//var_dump( $FEED_[ 'dates' ] );die;
+	        //dd( $FEED_[ 'dates' ] );
 
 	    	$date_ = $FEED_[ 'dates' ][0];  //!\\ TAKE IN CONSIDERATION ONLY THE FIRST FEED DATE
 
 			if ( FeedValidator::isValidDate( $date_[ 'start' ] ) )
 			{
-				$dur = intval( @$date_[ 'duration' ] );
+				$dur 	= floatval( @$date_[ 'duration' ] );
+				$unit 	= strtolower( ( strlen( @$date_[ 'unit' ] ) > 0 )? $date_[ 'unit' ]."s" : ' seconds' );
 
-				$myDateTime = new DateTime( $date_[ 'start' ], new DateTimeZone( 'GMT' ) );
-				$date_start = $myDateTime->format('Y-m-d H:i:s');
+				if ( $unit == 'hours' && $dur > 0 )
+				{
+					$dur  = $dur*60;
+					$unit = "minutes";
+				}
 
+				$myDateTime = new DateTime( @$date_[ 'start' ], new DateTimeZone( 'GMT' ) );
+				$date_start = $myDateTime->format( 'Y-m-d H:i:s' );
+				$str_start	= $date_start . ( ( $dur > 0 )? " + " . $dur . " " . $unit : "" );
 
 				$_POST['event_start_date']	= date( 'Y-m-d', strtotime( $date_start ) );
-				$_POST['event_end_date']	= date( 'Y-m-d', strtotime( $date_start . ( ( $dur > 0 )? " + " . $dur ." seconds" : "" ) ) );
+				$_POST['event_end_date']	= date( 'Y-m-d', strtotime( $str_start  ) );
 
 				$_POST['event_start_time'] 	= date( 'H:i:s', strtotime( $date_start ) );
-				$_POST['event_end_time' ]	= date( 'H:i:s', strtotime( $date_start . ( ( $dur > 0 )? " + " . $dur ." seconds" : "" ) )) ;
+				$_POST['event_end_time']	= date( 'H:i:s', strtotime( $str_start  ) );
+
+				//dd( $dur, $str_start, strtotime( $str_start ) );
 
 	    		if ( $date_[ 'type' ] == 'recurrent' )
 				{
 					$sd = explode(',', @$date_[ 'selected_day' ] ); 	// 'monday','tuesday','wednesday','thursday','friday','saturday','sunday' OR 1,2,3,4,5,6,7,8,9,10,11,12,1,3,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31
 					$sw = explode(',', @$date_[ 'selected_week' ] );	// 'first', 'second', 'third', 'fourth', 'last'
 					$u  = @$date_[ 'unit' ];  							// 'hour','day','week','month','year'
-					$l  = @$date_[ 'limit' ];							// integer: number of time the recurcivity will occure.
-					$delay = "+".$l." ".$u.(($l>1)?'s':'');
+					$l  = @$date_[ 'limit' ];							// integer: number of time the recursivity will occure.
+					$delay = "+" . $l . " " . $unit;
 
 					//echo "delay: ". $delay . " => " .date( DateTime::ATOM, strtotime( @$date_[ 'start' ]. " + ".$dur." seconds" ) );
 
 					$_POST['recurring'] 			= TRUE;
-					$_POST['event_end_date']		= date( 'Y-m-d', strtotime( $delay, strtotime( @$date_[ 'start' ] . ( ( $dur > 0 )? " + " . $dur." seconds" : "" ) ) ) );
-					$_POST['event_end_time' ]		= date( 'H:i:s', strtotime( $delay, strtotime( @$date_[ 'start' ] . ( ( $dur > 0 )? " + " . $dur." seconds" : "" ) ) ) );
+					$_POST['event_end_date']		= date( 'Y-m-d', strtotime( $delay, strtotime( $str_start ) ) );
+					$_POST['event_end_time' ]		= date( 'H:i:s', strtotime( $delay, strtotime( $str_start ) ) );
 					$_POST['recurrence_interval'] 	= @$date_[ 'interval' ];
 					$_POST['recurrence_freq'] 		= 	( ( $u == 'day'   )? 'daily'   :
 														( ( $u == 'week'  )? 'weekly'  :
@@ -925,7 +995,7 @@ final class ESS_Import
 																			 'hourly'
 														) ) ) );
 
-					$_POST['recurrence_byweekno'] 	= "";
+					$_POST[ 'recurrence_byweekno' ] 	= "";
 					if ( strlen( @$date_[ 'selected_week' ] ) > 0 && @count( $sw ) > 0 )
 					{
 						$_POST['recurrence_byweekno'] = array();
@@ -1002,22 +1072,23 @@ final class ESS_Import
 					$_POST['recurrence_byday'] = $_POST['recurrence_bydays'];
 				}
 			}
+			//dd($_POST);
 		}
 
 		// ==== PRICES ===========================
-        if ( @count( $FEED_[ 'prices' ] ) > 0 )
+        if ( @count( @$FEED_[ 'prices' ] ) > 0 && @$FEED_[ 'prices' ] != NULL )
         {
-        	//echo "== PRICES =========================<br>";
-			//var_dump( $FEED_[ 'prices' ] );
+        	//dd( $FEED_[ 'prices' ] );
+
 			$_POST['em_tickets'] = array();
 			foreach ( $FEED_[ 'prices' ] as $price_ )
 			{
 				$date_start = '';
 				$date_end 	= '';
 
-				$dur = intval( @$price_[ 'duration' ] );
+				$dur = floatval( @$price_[ 'duration' ] );
 
-				$price_description = trim( $price_[ 'value' ].' '.$price_[ 'currency' ].' '.$price_[ 'uri' ] );
+				$price_description = trim( $price_[ 'value' ] . ' ' . @$price_[ 'currency' ] . ' ' . @$price_[ 'uri' ] );
 
 				if ( strlen( @$price_[ 'start' ] ) > 0 && $dur > 0 )
 				{
@@ -1081,10 +1152,9 @@ final class ESS_Import
 		}
 
 		// ==== PLACES ===========================
-        if ( @count( $FEED_[ 'places' ] ) > 0 )
+        if ( @count( @$FEED_[ 'places' ] ) > 0 && @$FEED_[ 'places' ] != NULL )
         {
-        	//echo "== PLACES =========================<br>";
-			//var_dump( $FEED_[ 'places' ] );die;
+        	//dd( $FEED_[ 'places' ] );
 
 			$place_ = $FEED_[ 'places' ][0]; //!\\ TAKE IN CONSIDERATION ONLY THE FIRST FEED'S PLACE
 
@@ -1095,38 +1165,43 @@ final class ESS_Import
 			else
 			{
 				$_POST['no_location'] 		= FALSE;
-				$_POST['location_name'] 	= $place_['name'];
-				$_POST['location_address'] 	= ((strlen($place_['address'])>0)?$place_['address']:$place_['name']);
-				$_POST['location_town']		= $place_['city'];
-				$_POST['location_state']	= $place_['state_code'];
-				$_POST['location_postcode']	= $place_['zip'];
-				$_POST['location_region']	= $place_['state'];
-				$_POST['location_country']	= $place_['country_code'];
-				$_POST['location_latitude']	= $place_['latitude'];
-				$_POST['location_longitude']= $place_['longitude'];
-				$_POST['em_attributes']		= array();
+				$_POST['location_name'] 	= $place_[ 'name' ];
+				$_POST['location_address'] 	= ( ( strlen( @$place_[ 'address' ] ) > 0 )? $place_[ 'address' ] : $place_[ 'name' ] );
+				$_POST['location_town']		= @$place_[ 'city'			];
+				$_POST['location_state']	= @$place_[ 'state_code'	];
+				$_POST['location_postcode']	= @$place_[ 'zip'			];
+				$_POST['location_region']	= @$place_[ 'state'			];
+				$_POST['location_country']	= @$place_[ 'country_code'	];
+				$_POST['location_latitude']	= @$place_[ 'latitude'		];
+				$_POST['location_longitude']= @$place_[ 'longitude'		];
 			}
+		}
+		else
+		{
+			$_POST['no_location'] = TRUE;
 		}
 
 		// ==== TAGS =============================
-        if ( @count( $FEED_[ 'tags' ] ) > 0 )
+        if ( @count( @$FEED_[ 'tags' ] ) > 0 && @$FEED_[ 'tags' ] != NULL )
         {
-        	//echo "== TAGS =========================<br>";
-			//var_dump( $FEED_[ 'tags' ] );
+        	//dd( $FEED_[ 'tags' ] );
 
-			$_POST[ 'em_attributes' ] = array();
+			$tags_ = array();
 
 			foreach ( $FEED_[ 'tags' ] as $i => $tag )
-        		array_push( $_POST['em_attributes'], $tag );
+			{
+				if ( strlen( $tag ) > 1 && is_numeric( $tag ) == FALSE )
+        			array_push( $tags_, $tag );
+			}
 
-			$_POST['event_tags'] = $_POST['em_attributes'];
+			if ( count( $tags_ ) > 0 )
+				$_POST['event_tags'] = $tags_;
 		}
 
 		// ==== CATEGORIES ==========================
-		if ( @count( $FEED_[ 'categories' ] ) > 0 )
+		if ( @count( @$FEED_[ 'categories' ] ) > 0 && @$FEED_[ 'categories' ] != NULL )
         {
-        	//echo "== CATEGORIES =========================<br>";
-			//var_dump( $FEED_[ 'categories' ] );
+        	//dd( $FEED_[ 'categories' ] );
 
 			$_POST['event_categories'] = array();
 
@@ -1135,15 +1210,14 @@ final class ESS_Import
 		}
 
 		// ==== MEDIA ============================
-        if ( @count( $FEED_[ 'media' ] ) > 0 )
+        if ( @count( @$FEED_[ 'media' ] ) > 0 && @$FEED_[ 'media' ] != NULL )
         {
-        	//echo "== MEDIA =========================<br>";
-			//var_dump( $FEED_[ 'media' ] );
+        	//dd( $FEED_[ 'media' ] );
 
 			$_POST[ 'event_media' ] = array();
 			foreach ( $FEED_[ 'media' ] as $i => $media_ )
             {
-            	//var_dump( $media_ ); die;
+            	//dd( $media_ );
 
 				if ( FeedValidator::isValidURL( $media_[ 'uri' ] ) )
 				{
@@ -1169,7 +1243,7 @@ final class ESS_Import
 	 * @param 	String	feed_url	URL of the ess feed file to test
 	 * @return	Boolean	result		return a boolean value.
 	 */
-	private static function is_feed_valid( $feed_url='' )
+	public static function is_feed_valid( $feed_url='' )
 	{
 		global $ESS_Notices;
 
@@ -1182,27 +1256,32 @@ final class ESS_Import
 		{
 			$response = json_decode( ESS_IO::get_curl_result( FeedWriter::$VALIDATOR_WS, $feed_url ), TRUE );
 
+			//dd( $response );
+
 			if ( $response !== FALSE )
 			{
 				$r = @$response[ 'result' ];
 
-				//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-				//var_dump( $r );
+				//dd( $r );
 
-				if ( ( @isset( $r[ 'result' ] )? ( @isset( $r['result']['error'] )? FALSE : TRUE ) : FALSE ) == FALSE )
+				if ( @isset( $r[ 'result' ] ) )
 				{
-					if ( $response['result']['error'] == NULL )
-						$response['result']['error'] = array();
+					if ( strlen( @$r['result']['error'] ) > 1 || @$r['type'] == 'KO' )
+					{
+						//d( strlen( @$r['result']['error'] ) );
 
-					array_unshift( $response['result']['error'], "<b>" . sprintf( __( "The Feed URL is not a valid ESS file: <a href='%s' target='_blank'>%s</a>", 'dbem' ), $feed_url, $feed_url ) . "</b><br>" );
-					array_push( $response['result']['error'], "<b>" . sprintf( __( "More information about the standard: <a href='%s' target='_blank'>%s</a>", 'dbem' ), ESS_IO::ESS_WEBSITE, ESS_IO::ESS_WEBSITE ). "</b><br>" );
+						if ( $response['result']['error'] == NULL )
+							$response['result']['error'] = array();
 
-					//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-					//var_dump( $response );
+						array_unshift( 	$response['result']['error'], "<b>" . sprintf( __( "The Feed URL is not a valide ESS file: <a href='%s' target='_blank'>%s</a>", 'dbem' ), $feed_url, $feed_url ) . "</b><br>" );
+						array_push( 	$response['result']['error'], "<b>" . sprintf( __( "More information about the standard: <a href='%s' target='_blank'>%s</a>", 'dbem' ), ESS_IO::ESS_WEBSITE, ESS_IO::ESS_WEBSITE ). "</b><br>" );
 
-					$ESS_Notices->add_error( $response );
+						//dd( $r );
 
-					return FALSE;
+						$ESS_Notices->add_error( $response );
+
+						return FALSE;
+					}
 				}
 				return TRUE;
 			}

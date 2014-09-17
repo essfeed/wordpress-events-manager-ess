@@ -19,6 +19,8 @@ final class ESS_IO
 	const HYPECAL_WEBSITE	= 'http://www.hypecal.com';
 	const CURL_LIB_URL		= 'http://php.net/manual/en/book.curl.php';
 
+	const CRON_EVENT_HOOK	= 'ESS_daily_event_hook';
+
 	function __construct() {}
 
 
@@ -26,6 +28,8 @@ final class ESS_IO
 	{
 		if ( has_filter( 'the_content', 'em_content' ) )
 		{
+			//d( has_filter( 'the_content', 'em_content' ) );
+
 			if ( get_option( 'ess_feed_visibility_meta', TRUE ) )
 			{
 				add_action( 'wp_meta', 				array( 'ESS_Elements',	'get_feed_meta_link' 		) );
@@ -40,11 +44,10 @@ final class ESS_IO
 			add_filter( 'em_event_output_single', 	array( 'ESS_Elements', 	'get_output_single' 		) );
 
 			add_action( 'admin_menu', 				array( 'ESS_IO', 		'set_admin_submenu_page' 	) );
-			add_action( 'daily_event_hook', 		array( 'ESS_Database', 	'update_feeds_daily' 		) );
 
 			add_filter( 'em_deactivate', 			array( 'EM_ESS', 		'set_deactivation' 			) );
 
-			self::set_save_filter( TRUE );
+			ESS_IO::set_save_filter( TRUE );
 		}
 	}
 
@@ -62,6 +65,24 @@ final class ESS_IO
 		}
 	}
 
+	// -- Set Schedule Hook (CRON tasks)
+	public static function set_crons()
+	{
+		if ( !wp_next_scheduled( ESS_IO::CRON_EVENT_HOOK ) )
+	        wp_schedule_event( time(), 'daily', ESS_IO::CRON_EVENT_HOOK );
+
+	    // DEBUG
+	    //if ( !wp_next_scheduled( 'ESS_hourly_hook' ) )
+	    //    wp_schedule_event( time(), 'tenminutely', 'ESS_hourly_hook' );
+    }
+
+	public static function unset_crons()
+	{
+		wp_clear_scheduled_hook( CRON_EVENT_HOOK );
+
+		// DEBUG
+		//wp_clear_scheduled_hook( 'ESS_hourly_hook' );
+	}
 
 	public static function set_activation()
 	{
@@ -76,8 +97,7 @@ final class ESS_IO
 		if ( !EM_MS_GLOBAL || ( EM_MS_GLOBAL && is_main_blog() ) )
 			ESS_Database::createTable();
 
-		// -- Set Schedule Hook (CRON tasks)
-		self::set_activation_schedule();
+		ESS_IO::set_crons();
 	}
 
 	public static function set_deactivation()
@@ -93,7 +113,7 @@ final class ESS_IO
 		//	ESS_Database::deteteTable();
 
 		// -- Remove Schedule Hook (CRON tasks)
-		self::set_deactivation_schedule();
+		ESS_IO::unset_crons();
 	}
 
 	public static function set_uninstall()
@@ -106,30 +126,20 @@ final class ESS_IO
 		if( !EM_MS_GLOBAL || (EM_MS_GLOBAL && is_main_blog()) )
 			ESS_Database::deteteTable();
 
-        // Important: Check if the file is the one
-        // that was registered during the uninstall hook.
+		// -- Remove Schedule Hook (CRON tasks)
+		ESS_IO::unset_crons();
+
+		// Important: Check if the file is the one that was registered during the uninstall hook.
         if ( __FILE__ != WP_UNINSTALL_PLUGIN )
             return;
-
-		// -- Remove Schedule Hook (CRON tasks)
-		self::set_deactivation_schedule();
     }
 
 
 
-	private static function set_activation_schedule()
-	{
-		wp_schedule_event( current_time( 'timestamp' ), 'daily', 'daily_event_hook' );
-	}
-
-	private static function set_deactivation_schedule()
-	{
-		wp_clear_scheduled_hook( 'daily_event_hook' );
-	}
 
 	public static function set_ess_feed_handler()
 	{
-		if ( preg_match( '/^\/?em_ess\/?$/', $_SERVER['REQUEST_URI']) || !empty( $_REQUEST[ self::EM_ESS_ARGUMENT ] ) )
+		if ( preg_match( '/^\/?em_ess\/?$/', $_SERVER['REQUEST_URI']) || !empty( $_REQUEST[ ESS_IO::EM_ESS_ARGUMENT ] ) )
 		{
 			ESS_Feed::output(
 				( ( isset( $_REQUEST[ 'event_id' ] ) )? $_REQUEST[ 'event_id' ] : '' ),
@@ -173,7 +183,7 @@ final class ESS_IO
 
         if ( !$tmp )
         {
-            $tmp = function_exists( 'sys_get_temp_dir' )? sys_get_temp_dir() : self::_tmp();
+            $tmp = function_exists( 'sys_get_temp_dir' )? sys_get_temp_dir() : ESS_IO::_tmp();
 			$tmp = rtrim( $tmp, DIRECTORY_SEPARATOR );
         }
         return $tmp;
@@ -188,7 +198,7 @@ final class ESS_IO
      *
      * @return string
      */
-    protected static function _tmp()
+    public static function _tmp()
     {
         // non-Windows system?
         if ( strtolower( substr( PHP_OS, 0, 3 ) ) != 'win' )
@@ -216,7 +226,7 @@ final class ESS_IO
 	public static function get_feed_url( $event_id=NULL, $download=FALSE, $push=FALSE )
 	{
 		return trailingslashit( home_url() ) .
-										   "?".self::EM_ESS_ARGUMENT."=1".
+										   "?" . ESS_IO::EM_ESS_ARGUMENT . "=1".
 			( ( intval( $event_id ) > 0 )? "&event_id=" . $event_id : '' ).
 			( ( $push 	  == TRUE 		)? "&push=1"				: '' ).
 			( ( $download == TRUE 		)? "&download=1"			: '' );
@@ -224,12 +234,12 @@ final class ESS_IO
 
 	public static function get_rewrite_rules_array( $rules )
 	{
-		return $rules + array( "/ess/?$"=>'index.php?'. self::EM_ESS_ARGUMENT . '=1' );
+		return $rules + array( "/ess/?$"=>'index.php?'. ESS_IO::EM_ESS_ARGUMENT . '=1' );
 	}
 
 	public static function get_query_vars( $vars )
 	{
-		array_push( $vars, self::EM_ESS_ARGUMENT );
+		array_push( $vars, ESS_IO::EM_ESS_ARGUMENT );
 		return $vars;
 	}
 
@@ -274,7 +284,7 @@ final class ESS_IO
 		if ( $ch != FALSE )
 		{
 			curl_setopt( $ch, CURLOPT_URL, 				$target_url );
-			curl_setopt( $ch, CURLOPT_COOKIEJAR,  		self::tmp() . '/cookies' );
+			curl_setopt( $ch, CURLOPT_COOKIEJAR,  		ESS_IO::tmp() . '/cookies' );
 			curl_setopt( $ch, CURLOPT_REFERER, 			@$_SERVER[ 'REQUEST_URI' ] );
 			curl_setopt( $ch, CURLOPT_POSTFIELDS,  		$post_data );
 			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 	1 );
@@ -285,9 +295,7 @@ final class ESS_IO
 
 			$result = curl_exec( $ch );
 
-			//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-			//var_dump( $target_url, $feed_url, urlencode( $feed_url ), $result );
-			//var_dump( $result );
+			//d( $target_url, $feed_url, urlencode( $feed_url ), $result );
 
 			return $result;
 		}
@@ -295,7 +303,8 @@ final class ESS_IO
 		{
 			if ( ini_get( 'allow_url_fopen' ) )
 			{
-				$opts = array( 'http' => array(
+				$opts = array(
+					'http' => array(
 						'method'  => 'POST',
 						'header'  => "Content-Type: application/x-www-form-urlencoded",
 						'content' => http_build_query( $post_data ),
@@ -305,8 +314,7 @@ final class ESS_IO
 
 				$result = @file_get_contents( $target_url, FALSE, stream_context_create( $opts ), -1, 40000 );
 
-				//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-				//var_dump( $file, $result );die;
+				//d( $result );
 
 				return $result;
 			}
@@ -322,6 +330,7 @@ final class ESS_IO
 				if ( $result == FALSE )
 				{
 					global $ESS_Notices;
+
 					$ESS_Notices->add_error(
 						__( "PHP cURL must be installed on your server or PHP parameter 'allow_url_fopen' must be set to TRUE: ", 'dbem' ).
 						ESS_Elements::get_curl_lib_link()
@@ -338,17 +347,14 @@ final class ESS_IO
 	{
 		if ( $result == TRUE )
 		{
-			if ( empty( $event_id ) )
-				global $EM_Event;
-			else
-				$EM_Event = em_get_event( $event_id );
-
-			//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b><br/>";
-			//var_dump( $EM_Event );die;
+			if ( empty( $event_id ) ) global $EM_Event;
+			else							 $EM_Event = em_get_event( $event_id );
 
 			if ( $EM_Event instanceof EM_Event && intval( $EM_Event->event_id ) > 0 )
 			{
-				return ( self::get_curl_result( FeedWriter::$AGGREGATOR_WS, self::get_feed_url( $EM_Event->event_id, FALSE, TRUE ) ) !== FALSE );
+				$feed_url = ESS_IO::get_feed_url( $EM_Event->event_id, FALSE, TRUE );
+
+				return ( ESS_IO::get_curl_result( FeedWriter::$AGGREGATOR_WS, $feed_url ) !== FALSE );
 			}
 		}
 		return FALSE;

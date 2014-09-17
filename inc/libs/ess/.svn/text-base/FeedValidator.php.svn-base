@@ -15,6 +15,7 @@
  */
 final class FeedValidator
 {
+	// Useful DB Structure: ENUM("AU","AF","AL","DZ","AS","AD","AO","AI","AQ","AG","AR","AM","AW","AT","AZ","BS","BH","BD","BB","BY","BE","BZ","BJ","BM","BT","BO","BA","BW","BV","BR","IO","BN","BG","BF", "BI","KH","CM","CA","CV","KY","CF","TD","CL","CN","CX","CC","CO","KM","CG","CD","CK","CR","CI","HR","CU","CY","CZ","DK","DJ","DM","DO","TP","EC","EG","SV","GQ","ER","EE","ET","FK","FO","FJ","FI","FR","FX","GF","PF","TF","GA","GM","GE","DE","GH","GI","GR","GL","GD","GP","GU","GT","GN","GW","GY","HT","HM","HN","HK","HU","IS","IN","ID","IR","IQ","IE","IL","IT","JM","JP","JT","JO","KZ","KE","KI","KP","KR","KW","KG","LA","LV","LB","LS","LR","LY","LI","LT","LU","MO","MK","MG","MW","MY","MV","ML","MT","MH","MQ","MR","MU","YT","MX","FM","MD","MC","MN","MS","MA","MZ","MM","NA","NR","NP","NL","AN","NC","NZ","NI","NE","NG","NU","NF","MP","NO","OM","PK","PW","PS","PA","PG","PY","PE","PH","PN","PL","PT","PR","QA","RE","RO","RU","RW","WS","SH","KN","LC","PM","VC","SM","ST","SA","SN","SC","SL","SG","SK","SI","SB","SO", "ZA","GS","ES","LK","XX","SD","SR","SJ","SZ","SE","CH","SY","TW","TJ","TZ","TH","TL","TG","TK", "TO","TT","TN","TR","TM","TC","TV","UG","UA","AE","GB","UM","US","HV","UY","UZ","VU","VA","VE","VN","VG","VI","WF","EH","YE","YD","YU","ZR","ZM","ZW")
 	public static $COUNTRIES_ = array(
 	  "AU" => "Australia",
 	  "AF" => "Afghanistan",
@@ -264,6 +265,7 @@ final class FeedValidator
 	  "ZW" => "Zimbabwe"
 	);
 
+	// Useful DB Structure: ENUM('aa','ab','ae','af','ak','am','an','ar','as','av','ay','az','ba','be','bg','bh','bi','bm','bn','bo','br','bs','ca','ce','ch','co','cr','cs','cu','cv','cy','da','de','dv','dz','ee','el','en','eo','es','et','eu','fa','ff','fi','fj','fo','fr','fy','ga','gd','gl','gn','gu','gv','ha','he','hi','ho','hr','ht','hu','hy','hz','ia','id','ie','ig','ii','ik','io','is','it','iu','ja','jv','ka','kg','ki','kj','kk','kl','km','kn','ko','kr','ks','ku','kv','kw','ky','la','lb','lg','li','ln','lo','lt','lu','lv','mg','mh','mi','mk','ml','mn','mr','ms','mt','my','na','nb','nd','ne','ng','nl','nn','no','nr','nv','ny','oc','oj','om','or','os','pa','pi','pl','ps','pt','qu','rm','rn','ro','ru','rw','sa','sc','sd','se','sg','si','sk','sl','sm','sn','so','sq','sr','ss','st','su','sv','sw','ta','te','tg','th','ti','tk','tl','tn','to','tr','ts','tt','tw','ty','ug','uk','ur','uz','ve','vi','vo','wa','wo','xh','yi','yo','za','zh','zu')
 	public static $LANGUAGES_ = array(
 	    'aa' => 'Afar',
 	    'ab' => 'Abkhaz',
@@ -451,6 +453,7 @@ final class FeedValidator
 	    'zu' => 'Zulu',
 	);
 
+	// Useful DB Structure: ENUM('AFA','ALL','DZD','USD','EUR','AOA','XCD','NOK','XCD','ARA','AMD','AWG','AUD','AZM','BSD','BHD','BDT','BBD','BYR','BZD','XAF','BMD','BTN','BOB','BAM','BWP','BRL','GBP','BND','BGN','XAF','BIF','KHR','XAF','CAD','CVE','KYD','XAF','XAF','CLF','CNY','COP','KMF','CDZ','XAF','NZD','CRC','HRK','CUP','CZK','DKK','DJF','XCD','DOP','TPE','EGP','XAF','ERN','EEK','ETB','FKP','DKK','FJD','XPF','XAF','GMD','GEL','GHC','GIP','DKK','XCD','GTQ','GNS','GWP','GYD','HTG','HNL','HKD','HUF','ISK','INR','IDR','IRR','IQD','ILS','XAF','JMD','JPY','JOD','KZT','KES','KPW','KRW','KWD','KGS','LAK','LVL','LBP','LSL','LRD','LYD','CHF','LTL','MOP','MKD','MGF','MWK','MYR','MVR','XAF','MRO','MUR','MXN','MDL','MNT','XCD','MAD','MZM','MMK','NAD','NPR','ANG','XPF','NZD','NIC','XOF','NGN','NZD','OMR','PKR','PAB','PGK','PYG','PEI','PHP','NZD','PLN','QAR','ROL','RUB','RWF','XCD','XCD','XCD','WST','STD','SAR','XOF','SCR','SLL','SGD','SBD','SOS','ZAR','LKR','SHP','SDG','SRG','SZL','SEK','CHF','SYP','TWD','TJR','TZS','THB','XAF','NZD','TOP','TTD','TND','TRY','TMM','UGS','UAH','SUR','AED','UYU','UZS','VUV','VEF','VND','XPF','XOF','MAD','ZMK')
 	public static $CURRENCIES_ = array(
 		'AF' => 'AFA',
 		'AL' => 'ALL',
@@ -726,7 +729,7 @@ final class FeedValidator
 	{
 		if ( self::isNull( $stringDate ) ) return FALSE;
 
-		$matcher = preg_match( "/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(Z|(\+|-)\d{2}(:?\d{2})?)$/", str_replace( ' ', 'T', $stringDate ) );
+		$matcher = preg_match( "/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(Z|((\+|-)\d{2}(:?\d{2})?))?$/", str_replace( ' ', 'T', $stringDate ) );
 		$t_sep 	 = explode( 'T', strtoupper( $stringDate ) );
 
 		if ( @count( $t_sep ) > 1 )
@@ -794,7 +797,7 @@ final class FeedValidator
 		switch( strtolower( $type ) )
 		{
 			default :
-			case 'image' : $MEDIA_FORMAT = array('ART','AVI','AVS','BMP','CUR','EPS','GIF','ICO','JPG','PDF','PIX','PNG','PSD','RGB','SVG','TGA','TIF','TIM','TTF','TXT','WMF','WPG','TIF','MPG'); break;
+			case 'image' : $MEDIA_FORMAT = array('ART','AVI','AVS','BMP','CUR','EPS','GIF','ICO','JPG','JPEG','PDF','PIX','PNG','PSD','RGB','SVG','TGA','TIF','TIM','TTF','TXT','WMF','WPG','TIF','MPG'); break;
 			case 'video' : $MEDIA_FORMAT = array('FLV','MPG','AVI','MOV','ACC','AAC','MP4','3GP','OGG','FLA','M4V','WMV','DAT','NSV'); break;
 			case 'sound' : $MEDIA_FORMAT = array('M4A','MP3','M4P','MPC','OGG','AMR','GSM','WAV','WMA','VOX','RAW','MPC'); break;
 		}
@@ -802,7 +805,7 @@ final class FeedValidator
 		$ex_ = explode( '.', $url );
 
 		return ( strlen( $url ) > 0 &&
-			in_array( strtoupper( substr( $ex_[ count( $ex_ )-1 ],0,3) ), $MEDIA_FORMAT )
+			in_array( strtoupper( substr( $ex_[ count( $ex_ )-1 ],0, strlen( $ex_[ count( $ex_ )-1 ] ) ) ), $MEDIA_FORMAT )
 		)? TRUE : FALSE;
 	}
 
@@ -973,35 +976,47 @@ final class FeedValidator
 	}
 
 	/**
-	 * 	Check if the parameter submited is a valid decimal Latitude
+	 * 	Check if the parameter is a valid decimal Latitude
+	 * 	Latitude decimal degrees: -90.XXXXXX to 90.XXXXXX (ISO 6709)
 	 *
 	 * 	@access	public
 	 * 	@param	Float	Value of the Latitude to evaluate.
 	 * 	@return Boolean	Return TRUE is the Latitude is valide, FALSE else.
 	 */
-	public static function isValidLatitude( $latitude=null )
+	public static function isValidLatitude( $latitude=NULL )
 	{
+		if ( is_float( $latitude ) )
+			$latitude = floor( $latitude * 10000000 ) / 10000000;
+		else
+			$latitude = floor( floatval( $latitude ) * 10000000 ) / 10000000;
+
 		$match_latitude = preg_match( "/^-?([0-8]?[0-9]|90)\.[0-9]{1,7}$/", $latitude );
 
 		return ( $match_latitude == 1 )? TRUE : FALSE;
 	}
 
 	/**
-	 * 	Check if the parameter submited is a valid decimal Longitude
+	 * 	Check if the parameter is a valid decimal Longitude
+	 * 	Longitude decimal degrees: -180.XXXXXX to 180.XXXXXX (ISO 6709)
 	 *
 	 * 	@access	public
 	 * 	@param	Float	Value of the Longitude to evaluate.
 	 * 	@return Boolean	Return TRUE is the Longitude is valide, FALSE else.
 	 */
-	public static function isValidLongitude( $longitude=null )
+	public static function isValidLongitude( $longitude=NULL )
 	{
+		if ( is_float( $longitude ) )
+			$longitude = floor( $longitude * 10000000 ) / 10000000;
+		else
+			$longitude = floor( floatval( $longitude ) * 10000000 ) / 10000000;
+
 		$match_longitude = preg_match( "/^-?((1?[0-7]?|[0-9]?)[0-9]|180)\.[0-9]{1,7}$/", $longitude );
 
 		return ( $match_longitude == 1 )? TRUE : FALSE;
 	}
 
 	/**
-	 * 	Check if the parameter submited contain both numbers and alpha characters.
+	 * 	Check if the parameter contain both numbers and alpha characters.
 	 *
 	 * 	@access	public
 	 * 	@param	Object	Value of the String to evaluate.
@@ -1116,8 +1131,8 @@ final class FeedValidator
 				'@<noscript[^>]*?>.*?</noscript>@si',
 				'@<iframe[^>]*?>.*?</iframe>@si',
 				'@<script[^>]*?>.*?</script>@si',
-				'@<style[^>]*?>.*?</style>@siU',
-				'@<![\s\S]*?--[ \t\n\r]*>@' // Strip multi-line comments including CDATA
+				'@<style[^>]*?>.*?</style>@siU'
+				// , '@<![\s\S]*?--[ \t\n\r]*>@' // Strip multi-line comments including CDATA
 			),
 			'',
 			// Remove extra HTML whitespaces
@@ -1238,8 +1253,8 @@ final class FeedValidator
 	 */
 	public static function getDateDiff( $interval_type='d', $datefrom=null, $dateto=null )
 	{
-		$datefrom 	= ( ( is_string( $datefrom 	) )? strtotime( $datefrom,  0 ) : intval( $datefrom ) );
-	    $dateto 	= ( ( is_string( $dateto	) )? strtotime( $dateto, 	0 ) : intval( $dateto 	) );
+		$datefrom 	= ( ( is_string( $datefrom 	) )? strtotime( $datefrom,  0 ) : floatval( $datefrom ) );
+	    $dateto 	= ( ( is_string( $dateto	) )? strtotime( $dateto, 	0 ) : floatval( $dateto   ) );
 
 	    $difference = $dateto - $datefrom; // Difference in seconds
 
@@ -1336,16 +1351,17 @@ final class FeedValidator
 	        break;
 
 	    case "ww": // Number of full weeks
-
 	        $datediff = floor($difference / 604800);
 	        break;
 
-	    case "h": // Number of full hours
-	        $datediff = floor($difference / 3600);
+	    case "h": // Number of full hours OR decimal if < 1 hour
+	    	$diff_h = $difference / 3600;
+	    	$datediff = ( $diff_h > 0 && $diff_h < 1 )? ( round( $diff_h * 100 ) / 100 ) : floor( $diff_h );
 	        break;
 
-	    case "n": // Number of full minutes
-	        $datediff = floor($difference / 60);
+	    case "n": // Number of full minutes OR decimal if < 1 minute
+	    	$diff_m = $difference / 60;
+			$datediff = ( $diff_m > 0 && $diff_m < 1 )? ( round( $diff_m * 100 ) / 100 ) : floor( $diff_m );
 	        break;
 
 	    default: // Number of full seconds (default)
@@ -1472,7 +1488,6 @@ final class FeedValidator
 	 * 	@param 	int 	(optional) -1 lowercase only, +1 uppercase only, 1 both cases
 	 * 	@param 	String 	UTF-8 with accented characters replaced by ASCII chars
 	 * 	@return String 	accented chars replaced with ascii equivalents
-
 	 */
 	private static function utf8_accents_to_ascii( $str, $case=0 )
 	{
@@ -1568,7 +1583,23 @@ final class FeedValidator
 	{
    		try
 		{
-			return htmlspecialchars( $text, ENT_QUOTES | ENT_XML1, $charset ); // ENT_XML1 const only available for PHP > 5.4
+			if ( defined( 'ENT_XML1' ) )
+				return htmlspecialchars( $text, ENT_QUOTES | ENT_XML1, $charset, FALSE ); // ENT_XML1 const only available for PHP > 5.4
+			else
+			{
+				return htmlspecialchars(
+					strtr(
+						$text,
+				        array(
+				            "<" => "&lt;",
+				            ">" => "&gt;",
+				            '"' => "&quot;",
+				            "'" => "&apos;",
+				            "&" => "&amp;"
+				        )
+				    ), ENT_QUOTES, $charset, FALSE
+				);
+			}
    		}
    		catch( Error $e )
    		{
@@ -1690,43 +1721,4 @@ final class FeedValidator
 		return $text;
 	}
 
-	public static function error_submit( $error_blob )
-	{
-		if ( is_string( $error_blob ) )
-		{
-			if ( function_exists( 'mail' ) && strlen( $error_blob ) > 10 )
-			{
-				$protocol = ( ( isset( $_SERVER['HTTPS'] ) )? ( ( !empty( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] != 'off' )? 'https://' : 'http://' ) : 'http://' );
-
-				$headers  = 'MIME-Version: 1.0' . "\r\n";
-	    		$headers .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
-	    		$error_url = "<h4><a href='".$protocol . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']."' target='_blank'>".$protocol.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']."</a></h4>\n";
-				mail('esserrorcontroller@peach.fr','### ESS-ERROR '.FeedWriter::LIBRARY_VERSION.' ###', $error_url . $error_blob, $headers );
-			}
-		}
-	}
-
-	public static function error_handler( $errno, $errstr, $errfile, $errline )
-	{
-		$err = "<b>ERROR ".$errno."</b>: ". $errstr ."<br/>\n" .
-    	"<p>Error in " . $errfile .":". $errline ."</p><br/>\n" .
-   		"<i>PHP " . PHP_VERSION . " (" . PHP_OS . ")</i><br/>\n";
-
-		switch ( $errno )
-		{
-			default: //echo $err;
-				return TRUE;
-				break;
-
-			case E_ERROR:
-			case E_PARSE:
-  	       		FeedValidator::error_submit(
-					$err .
-					FeedWriter::htmlvardump( $_SERVER  ) .
-					"<br/>=================<br/>" .
-					FeedWriter::htmlvardump( $_REQUEST )
-				);
-			break;
-		}
-	}
 }

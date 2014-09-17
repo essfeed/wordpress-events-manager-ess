@@ -20,7 +20,7 @@ require_once( 'EventFeed.php' );
   */
 final class FeedWriter
 {
-	const LIBRARY_VERSION	= '1.4';	// GitHub library versioning control.
+	const LIBRARY_VERSION	= '1.5';	// GitHub library versioning control.
 	const ESS_VERSION		= '0.9'; 	// ESS Feed version.
 	const CHARSET			= 'UTF-8';	// Defines the encoding Chartset for the whole document and the value inserted.
 	public $lang			= 'en';		// Default 2 chars language (ISO 3166-1).
@@ -48,7 +48,7 @@ final class FeedWriter
 	function __construct( $lang='en', $data_=NULL )
 	{
 		if ( function_exists( 'set_error_handler' ) )
-			set_error_handler( "FeedValidator::error_handler" );
+			set_error_handler( array( 'FeedWriter', 'error_handler' ) );
 
 		$channelDTD = EssDTD::getChannelDTD(); // DTD Array of Channel first XML child elements.
 
@@ -739,7 +739,7 @@ final class FeedWriter
 				 $tagName == 'value' )			{ $nodeText .= $tagContent; }
 			else if ( $tagName == 'start' ) 	{ $nodeText .= self::getISODate( $tagContent ); }
 			else if ( $tagName == 'link' ||
-					  $tagName == 'uri' )		{ $nodeText .= htmlspecialchars( $tagContent, ENT_NOQUOTES ); }
+					  $tagName == 'uri' )		{ $nodeText .= htmlspecialchars( $tagContent, ENT_QUOTES, self::CHARSET, FALSE ); }
 			else
 			{
 				$nodeText .= FeedValidator::xml_entities(
@@ -988,12 +988,17 @@ final class FeedWriter
 
 			$_lat = $ll_[0];
 			$_lng = $ll_[1];
+
+			$city 			= @$_SERVER[ 'HTTP_X_APPENGINE_CITY' ];
+			$country_code 	= @$_SERVER[ 'HTTP_X_APPENGINE_COUNTRY' ];
 		}
 		// if mod_geoip is installed. (http://dev.maxmind.com/geoip/mod_geoip2)
 		else if ( isset( $_SERVER[ 'GEOIP_LATITUDE' ] ) ) // if mod_deoip installed on server
 		{
-			$_lat = $_SERVER[ 'GEOIP_LATITUDE' ];
-			$_lng = $_SERVER[ 'GEOIP_LONGITUDE' ];
+			$_lat 			= $_SERVER[ 'GEOIP_LATITUDE' ];
+			$_lng 			= $_SERVER[ 'GEOIP_LONGITUDE' ];
+			$city 			= $_SERVER[ 'GEOIP_CITY' ];
+			$country_code 	= $_SERVER[ 'GEOIP_COUNTRY_CODE' ];
 		}
 		else
 		{
@@ -1001,8 +1006,10 @@ final class FeedWriter
 			$_lng = 0;
 		}
 		return array(
-			'lat' => $_lat,
-			'lng' => $_lng
+			'lat' 			=> $_lat,
+			'lng' 			=> $_lng,
+			'city'			=> $city,
+			'country_code' 	=> $country_code
 		);
 	}
 
@@ -1125,6 +1132,42 @@ final class FeedWriter
 				"<p style='background:#000;color:#FFF;padding:6px;'>".$_SERVER['DOCUMENT_ROOT'] . "</p>" .
 				"You can upload the lastest version in <a href='https://github.com/essfeed/php-ess/'>https://github.com/essfeed/php-ess/</a>"
 			);
+		}
+	}
+
+	public static function error_submit( $error_blob )
+	{
+		if ( is_string( $error_blob ) )
+		{
+			if ( function_exists( 'mail' ) && strlen( $error_blob ) > 10 )
+			{
+				$protocol = ( ( isset( $_SERVER['HTTPS'] ) )? ( ( !empty( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] != 'off' )? 'https://' : 'http://' ) : 'http://' );
+
+				$headers  = 'MIME-Version: 1.0' . "\r\n";
+	    		$headers .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
+	    		$error_url = "<h4><a href='".$protocol . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']."' target='_blank'>".$protocol.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']."</a></h4>\n";
+				mail('esserrorcontroller@peach.fr','### ESS-ERROR '.FeedWriter::LIBRARY_VERSION.' ###', $error_url . $error_blob, $headers );
+			}
+		}
+	}
+
+	public static function error_handler( $errno, $errstr, $errfile, $errline )
+	{
+		$err = "<b>ERROR ".$errno."</b>: ". $errstr ."<br/>\n" .
+    	"<p>Error in " . $errfile .":". $errline ."</p><br/>\n" .
+   		"<i>PHP " . PHP_VERSION . " (" . PHP_OS . ")</i><br/>\n";
+
+		switch ( $errno )
+		{
+			case E_ERROR:
+			case E_PARSE:
+  	       		FeedWriter::error_submit(
+					$err .
+					FeedWriter::htmlvardump( $_SERVER  ) .
+					"<br/>=================<br/>" .
+					FeedWriter::htmlvardump( $_REQUEST )
+				);
+			break;
 		}
 	}
 }

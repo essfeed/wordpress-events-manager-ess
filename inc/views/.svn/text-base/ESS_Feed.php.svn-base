@@ -11,6 +11,9 @@
   */
 final class ESS_Feed
 {
+	// use temporary HTML comments to store custom attributes
+	const CUSTOM_ATTRIBUTE_SEPARATOR = "||EM_CUSTOM_ATTRIBUTES||";
+
 	function __construct(){}
 
 	public static function output( $event_id=NULL, $page=1, $is_download=FALSE, $is_push=FALSE )
@@ -60,8 +63,7 @@ final class ESS_Feed
 				if ( get_option( 'ess_feed_limit', $limit) != 0 && $count > get_option( 'ess_feed_limit', $limit) ) //we've reached the max event per feed
 					break;
 
-				//echo "DEBUG: <b>". __CLASS__.":".__LINE__."</b>";
-				//var_dump( $EM_Event );die;
+				//dd( $EM_Event );
 
 				$event_url = self::unhtmlentities( esc_html( urldecode( $EM_Event->guid ) ) );
 
@@ -72,8 +74,42 @@ final class ESS_Feed
 				$newEvent->setPublished( 	ESS_Timezone::get_date_GMT( strtotime( $EM_Event->post_date 	) ) );
 				$newEvent->setUpdated( 		ESS_Timezone::get_date_GMT( strtotime( $EM_Event->post_modified ) ) );
 				$newEvent->setAccess( 		( ( intval( $EM_Event->event_private ) === 1 )? EssDTD::ACCESS_PRIVATE : EssDTD::ACCESS_PUBLIC ) );
-				$newEvent->setDescription( 	wpautop( $EM_Event->post_content, TRUE ) );
 
+				// -- encode a unic ID base on the host name + event_id (e.g. www.sample.com:123)
+				$newEvent->setId( ( ( strlen( @$_SERVER[ 'SERVER_NAME' ] ) > 0 )? $_SERVER[ 'SERVER_NAME' ] : @$_SERVER[ 'HTTP_HOST' ] ) . ":" . $EM_Event->event_id );
+
+				$description = wpautop( $EM_Event->post_content, TRUE );
+
+				if ( get_option( 'ess_backlink_enabled' ) )
+				{
+					$feed_uri_host 	= parse_url ( $event_url, PHP_URL_HOST );
+					$description 	= "<h6>". __( "Source:", 'dbem') . " <a target=\"_blank\" title=\"". __( "Source:", 'dbem') . " ".$feed_uri_host."\" href=\"" . $event_url . "\">" .  $feed_uri_host . "</a></h6>" . $description;
+				}
+
+				//dd( $description );
+
+				// Add custom attributes json encoded in HTML comments <!--||ATTR||xx{xx:'xx',xx...}||ATTR||-->
+				if ( @count( @$EM_Event->event_attributes ) > 0 && @$EM_Event->event_attributes != NULL )
+				{
+					$custom_att = $EM_Event->event_attributes;
+					//dd( $custom_att );
+
+					$description .=
+					"<!--" .
+						self::CUSTOM_ATTRIBUTE_SEPARATOR .
+							json_encode(
+								iconv(
+									mb_detect_encoding( $custom_att, mb_detect_order(), TRUE ),
+									"UTF-8", $custom_att
+								),
+								JSON_UNESCAPED_SLASHES
+							) .
+						self::CUSTOM_ATTRIBUTE_SEPARATOR .
+					"-->";
+				}
+
+				$newEvent->setDescription( $description );
+				//dd( $description );
 
 
 				// ====== TAGS ========
@@ -82,28 +118,43 @@ final class ESS_Feed
 				if ( count( $tags ) > 0 && $tags != NULL )
 				{
 					$arr_ = array();
+
 					foreach ( $tags as $tag )
 					{
-						if ( strlen( $tag->name ) > 1 )
+						if ( strlen( $tag->name ) > 1 && is_numeric( $tag->name ) == FALSE )
 							array_push( $arr_, $tag->name );
 					}
+
 					if ( count( $arr_ ) > 0 )
 						$newEvent->setTags( $arr_ );
-				} // end tags
+				}
 
 
 
 				// ====== CATEGORIES ========
-				$categories_ = EM_Categories::get( $EM_Event->get_categories()->get_ids() );
-				//var_dump($categories_);
-				if ( count( $categories_ ) > 0 && $categories_ != NULL )
+				//dd( $EM_Event );
+				// $categories_ = EM_Categories::get( $EM_Event->get_categories()->get_ids() ); // enumerate all the categories
+				if ( @count( @$EM_Event->categories ) > 0 && @$EM_Event->categories != NULL )
 				{
-					foreach ( $categories_ as $cat )
+					$cat_duplicates_ = array();
+
+					foreach ( $EM_Event->categories as $cat )
 					{
-						if ( strlen( $cat->name ) > 0 )
-							$newEvent->addCategory( get_option( 'ess_feed_category_type' ), array('name'=> $cat->name ) );
+						$category_type = get_option( 'ess_feed_category_type' );
+
+						if ( strlen( $cat->name ) > 0 && strlen( $category_type ) > 3 )
+						{
+							if ( in_array( strtolower( $cat->name ), $cat_duplicates_ ) == FALSE )
+							{
+								$newEvent->addCategory( $category_type, array(
+									'name'	=> $cat->name,
+									'id'	=> $cat->id
+								));
+							}
+							$cat_duplicates_[] = strtolower( $cat->name );
+						}
 					}
-				} // end categories
+				}
 
 
 
@@ -117,14 +168,14 @@ final class ESS_Feed
 					// -- STANDALONE -----
 					if ( $EM_Event->recurrence <= 0 )
 					{
-						$duration_s = FeedValidator::getDateDiff( 'h', $event_start, $event_stop ); // number of seconds between two dates
+						$duration_s = FeedValidator::getDateDiff( 's', $event_start, $event_stop ); // number of seconds between two dates
 
 						$newEvent->addDate( 'standalone', 'hour', NULL,NULL,NULL,NULL, array(
-							'name'		=> sprintf( __( 'Date: %s', 'dbem'), $event_start ),
-							'start'		=> $event_start,
-							'duration'	=> ( ( $duration_s > 0 )? $duration_s : 0 )
-						) );
-					}
+	                        'name'     	=> __( 'Date', 'dbem'), // Must be a unique name per event
+	                        'start'     => $event_start,
+	                        'duration'	=> ( ( $duration_s > 0 )? $duration_s / 60 / 60 : 0 )
+	                    ) );
+	               	}
 					// -- RECURCIVE -----
 					else
 					{
@@ -149,24 +200,26 @@ final class ESS_Feed
 						}
 
 						$d = intval( $EM_Event->recurrence_byday );
-						$selected_day = ( ( $d == 0 )? 'sunday' :
-										( ( $d == 1 )? 'monday' :
-										( ( $d == 2 )? 'tuesday' :
-										( ( $d == 3 )? 'wednesday' :
-										( ( $d == 4 )? 'thursday' :
-										( ( $d == 5 )? 'friday' :
-										( ( $d == 6 )? 'saturday' :
+						$selected_day = ( ( $event_unit == 'year' || $event_unit == 'month' || $event_unit == 'week' )?
+											( ( $d == 0 )? 'sunday' :
+											( ( $d == 1 )? 'monday' :
+											( ( $d == 2 )? 'tuesday' :
+											( ( $d == 3 )? 'wednesday' :
+											( ( $d == 4 )? 'thursday' :
+											( ( $d == 5 )? 'friday' :
+											( ( $d == 6 )? 'saturday' :
 												 	   ''
-						)))))));
+						))))))) : '' );
 
 						$w = intval( $EM_Event->recurrence_byweekno );
-						$selected_week = ( ( $w == -1 )? 'last' :
-										 ( ( $w == 1  )? 'first' :
-										 ( ( $w == 2  )? 'second' :
-								 		 ( ( $w == 3  )? 'third' :
-										 ( ( $w == 4  )? 'fourth' :
-										 				 ''
-						)))));
+						$selected_week = ( ( $event_unit == 'month' )?
+											( ( $w == -1 )? 'last' 	 :
+										 	( ( $w == 1  )? 'first'  :
+										 	( ( $w == 2  )? 'second' :
+								 		 	( ( $w == 3  )? 'third'  :
+										 	( ( $w == 4  )? 'fourth' :
+										 				 	''
+						))))) : '' );
 
 						$newEvent->addDate( 'recurrent',
 							$event_unit,
@@ -200,7 +253,7 @@ final class ESS_Feed
 						'state' 		=> $places_->location_region,
 						'state_code' 	=> $places_->location_state,
 						'country' 		=> FeedValidator::$COUNTRIES_[ strtoupper( $places_->location_country ) ],
-						'country_code' 	=> $places_->location_country
+						'country_code' 	=> ( ( strtolower( $places_->location_country ) == 'xe' )? '' : $places_->location_country )
 					) );
 				} // end place
 
@@ -218,7 +271,8 @@ final class ESS_Feed
 				else
 				{
 					$prices_ = $EM_Event->get_bookings();
-					//var_dump($prices_);die;
+					//dd($prices_);
+
 					if ( $prices_ )
 					{
 						if ( count( $prices_->tickets->tickets ) > 0 && $event_start != NULL && $prices_->tickets->tickets != NULL )
@@ -241,12 +295,12 @@ final class ESS_Feed
 											$t_end 	 = strtotime( $ticket_end );
 											$t_mode	 = ( ( $p > 0 )?( ( $e_start < $t_end || $ticket_end == 0 )? 'fixed' : 'prepaid' ) : 'free' );
 
-											$newEvent->addPrice( 'standalone', $t_mode, NULL,NULL,NULL,NULL,NULL, array(
+											$newEvent->addPrice( 'standalone', $t_mode, "hour",NULL,NULL,NULL,NULL, array(
 												'name'		=> ( ( strlen( $price->ticket_name ) > 0 )? $price->ticket_name : sprintf( __( "Ticket Nb %s", 'dbem' ), $i ) ),
 												'currency' 	=> get_option( 'ess_feed_currency', ESS_Database::DEFAULT_CURRENCY ),
 												'value'		=> ( ( intval( $price->ticket_price ) > 0 )? $price->ticket_price : 0 ),
 												'start' 	=> ( ( isset( $price->ticket_start ) )? $ticket_start : '' ),
-												'duration' 	=> ( ( intval( $duration_s ) > 0 )? $duration_s : 0 ),
+												'duration' 	=> ( ( intval( $duration_s ) > 0 )? $duration_s / 60 / 60 : 0 ),
 												'uri'		=> $event_url."#em-booking"
 											));
 										}
@@ -286,7 +340,7 @@ final class ESS_Feed
 							'state'			=> self::_g('ess_owner_state'	 ),
 							'state_code' 	=> '',
 							'country'	 	=> FeedValidator::$COUNTRIES_[ strtoupper( self::_g( 'ess_owner_country' ) ) ],
-							'country_code' 	=> self::_g('ess_owner_country'	 ),
+							'country_code' 	=> ( ( strtolower( self::_g( 'ess_owner_country' ) ) == 'xe' )? 'GB' : self::_g('ess_owner_country' ) ),
 							'email'			=> self::_g('ess_owner_email'	 ),
 							'phone' 		=> self::_g('ess_owner_phone'	 )
 						) );

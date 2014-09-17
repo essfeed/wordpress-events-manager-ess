@@ -1,14 +1,14 @@
 <?php
 /*
 Plugin Name: 	Events Manager ESS
-Version: 		0.95
+Version: 		1.2
 Plugin URI: 	http://essfeed.org
 Description: 	Integrates ESS Feed into Events Manager to import and export events.
-Author: 		Marcus Sykes, Brice Prissard
-Author URI: 	http://wp-events-plugin.com
+Author: 		Brice Pissard, ESSFeed
+Author URI: 	http://www.hypecal.com/add-events/ess/
 */
 /*
- Copyright (c) 2013, Marcus Sykes (Events Manager), Brice Pissard (ESS)
+ Copyright (c) 2014, Marcus Sykes (Events Manager), Brice Pissard (ESS)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 if ( !defined( 'EM_ESS_NAME' 		) ) define( 'EM_ESS_NAME', 		 trim( dirname( plugin_basename( __FILE__ ) ), '/' ) );
 if ( !defined( 'EM_ESS_DIR'  		) ) define( 'EM_ESS_DIR', 		 WP_PLUGIN_DIR . '/' . EM_ESS_NAME );
 if ( !defined( 'EM_ESS_URL'  		) ) define( 'EM_ESS_URL', 		 WP_PLUGIN_URL . '/' . EM_ESS_NAME );
-if ( !defined( 'EM_ESS_VERSION'		) ) define( 'EM_ESS_VERSION', 	 '0.5' );
+if ( !defined( 'EM_ESS_VERSION'		) ) define( 'EM_ESS_VERSION', 	 '1.2' );
 if ( !defined( 'EM_ESS_VERSION_KEY'	) ) define( 'EM_ESS_VERSION_KEY','ess_version' );
 
 add_option( EM_ESS_VERSION_KEY, EM_ESS_VERSION );
@@ -37,7 +37,7 @@ add_action( 'plugins_loaded', array( 'EM_ESS', 'init' ) );
 require_once( EM_ESS_DIR . "/inc/models/ESS_Database.php" );
 require_once( EM_ESS_DIR . "/inc/models/ESS_IO.php" );
 
-if ( WP_DEBUG )
+if ( WP_DEBUG && class_exists( 'Kint' ) == FALSE )
 	require_once( EM_ESS_DIR . "/inc/libs/kint-0.9/Kint.class.php" );
 
 final class EM_ESS
@@ -53,11 +53,28 @@ final class EM_ESS
 
 	public static function load_MVC_files()
     {
-        foreach( glob( plugin_dir_path( __FILE__ ) .'inc/models/*.php' 		) as $file ) include_once $file;
-		foreach( glob( plugin_dir_path( __FILE__ ) .'inc/views/*.php' 		) as $file ) include_once $file;
-		foreach( glob( plugin_dir_path( __FILE__ ) .'inc/controllers/*.php' ) as $file ) include_once $file;
+    	$dir = plugin_dir_path( __FILE__ );
 
-		require_once( EM_ESS_DIR . "/inc/libs/ess/FeedWriter.php" );
+    	// -- MODELS
+		include_once( $dir . 'inc/models/ESS_Database.php' 	);
+		include_once( $dir . 'inc/models/ESS_Images.php' 	);
+		include_once( $dir . 'inc/models/ESS_IO.php' 		);
+		include_once( $dir . 'inc/models/ESS_Notices.php' 	);
+		include_once( $dir . 'inc/models/ESS_Sounds.php' 	);
+		include_once( $dir . 'inc/models/ESS_Timezone.php' 	);
+		include_once( $dir . 'inc/models/ESS_Videos.php' 	);
+
+    	// -- VIEWS
+		include_once( $dir . 'inc/views/ESS_Admin.php' 		);
+		include_once( $dir . 'inc/views/ESS_Elements.php' 	);
+		include_once( $dir . 'inc/views/ESS_Feed.php' 		);
+
+    	// -- CONTROLLERS
+		include_once( $dir . 'inc/controllers/ESS_Control_admin.php' );
+		include_once( $dir . 'inc/controllers/ESS_Import.php'	 	 );
+
+		if ( class_exists( 'FeedWriter' ) == FALSE )
+			require_once( EM_ESS_DIR . "/inc/libs/ess/FeedWriter.php" );
 
 		ESS_Notices::set_notices_global_handler();
 		ESS_IO::set_filters_handler();
@@ -71,9 +88,10 @@ final class EM_ESS
 		is_null( self::$instance ) AND self::$instance = new self;
         return self::$instance;
 	}
-
 }
+register_activation_hook( 	__FILE__, 	array( 'ESS_IO', 		'set_activation' 		) );
+register_deactivation_hook( __FILE__, 	array( 'ESS_IO', 		'set_deactivation' 		) );
+register_uninstall_hook(    __FILE__, 	array( 'ESS_IO', 		'set_uninstall' 		) );
 
-register_activation_hook( 	__FILE__, 	array( 'ESS_IO', 'set_activation' 	) );
-register_deactivation_hook( __FILE__, 	array( 'ESS_IO', 'set_deactivation' ) );
-register_uninstall_hook(    __FILE__, 	array( 'ESS_IO', 'set_uninstall' 	) );
+add_action( 'wp', 						array( 'ESS_IO', 		'set_crons' 			) );
+add_action( ESS_IO::CRON_EVENT_HOOK, 	array( 'ESS_Database', 	'update_feeds_daily'  	) );

@@ -22,7 +22,7 @@ final class ESS_Control_admin
 			ESS_Elements::get_events_manager_required();
 
 		// If PHP cURL not installed
-		if ( function_exists( 'curl_version' ) == false )
+		if ( function_exists( 'curl_version' ) == FALSE )
 			ESS_Elements::get_php_curl_required();
 	}
 
@@ -35,14 +35,14 @@ final class ESS_Control_admin
 		if ( (
 				strlen( $import_url ) <= 0 || $import_url == ESS_IO::HTTP
 			) && (
-				FeedValidator::isValidURL( $update_url ) == false || $selected_event_id <= 0
+				FeedValidator::isValidURL( $update_url ) == FALSE || $selected_event_id <= 0
 			)
 		) return;
 
 		if ( FeedValidator::isValidURL( $update_url ) && $selected_event_id > 0 )
-			ESS_Import::save( $update_url, $_REQUEST[ 'feed_mode_'.$selected_event_id ] );
+			ESS_Import::save( $update_url, @$_REQUEST[ 'feed_mode_' . $selected_event_id ] );
 		else
-			ESS_Import::save( $import_url, $_REQUEST['ess_feed_mode'] );
+			ESS_Import::save( $import_url, @$_REQUEST[ 'ess_feed_mode' ] );
 	}
 
 	public static function control_nav_actions()
@@ -85,7 +85,7 @@ final class ESS_Control_admin
 
 					else if ( $_REQUEST['action'] == 'update_cron' )
 					{
-						$feed_mode = ( ( $_REQUEST[ 'feed_mode_'.$feed_id ] == 'on' )?
+						$feed_mode = ( ( @$_REQUEST[ 'feed_mode_'.$feed_id ] == 'on' )?
 							ESS_Database::FEED_MODE_CRON
 							:
 							ESS_Database::FEED_MODE_STANDALONE
@@ -108,41 +108,45 @@ final class ESS_Control_admin
 
 		global $ESS_Notices;
 
+		// -- Syndication Settings
+		ESS_Database::set_option( 'ess_syndication_status', 	( @$_REQUEST['ess_syndication_status'] 	== 'on' ) ? TRUE : FALSE );
+		ESS_Database::set_option( 'ess_backlink_enabled', 		( @$_REQUEST['ess_backlink_enabled'] 	== 'on' ) ? TRUE : FALSE );
+
 		// -- Feed Settings
-		ESS_Database::set_option( 'ess_feed_title', 			$_REQUEST['ess_feed_title'] 		);
-		ESS_Database::set_option( 'ess_feed_rights', 			$_REQUEST['ess_feed_rights'] 		);
-		ESS_Database::set_option( 'ess_feed_website', 			$_REQUEST['ess_feed_website'] 		);
-		ESS_Database::set_option( 'ess_feed_limit', 			$_REQUEST['ess_feed_limit'] 		);
-		ESS_Database::set_option( 'ess_feed_category_type', 	$_REQUEST['ess_feed_category_type']);
-		ESS_Database::set_option( 'ess_feed_currency', 			$_REQUEST['ess_feed_currency']		);
-		ESS_Database::set_option( 'ess_feed_language', 			$_REQUEST['ess_feed_language'] 	);
-		ESS_Database::set_option( 'ess_feed_timezone', 			$_REQUEST['ess_feed_timezone'] 	);
+		ESS_Database::set_option( 'ess_feed_title', 			@$_REQUEST['ess_feed_title'] 		);
+		ESS_Database::set_option( 'ess_feed_rights', 			@$_REQUEST['ess_feed_rights'] 		);
+		ESS_Database::set_option( 'ess_feed_website', 			@$_REQUEST['ess_feed_website'] 		);
+		ESS_Database::set_option( 'ess_feed_limit', 			@$_REQUEST['ess_feed_limit'] 		);
+		ESS_Database::set_option( 'ess_feed_category_type', 	@$_REQUEST['ess_feed_category_type']);
+		ESS_Database::set_option( 'ess_feed_currency', 			@$_REQUEST['ess_feed_currency']		);
+		ESS_Database::set_option( 'ess_feed_language', 			@$_REQUEST['ess_feed_language'] 	);
+		ESS_Database::set_option( 'ess_feed_timezone', 			@$_REQUEST['ess_feed_timezone'] 	);
 
 		// -- Feed Visibility
 			// -- Global
-			ESS_Database::set_option( 'ess_feed_visibility_web', 	( $_REQUEST['ess_feed_visibility_web'] 	== 'on' ) ? true : false );
-			ESS_Database::set_option( 'ess_feed_visibility_meta', 	( $_REQUEST['ess_feed_visibility_meta'] == 'on' ) ? true : false );
-			ESS_Database::set_option( 'ess_feed_push', 				( $_REQUEST['ess_feed_push'] 			== 'on' ) ? true : false );
+			ESS_Database::set_option( 'ess_feed_visibility_web', 	( @$_REQUEST['ess_feed_visibility_web']  == 'on' ) ? TRUE : FALSE );
+			ESS_Database::set_option( 'ess_feed_visibility_meta', 	( @$_REQUEST['ess_feed_visibility_meta'] == 'on' ) ? TRUE : FALSE );
+			ESS_Database::set_option( 'ess_feed_push', 				( @$_REQUEST['ess_feed_push'] 			 == 'on' ) ? TRUE : FALSE );
 			// Elements
-			ESS_Database::set_option( 'ess_feed_import_images', 	( $_REQUEST['ess_feed_import_images'] 	== 'on' ) ? true : false );
-			ESS_Database::set_option( 'ess_feed_export_images', 	( $_REQUEST['ess_feed_export_images'] 	== 'on' ) ? true : false );
-			ESS_Database::set_option( 'ess_feed_import_videos', 	( $_REQUEST['ess_feed_import_videos'] 	== 'on' ) ? true : false );
-			ESS_Database::set_option( 'ess_feed_export_videos', 	( $_REQUEST['ess_feed_export_videos'] 	== 'on' ) ? true : false );
-			ESS_Database::set_option( 'ess_feed_import_sounds', 	( $_REQUEST['ess_feed_import_sounds'] 	== 'on' ) ? true : false );
-			ESS_Database::set_option( 'ess_feed_export_sounds', 	( $_REQUEST['ess_feed_export_sounds'] 	== 'on' ) ? true : false );
+			ESS_Database::set_option( 'ess_feed_import_images', 	( @$_REQUEST['ess_feed_import_images'] 	== 'on' ) ? TRUE : FALSE );
+			ESS_Database::set_option( 'ess_feed_export_images', 	( @$_REQUEST['ess_feed_export_images'] 	== 'on' ) ? TRUE : FALSE );
+			ESS_Database::set_option( 'ess_feed_import_videos', 	( @$_REQUEST['ess_feed_import_videos'] 	== 'on' ) ? TRUE : FALSE );
+			ESS_Database::set_option( 'ess_feed_export_videos', 	( @$_REQUEST['ess_feed_export_videos'] 	== 'on' ) ? TRUE : FALSE );
+			ESS_Database::set_option( 'ess_feed_import_sounds', 	( @$_REQUEST['ess_feed_import_sounds'] 	== 'on' ) ? TRUE : FALSE );
+			ESS_Database::set_option( 'ess_feed_export_sounds', 	( @$_REQUEST['ess_feed_export_sounds'] 	== 'on' ) ? TRUE : FALSE );
 
 		// -- Event Organizer
-		ESS_Database::set_option( 'ess_owner_activate', 		( $_REQUEST['ess_owner_activate'] 	== 'on' ) ? true : false );
-			ESS_Database::set_option( 'ess_owner_firstname', 		$_REQUEST['ess_owner_firstname'] 	);
-			ESS_Database::set_option( 'ess_owner_lastname', 		$_REQUEST['ess_owner_lastname'] 	);
-			ESS_Database::set_option( 'ess_owner_company', 			$_REQUEST['ess_owner_company'] 		);
-			ESS_Database::set_option( 'ess_owner_city', 			$_REQUEST['ess_owner_city'] 		);
-			ESS_Database::set_option( 'ess_owner_address', 			$_REQUEST['ess_owner_address'] 		);
-			ESS_Database::set_option( 'ess_owner_zip', 				$_REQUEST['ess_owner_zip'] 			);
-			ESS_Database::set_option( 'ess_owner_state', 			$_REQUEST['ess_owner_state'] 		);
-			ESS_Database::set_option( 'ess_owner_country', 			$_REQUEST['ess_owner_country'] 		);
-			ESS_Database::set_option( 'ess_owner_website', 			self::url( $_REQUEST['ess_owner_website'] ) );
-			ESS_Database::set_option( 'ess_owner_phone', 			$_REQUEST['ess_owner_phone'] 		);
+		ESS_Database::set_option( 'ess_owner_activate', 		( @$_REQUEST['ess_owner_activate'] 	== 'on' ) ? TRUE : FALSE );
+			ESS_Database::set_option( 'ess_owner_firstname', 		@$_REQUEST['ess_owner_firstname'] 		);
+			ESS_Database::set_option( 'ess_owner_lastname', 		@$_REQUEST['ess_owner_lastname'] 		);
+			ESS_Database::set_option( 'ess_owner_company', 			@$_REQUEST['ess_owner_company'] 		);
+			ESS_Database::set_option( 'ess_owner_city', 			@$_REQUEST['ess_owner_city'] 			);
+			ESS_Database::set_option( 'ess_owner_address', 			@$_REQUEST['ess_owner_address'] 		);
+			ESS_Database::set_option( 'ess_owner_zip', 				@$_REQUEST['ess_owner_zip'] 			);
+			ESS_Database::set_option( 'ess_owner_state', 			@$_REQUEST['ess_owner_state'] 			);
+			ESS_Database::set_option( 'ess_owner_country', 			@$_REQUEST['ess_owner_country'] 		);
+			ESS_Database::set_option( 'ess_owner_website', 			self::url( @$_REQUEST['ess_owner_website'] ) );
+			ESS_Database::set_option( 'ess_owner_phone', 			@$_REQUEST['ess_owner_phone'] 			);
 
 		// -- Social Platforms
 		foreach ( ESS_Database::$SOCIAL_PLATFORMS as $type => $socials_ )
@@ -180,12 +184,12 @@ final class ESS_Control_admin
 	{
 		global $ESS_Notices;
 		if ( @count( $ESS_Notices->get_errors() ) > 0 )
-			return false;
+			return FALSE;
 
 		return ( (
 			strlen( $_REQUEST['ess_feed_url'] ) > 0 &&
 			$_REQUEST['ess_feed_url'] != ESS_IO::HTTP
-		)? true : false );
+		)? TRUE : FALSE );
 	}
 
 	private static function url( $url )

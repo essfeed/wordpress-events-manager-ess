@@ -508,17 +508,20 @@ final class EventFeed
 	 * 						'family',
 	 * 						'friends',
 	 * 						'festival',
+	 * 						'lecture',
 	 * 						'meeting',
 	 * 						'networking',
 	 * 						'party',
-	 * 						'seminar'
+	 * 						'seminar',
+	 * 						'trade show',
 	 * 						'general'
 	 *
 	 * @param 	Array	Array of element to create the XML structure of the current tag where the index of the array represent the name of the tag.
 	 * 					The structure the Array must be:
 	 * 					array(
-	 * 						'name' 	=> xxx,	// [MANDATORY]					String 	Category name (Should not be longer then 128 chars)
-	 * 						'id'	=> xxx	// [OPTIONAL but RECOMMENDED] 	String 	Category ID (according to a specific taxonimy).
+	 * 						'name' 			=> xxx,	// [MANDATORY]					String 	Category name (Should not be longer then 128 chars)
+	 * 						'id'			=> xxx,	// [OPTIONAL but RECOMMENDED] 	String 	Category ID (according to a specific taxonimy).
+	 * 						'description'	=> xxx  // [OPTIONAL]					String 	Description of the event category (HTML tags accepted).
 	 * 					);
 	 *
 	 * @param 	int		[OPTIONAL] 	The "priority" attribute refers to the order and the preference applied to each <item> XML elements.
@@ -570,9 +573,10 @@ final class EventFeed
 	 * @param 	Array	Array of element to create the XML structure of the current tag where the index of the array represent the name of the tag.
 	 * 					The structure the Array must be:
 	 * 					array(
-	 * 						'name' 		=> xxx,	// [MANDATORY]					String 	date name (Should not be longer then 128 chars)
-	 * 						'start'		=> xxx,	// [MANDATORY]					Date	date of the event under ISO 8601 format (e.g. 2013-10-31T15:30:59+0800 in Pasific Standard Time).
-	 * 						'duration'	=> xxx	// [OPTIONAL but RECOMMENDED]  	Integer	duration in seconds (from start date).
+	 * 						'name' 			=> xxx,	// [MANDATORY]					String 	date name (Should not be longer then 128 chars)
+	 * 						'start'			=> xxx,	// [MANDATORY]					Date	date of the event under ISO 8601 format (e.g. 2013-10-31T15:30:59+0800 in Pasific Standard Time).
+	 * 						'duration'		=> xxx	// [OPTIONAL but RECOMMENDED]  	Integer	duration in seconds (from start date).
+	 * 						'description'	=> xxx  // [OPTIONAL]					String 	Description of the event date (HTML tags accepted).
 	 * 					);
 	 *
 	 * @param 	int		[OPTIONAL] 	The "priority" attribute refers to the order and the preference applied to each <item> XML elements.
@@ -621,7 +625,8 @@ final class EventFeed
 	 *						'state_code'	=> xxx,	// [OPTIONAL] 					String	event state code.
 	 *						'medium_name' 	=> xxx,	// [OPTIONAL] 					String	virtual event medium name. (only for type="virtual").
 	 *						'medium_type'	=> xxx,	// [OPTIONAL] 					String	virtual event medium type ("television", "radio" or "internet").  (only for type="virtual").
-	 *						'kml' 			=> xxx	// [OPTIONAL] 					XML		area event surface representation. (only for type="area").
+	 *						'kml' 			=> xxx,	// [OPTIONAL] 					XML		area event surface representation. (only for type="area").
+	 * 						'description'	=> xxx  // [OPTIONAL]					String 	Description of the event location or venue (HTML tags accepted).
 	 * 					);
 	 *
 	 * @param 	int		[OPTIONAL] 	The "priority" attribute refers to the order and the preference applied to each <item> XML elements.
@@ -650,7 +655,7 @@ final class EventFeed
 	 * 					ESS Processors should consider that "standalone" is the default attribute if it is not specified.
 	 *
 	 * @param 	String	Reprensent the payment mode to assist to the event.
-	 * 					The "mode" attribute can take four values: "fixed", "free", "invitation", "renumerated" or "prepaid".
+	 * 					The "mode" attribute can take four values: "fixed", "free", "invitation", "donation", "renumerated" or "prepaid".
 	 * 					ESS Processors should consider that "fixed" is the default attribute if it is not specified.
 	 *
 	 * @param 	String	[OPTIONAL] 	The "unit" attribute only applied in type="recurrent" is specified.
@@ -684,6 +689,7 @@ final class EventFeed
 	 *						'start' 		=> xxx, // [OPTIONAL]	Date	date of the recurent billing under ISO 8601 format (only if type="recurent")
 	 *						'duration'		=> xxx, // [OPTIONAL]	Integer	duration in seconds (from start date).
 	 *						'uri' 			=> xxx  // [OPTIONAL]	URI		URL of the payment validation (invitation, webservice, paypal...) -  RFC 3986 format.
+	 * 						'description'	=> xxx  // [OPTIONAL]	String 	Description of the event ticket (HTML tags accepted).
 	 * 					);
 	 *
 	 * @param 	int		[OPTIONAL] 	The "priority" attribute refers to the order and the preference applied to each <item> XML elements.
@@ -739,7 +745,8 @@ final class EventFeed
 	 *						'minpeople' 	=> xxx,	// [OPTIONAL but RECOMMENDED]	String 	Defines the minimum amount of attendees for this event. (only for type="attendee").
 	 *						'maxpeople' 	=> xxx,	// [OPTIONAL but RECOMMENDED]	String 	Defines the maximum amount of attendees for this event. (only for type="attendee").
 	 *						'minage' 		=> xxx,	// [OPTIONAL but RECOMMENDED]	String 	Defines the age minimum of attendees for this event. (only for type="attendee").
-	 *						'restriction'	=> xxx	// [OPTIONAL but RECOMMENDED]	String 	Defines the list of rules that the attendee should be aware of before attending the event. (only for type="attendee").
+	 *						'restriction'	=> xxx,	// [OPTIONAL but RECOMMENDED]	String 	Defines the list of rules that the attendee should be aware of before attending the event. (only for type="attendee").
+	 * 						'description'	=> xxx  // [OPTIONAL]					String 	Description of the person involved in the event (artist bio, performer summary, organizer description, (HTML tags accepted)).
 	 * 					);
 	 *
 	 * @param 	int		[OPTIONAL] 	The "priority" attribute refers to the order and the preference applied to each <item> XML elements.
@@ -769,8 +776,9 @@ final class EventFeed
 	 * @param 	Array	Array of element to create the XML structure of the current tag where the index of the array represent the name of the tag.
 	 * 					The structure the Array must be:
 	 * 					array(
-	 * 						'name' 	=> xxx,	// [MANDATORY]	String 	name of the current media file. (Should not be longer then 128 chars).
-	 * 						'uri' 	=> xxx	// [MANDATORY]	URI 	current media file URL - under RFC 2396 format.
+	 * 						'name' 			=> xxx,	// [MANDATORY]	String 	name of the current media file. (Should not be longer then 128 chars).
+	 * 						'uri' 			=> xxx,	// [MANDATORY]	URI 	current media file URL - under RFC 2396 format.
+	 * 						'description'	=> xxx  // [OPTIONAL]	String 	Description of the media file (HTML tags accepted).
 	 * 					);
 	 *
 	 * @param 	int		[OPTIONAL] 	The "priority" attribute refers to the order and the preference applied to each <item> XML elements.
@@ -799,9 +807,10 @@ final class EventFeed
 	 * @param 	Array	Array of element to create the XML structure of the current tag where the index of the array represent the name of the tag.
 	 * 					The structure the Array must be:
 	 * 					array(
-	 * 						'name' 	=> xxx,	// [MANDATORY]	String 	name of the other ess event in relation with the current one. (Should not be longer then 128 chars).
-	 * 						'id' 	=> xxx,	// [MANDATORY]	URI 	unique and universal ESS feed (ess:id) identifier. Must be the same then the one defined the other ESS document.
-	 * 						'uri' 	=> xxx	// [MANDATORY]	URI 	define distant URI where is placed ESS Feed Document.
+	 * 						'name' 			=> xxx,	// [MANDATORY]	String 	name of the other ess event in relation with the current one. (Should not be longer then 128 chars).
+	 * 						'id' 			=> xxx,	// [MANDATORY]	URI 	unique and universal ESS feed (ess:id) identifier. Must be the same then the one defined the other ESS document.
+	 * 						'uri' 			=> xxx,	// [MANDATORY]	URI 	define distant URI where is placed ESS Feed Document.
+	 * 						'description'	=> xxx  // [OPTIONAL]	String 	Description of the event relation (HTML tags accepted).
 	 * 					);
 	 *
 	 * @param 	int		[OPTIONAL] 	The "priority" attribute refers to the order and the preference applied to each <item> XML elements.

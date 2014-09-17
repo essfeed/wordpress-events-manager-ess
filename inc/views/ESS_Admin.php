@@ -37,7 +37,7 @@ final class ESS_Admin
 		<div class="wrap">
 			<div id="icon-options-general" class="icon32" style="background:url('<?php echo EM_ESS_URL;?>/assets/img/ESS_icon_32x32.png') 0 0 no-repeat;"><br/></div>
 			<h2 class="nav-tab-wrapper">
-				<a href="#export" id="em-menu-export" class="nav-tab nav-tab-active"><?php _e('Export','dbem'); ?></a>
+				<a href="#export" id="em-menu-export" class="nav-tab nav-tab-active"><?php _e('Settings','dbem'); ?></a>
 				<a href="#import" id="em-menu-import" class="nav-tab"><?php _e('Syndication','dbem'); ?></a>
 				<a id="btAddESS" class="add-new-h2" title="<?php _e('Import an ESS Feed','dbem'); ?>" style="display:none;">+</a>
 				<a id="btViewErrors" class="add-new-h2" title="<?php _e('View Previous Errors','dbem'); ?>" style="display:none;"><?php _e('errors','dbem'); ?></a>
@@ -45,6 +45,12 @@ final class ESS_Admin
 			<form id="em-options-form" method="post"  enctype='multipart/form-data' target="_self" onsubmit="ess_admin.loader();">
 
 				<?php echo $ESS_Notices; ?>
+
+				<?php
+
+
+					//ESS_Database::update_feeds_daily();
+				?>
 
 				<?php self::get_feed_form();?>
 
@@ -96,6 +102,7 @@ final class ESS_Admin
 		</div><?php
 	}
 
+	// === SYNDICATION TAB ===
 	private static function import_page()
 	{
 		$view 			= strtolower( ( isset( $_GET['view'] ) )? $_GET['view'] : 'all' );
@@ -106,9 +113,12 @@ final class ESS_Admin
 		$url_all_events 	= em_add_get_params( $_SERVER['REQUEST_URI'], array('view'=>'all'   ) )."#import";
 		$url_trash_events 	= em_add_get_params( $_SERVER['REQUEST_URI'], array('view'=>'trash' ) )."#import";
 
-		if ( $view == 'trash' && $trash_count <= 0 ) wp_redirect( $url_all_events );
-
-		//var_dump( $efi );
+		if ( $view == 'trash' && $trash_count <= 0 )
+		{
+			@wp_redirect( $url_all_events );
+			exit;
+		}
+		//d( $efi );
 
 		?><div class="em-menu-import em-menu-group" style="display:none;">
 
@@ -118,12 +128,25 @@ final class ESS_Admin
 				<?php if ($trash_count>0):?>&nbsp;|&nbsp;
 				<a href='<?php echo $url_trash_events; ?>' <?php echo ( $view == 'trash' )? 'class="current"':''; ?>><?php _e ( 'Trash', 'dbem' ); ?> <span class="count">(<?php echo $trash_count;   ?>)</span></a>
 				<?php endif ?>
-			</div>
+			</div><?php
 
-			<!-- ACTIONS NAV -->
-			<?php self::get_nav_action(); ?>
+			// ACTIONS NAV
+			self::get_nav_action();
 
-			<!-- LIST -->
+			$rowno = 0;
+
+			$next_cron  = NULL;
+
+			foreach( get_option( 'cron' ) as $timestamp => $date_ )
+			{
+				if ( isset( $date_[ ESS_IO::CRON_EVENT_HOOK ] ) )
+				{
+					$next_cron = $timestamp;
+					// d( ESS_Timezone::get_date_GMT( date('U') ), ESS_Timezone::get_date_GMT( $timestamp ) );
+				}
+			}
+
+			?><!-- LIST -->
 			<input type="hidden" value="" id="selected_event_id" name="selected_event_id" />
 			<table class='widefat'>
 				<thead>
@@ -133,9 +156,10 @@ final class ESS_Admin
 						<th><?php _e('Title', 		'dbem') ?></th>
 						<th><?php _e('Nb Events', 	'dbem') ?></th>
 						<th><?php _e('Owner', 		'dbem') ?></th>
-						<th width="45"><?php _e('Update', 		'dbem') ?></th>
 						<th width="90"><?php _e('Update Daily', 'dbem') ?></th>
 						<th width="100"><?php _e('Last Update', 'dbem') ?></th>
+						<th width="100"><?php _e('Next Update', 'dbem') ?></th>
+						<th width="45"><?php _e('Update', 		'dbem') ?></th>
 						<th width="50"><?php _e('View',			'dbem') ?></th>
 					</tr>
 				</thead>
@@ -147,22 +171,25 @@ final class ESS_Admin
 						<th><?php _e('Nb Events', 	'dbem') ?></th>
 						<th><?php _e('Owner', 		'dbem') ?></th>
 						<th><?php _e('Update', 		'dbem') ?></th>
-						<th><?php _e('Update Daily','dbem') ?></th>
 						<th><?php _e('Last Update', 'dbem') ?></th>
+						<th><?php _e('Next Update', 'dbem') ?></th>
+						<th><?php _e('Update Daily','dbem') ?></th>
 						<th><?php _e('View', 		'dbem') ?></th>
 					</tr>
 				</tfoot>
-				<tbody>
-					<?php if ( @count( $efi ) > 0 ) { $rowno=0; ?>
-					<?php foreach ( $efi as $feed ) { ?>
-						<?php
+				<tbody><?php
+
+					if ( @count( $efi ) > 0 )
+					{
+						foreach ( $efi as $feed )
+						{
 							$user = get_userdata( $feed->feed_owner );
 							$owner = ((isset($user))?$user->data->display_name:'');
 							$event_ids = explode(',', $feed->feed_event_ids );
 							$class = ($rowno % 2) ? 'alternate' : '';
 							$rowno++;
-						?>
-						<tr class="<?php echo $class; ?>">
+
+						?><tr class="<?php echo $class; ?>">
 							<th class="check-column" scope="row">
 								<label class="screen-reader-text" for="cb-select-<?php echo $feed->feed_id; ?>">Select My first event</label>
 								<input type='checkbox' class='row-selector' id="cb-select-<?php echo $feed->feed_id; ?>" value='<?php echo $feed->feed_id; ?>' name='feeds[]'/>
@@ -181,11 +208,8 @@ final class ESS_Admin
 								<a><?php echo $owner; ?></a>
 							</td>
 							<td>
-								<button title="<?php _e( "Reload the feed content to reimport it.", 'dbem' );?>" onmousedown="ess_admin.set_event_id('<?php echo $feed->feed_id; ?>');" class="button-primary reload_box" name="update_once" value="<?php echo urlencode( $feed->feed_url );?>" style="background-image:url('<?php echo EM_ESS_URL;?>/assets/img/reload_icon_24x24.png');background-position:7px 2px;background-repeat:no-repeat;"></button>
-							</td>
-							<td>
 								<?php ESS_Elements::button_checkbox( array(
-									'checked'		=> ( $feed->feed_mode == ESS_Database::FEED_MODE_CRON )? true : false,
+									'checked'		=> ( ( $feed->feed_mode == ESS_Database::FEED_MODE_CRON )? TRUE : FALSE ),
 									'on'			=> __( 'ON',  'dbem' ),
 									'off'			=> __( 'OFF', 'dbem' ),
 									'id'			=> 'feed_mode_'.$feed->feed_id,
@@ -197,21 +221,28 @@ final class ESS_Admin
 								<h4><?php echo sprintf( __("%s ago",'dbem'), human_time_diff( strtotime( $feed->feed_timestamp ) ) ); ?></h4>
 							</td>
 							<td>
+								<h4><?php echo ( ( $feed->feed_mode == ESS_Database::FEED_MODE_CRON && $next_cron != NULL )? sprintf( __("in %s",'dbem'), human_time_diff( $next_cron ) ) : '-' ); ?></h4>
+							</td>
+							<td>
+								<button title="<?php _e( "Reimport the feed to update the event.", 'dbem' );?>" onmousedown="ess_admin.set_event_id('<?php echo $feed->feed_id; ?>');" class="button-primary reload_box" name="update_once" value="<?php echo urlencode( $feed->feed_url );?>" style="background-image:url('<?php echo EM_ESS_URL;?>/assets/img/reload_icon_24x24.png');background-position:7px 2px;background-repeat:no-repeat;"></button>
+							</td>
+							<td>
 								<a href="<?php echo $feed->feed_url; ?>" target="_blank" title="<?php _e( "Download the ESS Feed.",'dbem'); ?>">
 									<div class="button-primary arrow_cont">
 										<div class="arrow_box"></div>
 									</div>
 								</a>
 							</td>
-						</tr>
-					<?php } ?>
-					<?php } else { ?>
-						<tr>
+						</tr><?php
+						}
+					}
+					else
+					{
+						?><tr>
 							<th colspan="8" style="text-align:left;"><?php echo _e( "No Feeds Found",'dbem'); ?></th>
-						</tr>
-					<?php
-					} ?>
-				</tbody>
+						</tr><?php
+					}
+				?></tbody>
 			</table>
 
 			<?php //self::get_nav_action(); ?>
@@ -219,11 +250,48 @@ final class ESS_Admin
 		</div><?php
 	}
 
+	// === SETTINGS TAB ===
 	private static function export_page()
 	{
 		?><div class="em-menu-export em-menu-group">
 
 			<div id="poststuff">
+
+
+				<!-- Syndication Settings -->
+				<div class="postbox" id="em-ess-export-syndication">
+					<div class="handlediv" title="<?php _e( 'Click to toggle', 'dbem'); ?>"><br /></div><h3><span><?php _e( 'Syndication Settings', 'dbem' ); ?> </span></h3>
+					<div class="inside">
+
+						<?php ESS_Elements::get_explain_block(
+							"This section defines the way the aggregated feed's events will appears in your event dashboard.".
+							"<br />".
+							"-"
+						 );?>
+
+						<table class="form-table">
+							<tbody>
+								<?php self::get_checkbox_table_row( array(
+									'id'		=> 'ess_syndication_status',
+									'title'		=> 'Event Status',
+									'explain'	=> "Place automatically if ON is selected the aggregated events as 'publish', otherwise if OFF is selected they will be automatically published as 'draft'."
+								));?>
+								<?php self::get_checkbox_table_row( array(
+									'id'		=> 'ess_backlink_enabled',
+									'title'		=> 'Back-link URL',
+									'explain'	=> "Place automatically a back-link URL at the end of the event description within the ESS feed to drive web-users to your website."
+								));?>
+							</tbody>
+						</table>
+
+						<p class="submit">
+							<input type="submit" class="button-primary" name="save_export" value="<?php _e( 'Save Changes (All)', 'dbem' )?>" />
+						</p>
+					</div>
+				</div>
+
+
+
 
 				<!-- Feed Settings -->
 				<div class="postbox" id="em-ess-export-feed">
@@ -478,6 +546,7 @@ final class ESS_Admin
 
 		</div><?php
 	}
+
 
 	private static function get_social_table_row( $social='' )
 	{

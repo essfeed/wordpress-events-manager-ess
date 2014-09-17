@@ -55,12 +55,12 @@ final class ESS_Images
 
 			//var_dump( $file );
 
-			if ( file_exists( $file[ 'tmp_name' ] ) && self::image_validator( $file ) )
+			if ( file_exists( $file[ 'tmp_name' ] ) && ESS_Images::image_validator( $file ) )
 			{
 				require_once( ABSPATH . "wp-admin" . '/includes/file.php'  );
 				require_once( ABSPATH . "wp-admin" . '/includes/image.php' );
 
-				$attachment = self::handle_upload( $file );
+				$attachment = ESS_Images::handle_upload( $file );
 
 				if ( $attachment )
 				{
@@ -207,8 +207,7 @@ final class ESS_Images
 						if ( $attachement_id_to_delete == $attachment_id )
 							wp_delete_attachment( $attachment_id );
 					}
-					else
-						wp_delete_attachment( $attachment_id );
+					else wp_delete_attachment( $attachment_id );
 				}
 			}
 			return true;
@@ -270,8 +269,8 @@ final class ESS_Images
 			}
 		}
 
-		//var_dump( $URI_ );
-		//die;
+		//dd( $URI_ );
+
 		return $URI_;
 	}
 
@@ -281,7 +280,7 @@ final class ESS_Images
 
 		if ( $post_id != NULL )
 		{
-			$images_ =& get_children( array (
+			$images_ = @get_children( array (
 				'post_parent' 		=> $post_id,
 				'post_type' 		=> 'attachment',
 				'post_mime_type' 	=> 'image'
