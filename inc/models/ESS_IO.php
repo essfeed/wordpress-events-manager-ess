@@ -143,6 +143,7 @@ final class ESS_IO
 		{
 			ESS_Feed::output(
 				( ( isset( $_REQUEST[ 'event_id' ] ) )? $_REQUEST[ 'event_id' ] : '' ),
+                ( ( isset( $_REQUEST[ 'event_cat' ] ) )? $_REQUEST[ 'event_cat' ] : '' ),
 				( ( isset( $_REQUEST[ 'page' ] ) )? $_REQUEST[ 'page' ] : '' ),
 				( isset( $_REQUEST[ 'download' ] )? ( ( intval( $_REQUEST[ 'download' ] ) >= 1 )? TRUE : FALSE ) : FALSE ),
 				( isset( $_REQUEST[ 'push' ] 	 )? ( ( intval( $_REQUEST[ 'push' ] 	) >= 1 )? TRUE : FALSE ) : FALSE )

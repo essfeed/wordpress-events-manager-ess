@@ -16,7 +16,7 @@ final class ESS_Feed
 
 	function __construct(){}
 
-	public static function output( $event_id=NULL, $page=1, $is_download=FALSE, $is_push=FALSE )
+	public static function output( $event_id=NULL, $event_cat=NULL, $page=1, $is_download=FALSE, $is_push=FALSE )
 	{
 		//ob_clean();
 		//ini_set('zlib.output_handler','');
@@ -28,6 +28,7 @@ final class ESS_Feed
 				apply_filters(
 					'em_calendar_template_args', array(
 						'limit'		=> get_option('ess_feed_limit'),
+                        'category'  => $event_cat,
 						'page'		=> $page,
 						'owner'		=> FALSE,
 						'orderby'	=> 'event_start_date'
