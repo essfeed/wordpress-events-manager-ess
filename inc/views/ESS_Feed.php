@@ -28,7 +28,7 @@ final class ESS_Feed
 				apply_filters(
 					'em_calendar_template_args', array(
 						'limit'		=> get_option('ess_feed_limit'),
-                        'category'  => $event_cat,
+                        			'category'  => $event_cat,
 						'page'		=> $page,
 						'owner'		=> FALSE,
 						'orderby'	=> 'event_start_date'
