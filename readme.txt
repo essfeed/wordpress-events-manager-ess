@@ -3,10 +3,10 @@ Contributors: essfeed
 Donate link: http://essfeed.org
 Tags: events, event, event registration, event calendar, events calendar, event management, events manager, feed, syndication, locations, maps, calendar,happenings, concerts, meetings, festivals,sport,diary,availability,feeds syndication, RSS, Atom, event publishers, XML, aggregator, crawling,crawler,google,indexation,high ranking,visibility,broadcast, schedule, SEO, booking, places, venue, upcoming, diary, ical, icalendar, organizer, planner,social events,social gatherings,cultural,museum,expo,cinema,movies,concert,jazz,festival,exhibition
 Requires at least: 3.2
-Tested up to: 4.5.3
+Tested up to: 4.6.1
 Text Domain: em-ess
 Domain Path: /languages
-Stable tag: 1.3
+Stable tag: 1.4
 License: GPLv2 or later
 
 Extends Events Manager Wordpress plugin to import, export and sync events through ESS feeds.
@@ -83,6 +83,10 @@ You'll find the bug tracking in: [github.com issues](https://github.com/essfeed/
 
 
 == Changelog ==
+
+= 1.4 =
+* Fix the tickets starting date control that shouldn't respect the ISO standard.
+* Ad the Kint library for debuging.
 
 = 1.3 =
 * Fix the PHP Notice warning.

@@ -1,7 +1,7 @@
 <?php
 /*
  * Plugin Name: Events Manager ESS
- * Version: 	1.3
+ * Version: 	1.4
  * Plugin URI: 	http://essfeed.org
  * Description: Integrates ESS Feed into Events Manager to import and export events.
  * Text Domain: em-ess
@@ -33,7 +33,7 @@ if ( !defined( 'EM_ESS_URL'  		) ) {define( 'EM_ESS_URL', 		   WP_PLUGIN_URL . '
 if ( !defined( 'EM_ESS_PATH'        ) ) {define( 'EM_ESS_PATH',        plugin_dir_url( __FILE__ ));}
 if ( !defined( 'EM_ESS_SECURE'      ) ) {define( 'EM_ESS_SECURE',      ((!empty($_SERVER['HTTPS']) && @$_SERVER['HTTPS'] !== 'off') || @$_SERVER['SERVER_PORT'] == 443 || stripos( @$_SERVER[ 'SERVER_PROTOCOL' ], 'https' ) === TRUE) ? TRUE : FALSE);}
 if ( !defined( 'EM_ESS_DEBUG'       ) ) {define( 'EM_ESS_DEBUG',       FALSE );}
-if ( !defined( 'EM_ESS_VERSION'		) ) {define( 'EM_ESS_VERSION', 	   '1.3' );}
+if ( !defined( 'EM_ESS_VERSION'		) ) {define( 'EM_ESS_VERSION', 	   '1.4' );}
 if ( !defined( 'EM_ESS_VERSION_KEY'	) ) {define( 'EM_ESS_VERSION_KEY', 'ess_version' );}
 
 add_option( EM_ESS_VERSION_KEY, EM_ESS_VERSION );
@@ -42,7 +42,8 @@ add_action( 'plugins_loaded', array( 'EM_ESS', 'init' ) );
 require_once( EM_ESS_DIR . "/inc/models/ESS_Database.php" );
 require_once( EM_ESS_DIR . "/inc/models/ESS_IO.php" );
 
-if ( EM_ESS_DEBUG && class_exists( 'Kint' ) == FALSE ) {
+if ( EM_ESS_DEBUG && class_exists( 'Kint' ) == FALSE )
+{
     require_once( EM_ESS_DIR . "/inc/libs/kint/Kint.class.php" );
 }
 

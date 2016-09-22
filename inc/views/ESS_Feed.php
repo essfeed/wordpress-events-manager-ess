@@ -309,7 +309,7 @@ final class ESS_Feed
                                             'description'   => ( ( isset( $price->description ) && strlen( $price->description ) > 0 ) ? $price->description : ''),
                                             'currency'      => ( ( isset( $price->currency ) && strlen( $price->currency ) == 3      ) ? $price->currency    : get_option( 'ess_feed_currency', ESS_Database::DEFAULT_CURRENCY )),
                                             'value'         => ( ( isset( $price->value ) && floatval( $price->value ) > 0           ) ? $price->value       : 0  ), // ticket amount
-                                            'start'         => ( ( isset( $price->start ) && strlen( $price->start ) > 18            ) ? $price->start       : '' ), // ex: '2017-02-55T12:44:58'
+                                            'start'         => ( ( isset( $price->start ) && strlen( $price->start ) > 18            ) ? ESS_Timezone::get_date_GMT( strtotime( $price->start ) ) : '' ), // ex: '2017-02-55T12:44:58+00:00'
                                             'duration'      => ( ( isset( $price->duration ) && floatval( $price->duration ) > 0     ) ? $price->duration    : 0  ), // pre-sells duration in hours
                                             'uri'           => $event_url . "#em-booking"
                                         ));
@@ -357,11 +357,11 @@ final class ESS_Feed
     											$t_mode	 = ( ( $p > 0 )?( ( $e_start < $t_end || $ticket_end == 0 )? 'fixed' : 'prepaid' ) : 'free' );
 
     											$newEvent->addPrice( 'standalone', $t_mode, "hour", NULL, NULL, NULL, NULL, array(
-    												'name'		=> ( ( isset( $price->ticket_name ) && strlen( $price->ticket_name ) > 0   )? $price->ticket_name   : sprintf( __( "Ticket Nb %s", 'em-ess' ), $i ) ),
+    												'name'		=> ( ( isset( $price->ticket_name ) && strlen( $price->ticket_name ) > 0    )? $price->ticket_name   : sprintf( __( "Ticket Nb %s", 'em-ess' ), $i ) ),
     												'currency' 	=> get_option( 'ess_feed_currency', ESS_Database::DEFAULT_CURRENCY ),
-    												'value'		=> ( ( isset($price->ticket_price) && floatval( $price->ticket_price ) > 0 )? $price->ticket_price  : 0 ),
-    												'start' 	=> ( ( isset( $price->ticket_start ) && strlen( $price->start ) > 18       )? $ticket_start         : '' ),
-    												'duration' 	=> ( ( floatval( $duration_s ) > 0                                         )? $duration_s / 60 / 60 : 0 ), // pre-sells duration in hours
+    												'value'		=> ( ( isset( $price->ticket_price) && floatval( $price->ticket_price ) > 0 )? $price->ticket_price  : 0 ),
+    												'start' 	=> ( ( isset( $price->ticket_start ) && strlen( $price->start ) > 18        )? ESS_Timezone::get_date_GMT( $ticket_start ) : '' ),
+    												'duration' 	=> ( ( floatval( $duration_s ) > 0                                          )? $duration_s / 60 / 60 : 0 ), // pre-sells duration in hours
     												'uri'		=> $event_url."#em-booking"
     											));
     										}

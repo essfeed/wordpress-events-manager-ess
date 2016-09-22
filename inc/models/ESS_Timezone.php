@@ -18,10 +18,7 @@ final class ESS_Timezone
 
 		if ( $timezone == '' || $timezone == NULL || $timezone == FALSE || !isset( $timezone ) )
 		{
-			if ( function_exists( 'date_default_timezone_get' ) )
-				$timezone = date_default_timezone_get();
-			else
-				$timezone = 'Europe/Paris';
+			$timezone = ( function_exists( 'date_default_timezone_get' ) )? date_default_timezone_get() : 'Europe/Paris';
 		}
 
 		$dt = new DateTime(
