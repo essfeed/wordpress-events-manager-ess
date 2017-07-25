@@ -98,7 +98,8 @@ final class ESS_Import
 								$event_id = $event_[ 'event_id' ];
 						}
 
-						$EM_Event = ESS_Import::create_event_from_feed( $FEED_, $event_id );
+                        
+						$EM_Event = ESS_Import::create_event_from_feed( $FEED_, $event_id, $feed_update_daily );
 
 						//dd( $EM_Event );
 
@@ -156,8 +157,9 @@ final class ESS_Import
 	}
 
 
-	public static function create_event_from_feed( Array $FEED_=NULL, $event_id=NULL )
+	public static function create_event_from_feed( Array $FEED_=NULL, $event_id=NULL, $feed_update_daily='off'  )
 	{
+
 		global $ESS_Notices, $current_site;
 
 		$EM_Event = NULL;
@@ -173,7 +175,7 @@ final class ESS_Import
 			{
 				//dd($_POST);
 
-				if ( $EM_Event->can_manage( 'edit_events', 'edit_recurring_events', 'edit_others_events' ) && $EM_Event->get_post() ) // user must have permissions.
+				if ( ($feed_update_daily == 'on' ||  $EM_Event->can_manage( 'edit_events', 'edit_recurring_events', 'edit_others_events' ) ) && $EM_Event->get_post() ) // user must have permissions.
 				{
 					// -- temporarily remove the save listener to prevent multi-pushing to search engines
 					ESS_IO::set_save_filter( FALSE );
@@ -990,6 +992,9 @@ final class ESS_Import
                	}
 			}
 		}
+        if ( empty($_POST['event_owner_email']) ) {
+    		$_POST['event_owner_email']	= get_option('admin_email');
+        }
 
 		// ==== DATES ============================
         if ( @count( @$FEED_[ 'dates' ] ) > 0 && @$FEED_[ 'dates' ] != NULL )
